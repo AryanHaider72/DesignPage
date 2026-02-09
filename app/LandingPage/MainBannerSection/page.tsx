@@ -1,39 +1,39 @@
 "use client";
 
 import { useState } from "react";
+import Navbar from "../Navbar/page";
+import FeaturedProducts from "../FeaturedProducts/page";
 
 const slides = [
   {
-    imgSrc:
-      "https://penguinui.s3.amazonaws.com/component-assets/carousel/default-slide-1.webp",
+    imgSrc: "/img1.webp",
     imgAlt:
       "Vibrant abstract painting with swirling blue and light pink hues on a canvas.",
-    title: "Front-End developers",
+    title: "Summer Collection 2026",
     description:
-      "The architects of the digital world, constantly battling against their mortal enemy – browser compatibility.",
+      "Stay cool and trendy with our latest summer fashion arrivals. Fresh styles for every occasion!",
     ctaUrl: "https://example.com",
-    ctaText: "Become a Developer",
+    ctaText: "Shop Summer Collection",
   },
+  // {
+  //   imgSrc: "/img2.webp",
+  //   imgAlt:
+  //     "Vibrant abstract painting with swirling blue and light pink hues on a canvas.",
+  //   title: "Winter Collection 2026",
+  //   description:
+  //     "Stay cool and trendy with our latest summer fashion arrivals. Fresh styles for every occasion!",
+  //   ctaUrl: "https://example.com",
+  //   ctaText: "Shop Winter Collection",
+  // },
   {
-    imgSrc:
-      "https://penguinui.s3.amazonaws.com/component-assets/carousel/default-slide-2.webp",
+    imgSrc: "/img3.jpg",
     imgAlt:
       "Vibrant abstract painting with swirling red, yellow, and pink hues on a canvas.",
-    title: "Back-End developers",
+    title: "Electronics Mega Sale",
     description:
-      "Because not all superheroes wear capes, some wear headphones and stare at terminal screens",
+      "Upgrade your tech with up to 50% off on selected electronics and gadgets. Limited time offer!",
     ctaUrl: "https://example.com",
-    ctaText: "Become a Developer",
-  },
-  {
-    imgSrc:
-      "https://penguinui.s3.amazonaws.com/component-assets/carousel/default-slide-3.webp",
-    imgAlt:
-      "Vibrant abstract painting with swirling blue and purple hues on a canvas.",
-    title: "Full-Stack developers",
-    description: 'Where "burnout" is just a fancy term for "Tuesday".',
-    ctaUrl: "https://example.com",
-    ctaText: "Become a Developer",
+    ctaText: "Shop Electronics",
   },
 ];
 
@@ -48,13 +48,7 @@ export default function MainBannerPage() {
 
   return (
     <>
-      <div className="flex w-full h-[30px] bg-gray-900 justify-center items-center  p-[20px]">
-        <p className="text-sm text-white font-thin ">
-          Light Layers, Bold Statements – Summer Collection Just Dropped.{" "}
-          <span className="font-bold underline">Shop Now</span>
-        </p>
-      </div>
-
+      <Navbar />
       <div className="relative w-full overflow-hidden">
         {/* Previous */}
 
@@ -85,7 +79,7 @@ export default function MainBannerPage() {
               }`}
             >
               {/* Overlay */}
-              <div className="absolute inset-0 z-10 flex flex-col items-center justify-end gap-2 bg-gradient-to-t from-black/85 to-transparent px-6 py-10 text-center lg:px-32">
+              <div className="absolute inset-0 z-10 flex flex-col items-center justify-end gap-2 bg-gradient-to-t from-black/55 to-transparent px-6 py-10 text-center lg:px-32">
                 <h3 className="text-2xl font-bold text-white lg:text-3xl">
                   {slide.title}
                 </h3>
@@ -127,6 +121,7 @@ export default function MainBannerPage() {
           ))}
         </div>
       </div>
+      <FeaturedProducts />
     </>
   );
 }
