@@ -3,6 +3,9 @@
 import { useState } from "react";
 import Navbar from "../Navbar/page";
 import FeaturedProducts from "../FeaturedProducts/page";
+import ShopByStyle from "../ShopByStyle/page";
+
+import MostFeaturedorPopular from "../MostFeaturedorPopular/page";
 
 const slides = [
   {
@@ -48,7 +51,6 @@ export default function MainBannerPage() {
 
   return (
     <>
-      <Navbar />
       <div className="relative w-full overflow-hidden">
         {/* Previous */}
 
@@ -121,7 +123,6 @@ export default function MainBannerPage() {
           ))}
         </div>
       </div>
-      <FeaturedProducts />
     </>
   );
 }

@@ -1,13 +1,15 @@
+"use client";
 import { useState } from "react";
+import ShopByProductCategory from "../ShopProductByCategory/page";
 
 export default function FeaturedProducts() {
   const list = ["Men", "Women", "Child", "Teen Boys", "Teen Girls"];
-  const [value, setValue] = useState("Men");
+  const [value, setValue] = useState(list[0]);
 
   const itemList = [
     {
       images:
-        "https://res.cloudinary.com/daz8ajhg3/image/upload/v1768383054/bcrg0urlkzew0fvhnph1.jpg",
+        "https://res.cloudinary.com/daz8ajhg3/image/upload/v1768379198/dfyyrgq7hok6qm3q0mxz.webp",
       productName: "Weist Coat",
     },
     {
@@ -17,7 +19,7 @@ export default function FeaturedProducts() {
     },
     {
       images:
-        "https://res.cloudinary.com/daz8ajhg3/image/upload/v1770438914/yins9corvpzgzdysqisl.jpg",
+        "https://res.cloudinary.com/daz8ajhg3/image/upload/v1768378837/yobjyi1zu8s6s1bi7vxj.jpg",
       productName: "Unsticted",
     },
     {
@@ -27,35 +29,43 @@ export default function FeaturedProducts() {
     },
     {
       images:
-        "https://res.cloudinary.com/daz8ajhg3/image/upload/v1768379317/wi0zw4upirxrzil7j4ak.webp",
+        "https://res.cloudinary.com/daz8ajhg3/image/upload/v1768378939/p1iyljvgzhdbtpddntt3.webp",
       productName: "Sweaters",
     },
   ];
   return (
     <>
-      <div className="mt-3">
-        <h1
-          className="text-sm text-center font-extralight"
-          style={{ wordSpacing: "0.1rem" }}
-        >
-          DISCOVER OUR MOST POPULAR PICKS
-        </h1>
-        <div className="mt-2 mb-2 flex justify-center item-center w-full">
-          <ul className="flex items-center gap-10 font-medium">
+      <div className="mt-10 ">
+        <div className="flex w-full flex-col gap-8 md:flex-row md:items-start md:justify-around md:gap-16">
+          {/* LEFT: Heading */}
+          <div className="flex flex-col items-start max-w-md">
+            <h1 className="text-4xl font-bold tracking-wide">TRENDING</h1>
+            <p className="mt-1 text-sm font-extralight tracking-wider text-gray-500">
+              DISCOVER THE BEST-SELLING STYLES
+            </p>
+          </div>
+
+          {/* RIGHT: List */}
+          <ul className="flex flex-wrap items-center gap-6 md:gap-12">
             {list.map((item, index) => (
               <li key={index}>
-                <a
-                  href="#"
-                  onClick={(e) => setValue(item)}
-                  className="font-raleway tracking-wide relative text-xl text-black transition hover:text-black after:absolute after:-bottom-1 after:left-0 after:h-[2px] after:w-0 after:bg-black after:transition-all hover:after:w-full "
+                <button
+                  onClick={() => setValue(item)}
+                  className={`
+                  relative text-lg md:text-2xl font-raleway tracking-wide text-black
+                  after:absolute after:-bottom-1 after:left-0 after:h-[2px] after:bg-black after:transition-all
+                  ${value === item ? "after:w-full" : "after:w-0"}
+                  hover:after:w-full
+                `}
                 >
                   {item}
-                </a>
+                </button>
               </li>
             ))}
           </ul>
         </div>
-        <div className="w-full flex items-center justify-around gap-8">
+
+        <div className="mt-10 w-full flex items-center justify-around gap-8">
           {/* Text Section */}
           <div className="flex flex-col max-w-xs">
             <h1 className="text-3xl font-extralight mb-3 text-center sm:text-left">
@@ -67,7 +77,7 @@ export default function FeaturedProducts() {
             </p>
             <a
               href=""
-              className=" text-gray-800 font-extralight text-2xl underline hover:text-gray-900 "
+              className="mt-2 text-gray-800 font-extralight text-2xl hover:underline hover:text-gray-900 "
             >
               Shop Now
             </a>
@@ -75,7 +85,7 @@ export default function FeaturedProducts() {
 
           {/* Horizontal Scroll Product Cards */}
           <div
-            className="flex space-x-6 overflow-x-auto py-2 max-w-[75%] scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200"
+            className="flex space-x-6 overflow-x-auto py-2 max-w-[65%] scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200"
             style={{
               scrollbarWidth: "thin", // Firefox
               scrollbarColor: "#9ca3af #e5e7eb", // thumb track for Firefox
@@ -104,6 +114,7 @@ export default function FeaturedProducts() {
           </div>
         </div>
       </div>
+      <ShopByProductCategory value={value} />
     </>
   );
 }

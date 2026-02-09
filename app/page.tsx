@@ -1,10 +1,10 @@
 import Image from "next/image";
-import MainBannerPage from "./LandingPage/MainBannerSection/page";
+import HomePage from "./LandingPage/page";
 
 export default function Home() {
   return (
     <>
-      <MainBannerPage />
+      <HomePage />
     </>
   );
 }
