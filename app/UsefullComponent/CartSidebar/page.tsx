@@ -1,4 +1,5 @@
 import { CreditCard, Minus, Plus, ShoppingCart, Trash } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 
 export default function CartItems() {
@@ -24,7 +25,7 @@ export default function CartItems() {
     },
   ];
   const freeShippingGoal = 8000;
-  const currentAmount = 4000; // Example amount in cart
+  const currentAmount = 4000;
   const progressPercentage = Math.min(
     (currentAmount / freeShippingGoal) * 100,
     100,
@@ -40,11 +41,21 @@ export default function CartItems() {
       <p className="text-center text-sm text-gray-700 mb-4">
         Amount Left for Free Shipping: Rs.4,000
       </p>
-      <div className="w-full h-4 bg-gray-200 rounded-full overflow-hidden">
-        <div
-          className="h-4 mb-10 bg-gradient-to-r from-blue-400 to-red-600 rounded-full transition-all duration-500"
-          style={{ width: `${progressPercentage}%` }}
-        ></div>
+      <div className="w-full">
+        {/* Labels */}
+        <div className="flex justify-between text-sm text-gray-600 mb-1">
+          <span>0%</span>
+          <span>100%</span>
+        </div>
+
+        {/* Track */}
+        <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+          {/* Progress */}
+          <div
+            className="h-full bg-gradient-to-r from-blue-400 to-red-600 rounded-full transition-all duration-500 ease-out"
+            style={{ width: `${progressPercentage}%` }}
+          />
+        </div>
       </div>
 
       {/* Items List */}
@@ -116,10 +127,13 @@ export default function CartItems() {
             <ShoppingCart />
             View Cart
           </button>
-          <button className=" w-full flex justify-center items-center gap-2 bg-black text-white py-3 rounded hover:bg-white hover:text-black border transition-all duration-300">
+          <Link
+            href={"/Customer/Checkout"}
+            className=" w-full flex justify-center items-center gap-2 bg-black text-white py-3 rounded hover:bg-white hover:text-black border transition-all duration-300"
+          >
             <CreditCard />
             CheckOut
-          </button>
+          </Link>
         </div>
       </div>
     </div>
