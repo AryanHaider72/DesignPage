@@ -25,7 +25,7 @@ export default function AppSidebar({
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
-  const [activeMenu, setActiveMenu] = useState<string | null>("users");
+  const [activeMenu, setActiveMenu] = useState<string | null>("");
 
   const toggleMenu = (menu: string) => {
     setActiveMenu(activeMenu === menu ? null : menu);
@@ -143,7 +143,7 @@ export default function AppSidebar({
                       <span className="text-sm font-medium">City</span>
                     </div>
                   </Link>
-                  <Link
+                  {/* <Link
                     href="/admin/AdminPortal/MainPage/Shipment/ShippingZone"
                     className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
                   >
@@ -151,12 +151,12 @@ export default function AppSidebar({
                       <Ship size={18} />
                       <span className="text-sm font-medium">Shipping Zone</span>
                     </div>
-                  </Link>
+                  </Link> */}
                 </div>
               </div>
             </div>
 
-            <Link
+            {/* <Link
               href="#"
               className="flex items-center gap-3 px-4 py-3 rounded-xl
             text-neutral-700 hover:bg-neutral-100 transition-all"
@@ -172,7 +172,7 @@ export default function AppSidebar({
             >
               <Settings size={18} />
               <span className="text-sm font-medium">Settings</span>
-            </Link>
+            </Link> */}
           </nav>
 
           {/* Footer */}

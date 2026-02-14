@@ -1,19 +1,30 @@
 "use client";
 import { List, Plus } from "lucide-react";
-import { useState } from "react";
-import AddCityForm from "./AddCity";
+import { useEffect, useState } from "react";
 import GetCity from "./GetCity";
 import MessagePopUp from "@/app/UsefullComponent/MessagePopup/page";
+import GetCountry from "@/api/lib/Admin/Country/countryGet";
+import {
+  Countryget,
+  CountrygetApiResponse,
+} from "@/api/types/Admin/Country/country";
+import GetRegionApi from "@/api/lib/Admin/Shipment/Region/getRegion";
+import {
+  regionlist,
+  responseRegionList,
+} from "@/api/types/Admin/Shipment/Region/Region";
+import AddZone from "@/api/lib/Admin/Shipment/City/CityAdd/CityAdd";
+import AddCity from "./AddCity";
+import { zonelist } from "@/api/types/Admin/Shipment/City/City";
 
 export default function ShipmentCity() {
   const [view, setView] = useState<"list" | "form">("list");
+  const [update, setUpdate] = useState(false);
   const [showMessage, setShowMessage] = useState<string | null>(null);
   const [messageType, setMessageType] = useState<"success" | "error">(
     "success",
   );
-
-  const [cityName, setCityName] = useState("");
-
+  const [cityList, setCityList] = useState<zonelist>();
   return (
     <>
       {showMessage && (
@@ -54,11 +65,21 @@ export default function ShipmentCity() {
         {/* Body */}
         <div className="rounded-3xl bg-white/70 backdrop-blur-xl p-6 shadow-[0_20px_40px_rgba(0,0,0,0.07)] transition-all">
           {/* List View */}
-          {view === "list" && <GetCity />}
+          {view === "list" && (
+            <GetCity
+              onEdit={(till, id) => {
+                setCityList(till);
+                setView("form");
+                setUpdate(true);
+              }}
+            />
+          )}
 
           {/* Form View */}
           {view === "form" && (
-            <AddCityForm
+            <AddCity
+              initialData={cityList}
+              Update={update}
               onShowMessage={(msg, type) => {
                 setShowMessage(msg);
                 setMessageType(type);

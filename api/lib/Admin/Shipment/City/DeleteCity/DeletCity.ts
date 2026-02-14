@@ -2,8 +2,8 @@
 
 import { postRequest } from "@/api/main/main";
 
-export default async function AddZoneApi(
-  data: { regionID: string; zoneName: string },
+export default async function DeleteCityApi(
+  data: { zoneID: string },
   token?: string,
 ) {
   try {
@@ -11,7 +11,7 @@ export default async function AddZoneApi(
     if (token) customHeader.Authorization = `Bearer ${token}`;
 
     const response = await postRequest(
-      `/api/Shippment/admin/AddZoneRegion`,
+      `/api/Shippment/admin/DeleteZoneRegion`,
       data,
       customHeader,
     );

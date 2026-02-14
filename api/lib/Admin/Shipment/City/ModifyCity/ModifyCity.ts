@@ -1,19 +1,19 @@
 "use server";
 
 import { postRequest } from "@/api/main/main";
-
-export default async function AddZoneApi(
-  data: { regionID: string; zoneName: string },
-  token?: string,
+import { RequestModifyZone } from "@/api/types/Admin/Shipment/City/City";
+export default async function ModifyCity(
+  data: RequestModifyZone,
+  token?: string
 ) {
   try {
     const customHeader: Record<string, string> = {};
     if (token) customHeader.Authorization = `Bearer ${token}`;
 
     const response = await postRequest(
-      `/api/Shippment/admin/AddZoneRegion`,
+      `/api/Shippment/admin/ModifyZoneRegion`,
       data,
-      customHeader,
+      customHeader
     );
 
     if (response.success) {

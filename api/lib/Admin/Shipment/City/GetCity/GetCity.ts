@@ -1,18 +1,14 @@
 "use server";
 
-import { postRequest } from "@/api/main/main";
-
-export default async function AddZoneApi(
-  data: { regionID: string; zoneName: string },
-  token?: string,
-) {
+import { getRequest } from "@/api/main/main";
+export default async function GetCityApi(ID: string, token: string) {
   try {
     const customHeader: Record<string, string> = {};
     if (token) customHeader.Authorization = `Bearer ${token}`;
 
-    const response = await postRequest(
-      `/api/Shippment/admin/AddZoneRegion`,
-      data,
+    const response = await getRequest(
+      `/api/Shippment/admin/GetZoneRegion/${ID}`,
+      null,
       customHeader,
     );
 
@@ -20,7 +16,7 @@ export default async function AddZoneApi(
       return {
         data: response.data,
         status: response.status,
-        message: response.message || "Login Successfull",
+        message: response.message,
       };
     }
 

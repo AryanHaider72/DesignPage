@@ -10,12 +10,6 @@ export default function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [showMessage, setShowMessage] = useState("");
 
-  const handleLogin = () => {
-    // Your login logic here
-    setLoading(true);
-    setTimeout(() => setLoading(false), 2000);
-  };
-
   const login = async () => {
     try {
       setLoading(true);
@@ -30,14 +24,14 @@ export default function LoginForm() {
       if (data?.isValid) {
         // save token first
         localStorage.setItem("adminToken", data.token);
-        setLoading(true);
+        setLoading(false);
         // absolute path
         window.location.href = "/admin/AdminPortal/MainPage/Dashboard";
       } else {
         setShowMessage(data?.message || "Login failed");
       }
     } finally {
-      setLoading(true);
+      setLoading(false);
     }
   };
   useEffect(() => {
@@ -60,7 +54,6 @@ export default function LoginForm() {
         <div
           onSubmit={(e) => {
             e.preventDefault();
-            handleLogin();
           }}
         >
           {/* Email Field */}

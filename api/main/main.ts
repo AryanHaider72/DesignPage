@@ -2,7 +2,7 @@ import axios from "axios";
 import { ApiResponse } from "../types/Main/apiResponse/apiResponse";
 
 const api = axios.create({
-  baseURL: process.env.BASE_URL,
+  baseURL: process.env.NEXT_PUBLIC_BASE_URL,
   headers: {
     "Content-Type": "application/json",
   },
@@ -40,6 +40,7 @@ async function postRequest<T>(
   data: any,
   headers?: Record<string, string>,
 ): Promise<ApiResponse<T>> {
+  console.log(process.env.BASE_URL + url);
   try {
     const response = await api.post<T>(url, data, { headers });
     return {
