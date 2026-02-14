@@ -1,16 +1,44 @@
 "use client";
+import AdminLoginApi from "@/api/lib/Admin/Authentication/login/login";
+import { ResponseLoginData } from "@/api/types/Admin/Authentication/Login/login";
 import { Lock, Mail } from "lucide-react";
-import React from "react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function LoginForm() {
-  const [email, setEmail] = React.useState("");
-  const [password, setPassword] = React.useState("");
-  const [loading, setLoading] = React.useState(false);
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [showMessage, setShowMessage] = useState("");
 
   const handleLogin = () => {
     // Your login logic here
     setLoading(true);
     setTimeout(() => setLoading(false), 2000);
+  };
+
+  const login = async () => {
+    try {
+      setLoading(true);
+      const formData = { Email: email, password: password };
+      const response = await AdminLoginApi(formData);
+
+      const data = response.data as ResponseLoginData;
+
+      if (data?.isValid) {
+        // save token first
+        localStorage.setItem("adminToken", data.token);
+        setShowMessage(data.message);
+
+        // absolute path
+        window.location.href = "/admin/AdminPortal/MainPage/Dashboard";
+      } else {
+        setShowMessage(data?.message || "Login failed");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -25,7 +53,7 @@ export default function LoginForm() {
         </div>
 
         {/* Form Section */}
-        <form
+        <div
           onSubmit={(e) => {
             e.preventDefault();
             handleLogin();
@@ -83,7 +111,8 @@ export default function LoginForm() {
 
           {/* Login Button */}
           <button
-            type="submit"
+            type="button"
+            onClick={login}
             disabled={loading}
             className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-lg font-semibold text-lg hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -115,7 +144,7 @@ export default function LoginForm() {
               "Sign In"
             )}
           </button>
-        </form>
+        </div>
 
         {/* Footer Links */}
         <div className="mt-6 text-center">

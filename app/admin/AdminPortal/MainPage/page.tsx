@@ -11,7 +11,13 @@ import {
   ChevronRight,
   Menu,
   X,
+  User,
+  ShipIcon,
+  Building,
+  Globe,
+  Ship,
 } from "lucide-react";
+import { FaCashRegister, FaMoneyBill } from "react-icons/fa";
 
 export default function AppSidebar({
   children,
@@ -26,9 +32,9 @@ export default function AppSidebar({
   };
 
   return (
-    <>
+    <div className="flex min-h-screen bg-neutral-100">
       {/* Mobile Toggle */}
-      <div className="lg:hidden p-4">
+      <div className="lg:hidden fixed top-4 left-4 z-50">
         <button
           onClick={() => setOpen(true)}
           className="p-2 rounded-lg bg-neutral-900 text-white"
@@ -47,19 +53,19 @@ export default function AppSidebar({
 
       {/* Sidebar */}
       <aside
-        className={`fixed lg:static top-0 left-0 z-50 h-screen w-72
+        className={`
+        fixed lg:static top-0 left-0 z-50
+        h-screen w-72
         bg-white/80 backdrop-blur-xl
-        border-r border-neutral-200
-        shadow-xl
+        border-r border-neutral-200 shadow-xl
         transform transition-transform duration-300
         ${open ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
-        `}
+      `}
       >
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-5 border-b border-neutral-200">
             <h1 className="text-xl font-semibold tracking-tight">YourBrand</h1>
-
             <button
               onClick={() => setOpen(false)}
               className="lg:hidden p-1 rounded-md hover:bg-neutral-200"
@@ -70,15 +76,29 @@ export default function AppSidebar({
 
           {/* Navigation */}
           <nav className="flex-1 overflow-y-auto px-4 py-6 space-y-2">
-            {/* Dashboard */}
             <Link
               href="/admin/AdminPortal/MainPage/Dashboard"
               className="flex items-center gap-3 px-4 py-3 rounded-xl
-              text-neutral-700 hover:bg-neutral-100
-              transition-all"
+            text-neutral-700 hover:bg-neutral-100 transition-all"
             >
               <LayoutDashboard size={18} />
               <span className="text-sm font-medium">Dashboard</span>
+            </Link>
+            <Link
+              href="/admin/AdminPortal/MainPage/TillRegister"
+              className="flex items-center gap-3 px-4 py-3 rounded-xl
+            text-neutral-700 hover:bg-neutral-100 transition-all"
+            >
+              <FaCashRegister size={18} />
+              <span className="text-sm font-medium">Till Creation</span>
+            </Link>
+            <Link
+              href="/admin/AdminPortal/MainPage/CreateLogin"
+              className="flex items-center gap-3 px-4 py-3 rounded-xl
+            text-neutral-700 hover:bg-neutral-100 transition-all"
+            >
+              <User size={18} />
+              <span className="text-sm font-medium">Create Login</span>
             </Link>
 
             {/* Users Dropdown */}
@@ -86,15 +106,13 @@ export default function AppSidebar({
               <button
                 onClick={() => toggleMenu("users")}
                 className="w-full flex items-center justify-between
-                px-4 py-3 rounded-xl
-                text-neutral-700 hover:bg-neutral-100
-                transition-all"
+              px-4 py-3 rounded-xl
+              text-neutral-700 hover:bg-neutral-100 transition-all"
               >
                 <div className="flex items-center gap-3">
-                  <Users size={18} />
-                  <span className="text-sm font-medium">Users</span>
+                  <ShipIcon size={18} />
+                  <span className="text-sm font-medium">Shipment</span>
                 </div>
-
                 {activeMenu === "users" ? (
                   <ChevronDown size={16} />
                 ) : (
@@ -102,43 +120,55 @@ export default function AppSidebar({
                 )}
               </button>
 
-              {/* Submenu */}
               <div
                 className={`overflow-hidden transition-all duration-300
-                ${activeMenu === "users" ? "max-h-40 mt-2" : "max-h-0"}`}
+              ${activeMenu === "users" ? "max-h-40 mt-2" : "max-h-0"}`}
               >
                 <div className="ml-9 space-y-1">
                   <Link
-                    href="#"
-                    className="block text-sm text-neutral-600 hover:text-black py-2"
+                    href="/admin/AdminPortal/MainPage/Shipment/City"
+                    className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
                   >
-                    All Users
+                    <div className="flex items-center gap-3">
+                      <Building size={18} />
+                      <span className="text-sm font-medium">City</span>
+                    </div>
                   </Link>
                   <Link
-                    href="#"
-                    className="block text-sm text-neutral-600 hover:text-black py-2"
+                    href="/admin/AdminPortal/MainPage/Shipment/Region"
+                    className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
                   >
-                    Add User
+                    <div className="flex items-center gap-3">
+                      <Globe size={18} />
+                      <span className="text-sm font-medium">Region</span>
+                    </div>
+                  </Link>
+                  <Link
+                    href="/admin/AdminPortal/MainPage/Shipment/ShippingZone"
+                    className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Ship size={18} />
+                      <span className="text-sm font-medium">Shipping Zone</span>
+                    </div>
                   </Link>
                 </div>
               </div>
             </div>
 
-            {/* Projects */}
             <Link
               href="#"
               className="flex items-center gap-3 px-4 py-3 rounded-xl
-              text-neutral-700 hover:bg-neutral-100 transition-all"
+            text-neutral-700 hover:bg-neutral-100 transition-all"
             >
               <FolderKanban size={18} />
               <span className="text-sm font-medium">Projects</span>
             </Link>
 
-            {/* Settings */}
             <Link
               href="#"
               className="flex items-center gap-3 px-4 py-3 rounded-xl
-              text-neutral-700 hover:bg-neutral-100 transition-all"
+            text-neutral-700 hover:bg-neutral-100 transition-all"
             >
               <Settings size={18} />
               <span className="text-sm font-medium">Settings</span>
@@ -159,9 +189,11 @@ export default function AppSidebar({
           </div>
         </div>
       </aside>
-      <main className="flex-1 bg-white shadow-inner relative overflow-hidden w-full min-h-screen">
+
+      {/* Main Content */}
+      <main className="flex-1 lg:ml-0 ml-0 bg-white h-screen p-6 overflow-y-auto scrollbar-hide ">
         {children}
       </main>
-    </>
+    </div>
   );
 }
