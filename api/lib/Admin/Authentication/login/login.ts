@@ -13,23 +13,37 @@ export default async function AdminLoginApi(
   if (token) customHeader.Authorization = `Bearer ${token}`;
 
   try {
-    const customHeader: Record<string, string> = {};
-    if (token) customHeader.Authorization = `Bearer ${token}`;
-
     const response = await postRequest(`/api/Seller/Login`, data, customHeader);
 
-    if (response.success) {
+    // Check if it's an error response
+    if (!response.success || response.error) {
       return {
-        data: response.data as ResponseLoginData,
+        data: null,
+        error: response.error || "Something went wrong",
+        status: response.status || 500,
+        message:
+          typeof response.error === "string"
+            ? response.error
+            : "Something Went Wrong. Try Again Later.",
+        success: false,
       };
     }
 
+    // Success case
     return {
       data: response.data as ResponseLoginData,
+      error: null,
+      status: response.status,
+      message: "Login Successfully",
+      success: true,
     };
   } catch (error: any) {
     return {
-      data: error.data,
+      data: null,
+      message: "Internal Server Error",
+      error: error?.message || "Unknown error",
+      status: 500,
+      success: false,
     };
   }
 }

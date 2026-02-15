@@ -91,8 +91,11 @@ export default function FeaturedProducts() {
               scrollbarColor: "#9ca3af #e5e7eb", // thumb track for Firefox
             }}
           >
-            {itemList.map((item) => (
-              <div className="group bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col cursor-pointer transition-shadow duration-300 hover:shadow-lg min-w-[450px] max-w-[350px] flex-shrink-0">
+            {itemList.map((item, index) => (
+              <div
+                key={index}
+                className="group bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col cursor-pointer transition-shadow duration-300 hover:shadow-lg min-w-[450px] max-w-[350px] flex-shrink-0"
+              >
                 <a
                   href={``}
                   className="block w-full aspect-square h-[500px] overflow-hidden rounded-t-lg"

@@ -2,7 +2,7 @@
 import { useState } from "react";
 
 import { Trash2, ShoppingCart } from "lucide-react";
-import { useRouter } from "next/navigation";
+
 import Footer from "../LandingPage/FooterSection/page";
 import Navbar from "../LandingPage/Navbar/page";
 
@@ -10,7 +10,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
   const [activePage, setActivePage] = useState("login");
-  const router = useRouter();
+
   const wishlist = [
     {
       id: 1,

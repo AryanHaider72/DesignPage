@@ -126,21 +126,21 @@ export default function AppSidebar({
               >
                 <div className="ml-9 space-y-1">
                   <Link
-                    href="/admin/AdminPortal/MainPage/Shipment/City"
-                    className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
-                  >
-                    <div className="flex items-center gap-3">
-                      <Building size={18} />
-                      <span className="text-sm font-medium">City</span>
-                    </div>
-                  </Link>
-                  <Link
                     href="/admin/AdminPortal/MainPage/Shipment/Region"
                     className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
                   >
                     <div className="flex items-center gap-3">
                       <Globe size={18} />
                       <span className="text-sm font-medium">Region</span>
+                    </div>
+                  </Link>
+                  <Link
+                    href="/admin/AdminPortal/MainPage/Shipment/City"
+                    className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Building size={18} />
+                      <span className="text-sm font-medium">City</span>
                     </div>
                   </Link>
                   <Link

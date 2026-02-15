@@ -38,7 +38,7 @@ const analyticsData = [
 export default function AdminDashboard() {
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => setMounted(true), []);
+  useEffect(() => setMounted(true), [mounted]);
 
   return (
     <div className="min-h-screen  from-neutral-50 via-white to-neutral-100 p-8 space-y-12 overflow-y-hidden">

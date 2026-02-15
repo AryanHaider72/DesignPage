@@ -43,9 +43,6 @@ export default function ShopByStyle() {
             <Link
               href={`/Customer/Shop/${index}`}
               className="flex flex-col hover:underline transition-transform cursor-pointer"
-              // onClick={() => {
-              //   //   router.push(`${item.subCategoryID}/shop`);
-              // }}
               key={index}
             >
               <img

@@ -2,11 +2,9 @@
 import AdminLoginApi from "@/api/lib/Admin/Authentication/login/login";
 import { ResponseLoginData } from "@/api/types/Admin/Authentication/Login/login";
 import { Lock, Mail } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function LoginForm() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -23,24 +21,30 @@ export default function LoginForm() {
       setLoading(true);
       const formData = { Email: email, password: password };
       const response = await AdminLoginApi(formData);
+      console.log(response);
 
+      if (response.status !== 200) {
+        setShowMessage(response.message);
+      }
       const data = response.data as ResponseLoginData;
-
       if (data?.isValid) {
         // save token first
         localStorage.setItem("adminToken", data.token);
-        setShowMessage(data.message);
-
+        setLoading(true);
         // absolute path
         window.location.href = "/admin/AdminPortal/MainPage/Dashboard";
       } else {
         setShowMessage(data?.message || "Login failed");
       }
     } finally {
-      setLoading(false);
+      setLoading(true);
     }
   };
-
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowMessage("");
+    }, 3000);
+  }, [showMessage]);
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex justify-center items-center p-4">
       <div className="bg-white shadow-2xl rounded-2xl p-8 w-full max-w-md transform transition-all duration-300 ">
@@ -108,7 +112,7 @@ export default function LoginForm() {
               </span>
             </div>
           </div>
-
+          <p className="text-red-500 text-md">{showMessage}</p>
           {/* Login Button */}
           <button
             type="button"
