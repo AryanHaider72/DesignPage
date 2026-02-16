@@ -16,6 +16,7 @@ import {
 } from "recharts";
 import GetInitalStoreSalesMan from "@/api/lib/Admin/Stores/GetInitalStore/GetInitalStore";
 import { StoreApiResponse, storeInital } from "@/api/types/Admin/Store/Store";
+import Link from "next/link";
 
 /* ---------- DATA ---------- */
 
@@ -78,35 +79,18 @@ export default function AdminDashboard() {
                   {/* Store Grid */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 flex-1">
                     {storeList.map((item) => (
-                      <div
+                      <Link
+                        href={`/admin/AdminPortal/${item.storeID}/Dashboard`}
                         key={item.storeID}
                         onClick={() => {}}
                         className="relative bg-gray-50 shadow-md border border-gray-200 p-5 rounded-2xl 
                              hover:shadow-lg hover:-translate-y-1 hover:bg-white transition-all 
                              cursor-pointer text-center flex flex-col justify-center items-center"
                       >
-                        {/* Store Image */}
-                        {/* {item.imagelist?.length > 0 && (
-                          <img
-                            src={item.imagelist[0].imageUrl}
-                            alt={item.storeName}
-                            className="w-full h-32 object-cover rounded-md mb-3 pointer-events-none"
-                          />
-                        )} */}
-
                         {/* Store Name */}
                         <h3 className="text-lg font-semibold text-gray-900 pointer-events-none">
                           {item.storeName}
                         </h3>
-
-                        {/* Badge (won’t block clicks) */}
-                        <span
-                          className="absolute top-2 right-2 bg-red-600 text-white text-xs font-bold 
-                               w-5 h-5 flex items-center justify-center rounded-full shadow 
-                               pointer-events-none"
-                        >
-                          2
-                        </span>
 
                         {/* Delete Button */}
                         {/* <button
@@ -122,7 +106,7 @@ export default function AdminDashboard() {
                         >
                           ×
                         </button> */}
-                      </div>
+                      </Link>
                     ))}
                   </div>
                 </div>
