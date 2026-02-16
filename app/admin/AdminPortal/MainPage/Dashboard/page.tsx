@@ -16,7 +16,7 @@ import {
 } from "recharts";
 import GetInitalStoreSalesMan from "@/api/lib/Admin/Stores/GetInitalStore/GetInitalStore";
 import { StoreApiResponse, storeInital } from "@/api/types/Admin/Store/Store";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 /* ---------- DATA ---------- */
 
@@ -39,17 +39,21 @@ const analyticsData = [
 /* ---------- COMPONENT ---------- */
 
 export default function AdminDashboard() {
+  const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [storeList, setStoreList] = useState<storeInital[]>([]);
   const [ShowStore, setShowStore] = useState(false);
 
   const storesget = async () => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("adminToken");
     const response = await GetInitalStoreSalesMan(String(token));
     if (response.status === 200 || response.status === 201) {
       const data = response.data as StoreApiResponse;
       console.log(data);
       setStoreList(data.storeList);
+    }
+    if (response.status === 401) {
+      window.location.href = "/admin/login";
     }
   };
   useEffect(() => {
@@ -78,11 +82,14 @@ export default function AdminDashboard() {
                 <div className="flex flex-col sm:flex-row gap-6">
                   {/* Store Grid */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 flex-1">
-                    {storeList.map((item) => (
-                      <Link
-                        href={`/admin/AdminPortal/${item.storeID}/Dashboard`}
+                    {storeList.map((item: any) => (
+                      <div
                         key={item.storeID}
-                        onClick={() => {}}
+                        onClick={() => {
+                          router.push(
+                            `/admin/AdminPortal/${item.storeID}/Dashboard`,
+                          );
+                        }}
                         className="relative bg-gray-50 shadow-md border border-gray-200 p-5 rounded-2xl 
                              hover:shadow-lg hover:-translate-y-1 hover:bg-white transition-all 
                              cursor-pointer text-center flex flex-col justify-center items-center"
@@ -106,7 +113,7 @@ export default function AdminDashboard() {
                         >
                           ×
                         </button> */}
-                      </Link>
+                      </div>
                     ))}
                   </div>
                 </div>

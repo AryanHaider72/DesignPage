@@ -35,7 +35,7 @@ export default function LoginForm() {
     }
   };
   useEffect(() => {
-    const timer = setTimeout(() => {
+    setTimeout(() => {
       setShowMessage("");
     }, 3000);
   }, [showMessage]);
