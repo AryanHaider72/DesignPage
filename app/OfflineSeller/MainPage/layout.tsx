@@ -1,8 +1,6 @@
-// app/admin/AdminPortal/MainPage/layout.tsx
 "use client";
-
 import { usePathname } from "next/navigation";
-import AppSidebar from "./page"; // your sidebar component
+import OfflineSeller from "./page";
 
 export default function MainPageLayout({
   children,
@@ -18,5 +16,5 @@ export default function MainPageLayout({
   //   return <>{children}</>;
   // }
 
-  return <AppSidebar>{children}</AppSidebar>;
+  return <OfflineSeller>{children}</OfflineSeller>;
 }

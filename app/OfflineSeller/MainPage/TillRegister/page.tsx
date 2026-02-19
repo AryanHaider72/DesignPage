@@ -6,10 +6,6 @@ import GetTillForm from "./GetData";
 import MessagePopUp from "@/app/UsefullComponent/MessagePopup/page";
 import DeleteComponent from "@/app/UsefullComponent/DeleteComponent/page";
 import { TillList } from "@/api/types/Admin/TillRegister/TillRegister";
-import {
-  Countryget,
-  CountrygetApiResponse,
-} from "@/api/types/Admin/Country/country";
 import GetCountry from "@/api/lib/Admin/Country/countryGet";
 export default function TillRegister() {
   const [view, setView] = useState<"list" | "form">("list");

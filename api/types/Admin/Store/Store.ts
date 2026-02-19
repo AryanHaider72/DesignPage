@@ -12,7 +12,7 @@ export type storeInital = {
 
 export interface RequestStoreAddData {
   email: string;
-  zoneID: string;
+  cityID: string;
   storeName: string;
   description: string;
 }
@@ -20,4 +20,14 @@ export interface RequestStoreAddData {
 export interface ResponseStoreAddData {
   status: string;
   message?: string;
+}
+
+export interface ResponseStoreList {
+  message: string;
+  storeList: storeListInital[];
+}
+export interface storeListInital {
+  defaultStore: boolean;
+  storeID: string;
+  storeName: string;
 }

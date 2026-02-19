@@ -1,10 +1,6 @@
 "use client";
 import GetCityApi from "@/api/lib/Admin/Shipment/City/GetCity/GetCity";
 import { useEffect, useState } from "react";
-import {
-  Countryget,
-  CountrygetApiResponse,
-} from "../Shipment/Country/CountryGet";
 import GetCountry from "@/api/lib/Admin/Country/countryGet";
 import GetRegionApi from "@/api/lib/Admin/Shipment/Region/getRegion";
 import {
@@ -12,6 +8,10 @@ import {
   responseRegionList,
 } from "@/api/types/Admin/Shipment/Region/Region";
 import StoreCreation from "@/api/lib/Admin/Stores/CreateStore/CreateStore";
+import {
+  Countryget,
+  CountrygetApiResponse,
+} from "@/api/types/Admin/Shipment/Country/Country";
 
 interface response {
   message: string;
@@ -74,22 +74,28 @@ export default function AddStoreForm() {
     } catch {}
   };
   const createStore = async () => {
-    const token = localStorage.getItem("adminToken");
-    const email = localStorage.getItem("adminEmail") || "";
-    const formData = {
-      email: email,
-      zoneID: ZoneID,
-      storeName: StoreName,
-      description: StoreDescription,
-    };
-    const response = await StoreCreation(formData, String(token));
-    if (response.status === 200 || response.status === 201) {
-      //storesget();
-      // setStoreShow(true);
-      // setaddStoreForm(false);
-      setStoreName("");
-      setStoreDescription("");
-      // setResponseBack(1);
+    try {
+      setIsLoading(true);
+      const token = localStorage.getItem("adminToken");
+      const email = localStorage.getItem("adminEmail") || "";
+      const formData = {
+        email: email,
+        cityID: ZoneID,
+        storeName: StoreName,
+        description: StoreDescription,
+      };
+      const response = await StoreCreation(formData, String(token));
+      if (response.status === 200 || response.status === 201) {
+        console.log(response);
+        //storesget();
+        // setStoreShow(true);
+        // setaddStoreForm(false);
+        setStoreName("");
+        setStoreDescription("");
+        // setResponseBack(1);
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -182,8 +188,8 @@ export default function AddStoreForm() {
             </label>
             <input
               type="text"
-              //   value={tillName}
-              //   onChange={(e) => setTillName(e.target.value)}
+              value={StoreName}
+              onChange={(e) => setStoreName(e.target.value)}
               className="w-full px-4 py-2 rounded-lg border border-neutral-200 shadow-sm focus:ring-2 focus:ring-neutral-900 focus:outline-none transition"
               placeholder="Store Name"
             />
@@ -193,8 +199,8 @@ export default function AddStoreForm() {
               Description
             </label>
             <textarea
-              //   value={tillName}
-              //   onChange={(e) => setTillName(e.target.value)}
+              value={StoreDescription}
+              onChange={(e) => setStoreDescription(e.target.value)}
               className="w-full px-4 py-2 rounded-lg border border-neutral-200 shadow-sm focus:ring-2 focus:ring-neutral-900 focus:outline-none transition"
               placeholder="Description"
             />

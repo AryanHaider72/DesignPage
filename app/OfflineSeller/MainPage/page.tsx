@@ -19,11 +19,12 @@ import {
   Warehouse,
   Truck,
   Globe2,
+  CoinsIcon,
 } from "lucide-react";
 import { FaCashRegister, FaMoneyBill } from "react-icons/fa";
 import { BsShop } from "react-icons/bs";
 
-export default function AppSidebar({
+export default function OfflineSeller({
   children,
 }: {
   children: React.ReactNode;
@@ -86,7 +87,7 @@ export default function AppSidebar({
           {/* Navigation */}
           <nav className="flex-1 overflow-y-auto px-4 py-6 space-y-2">
             <Link
-              href="/admin/AdminPortal/MainPage/Dashboard"
+              href="/OfflineSeller/MainPage/Dashboard"
               className="flex items-center gap-3 px-4 py-3 rounded-xl
             text-neutral-700 hover:bg-neutral-100 transition-all"
             >
@@ -105,8 +106,8 @@ export default function AppSidebar({
               text-neutral-700 hover:bg-neutral-100 transition-all"
               >
                 <div className="flex items-center gap-3">
-                  <Truck size={18} />
-                  <span className="text-sm font-medium"> Shipment</span>
+                  <FaCashRegister size={18} />
+                  <span className="text-sm font-medium"> Till Creation</span>
                 </div>
                 {activeMenu2 === "users" ? (
                   <ChevronDown size={16} />
@@ -121,33 +122,24 @@ export default function AppSidebar({
               >
                 <div className="ml-9 space-y-1">
                   <Link
-                    href="/admin/AdminPortal/MainPage/Shipment/Region"
+                    href="/OfflineSeller/MainPage/TillRegister"
                     className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
                   >
                     <div className="flex items-center gap-3">
-                      <Globe2 size={18} />
-                      <span className="text-sm font-medium">Region</span>
-                    </div>
-                  </Link>
-                  <Link
-                    href="/admin/AdminPortal/MainPage/Shipment/City"
-                    className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
-                  >
-                    <div className="flex items-center gap-3">
-                      <Building size={18} />
-                      <span className="text-sm font-medium">City</span>
+                      <CoinsIcon size={18} />
+                      <span className="text-sm font-medium">Create Till</span>
                     </div>
                   </Link>
                 </div>
               </div>
             </div>
             <Link
-              href="/admin/AdminPortal/MainPage/StoreCreation"
+              href="/OfflineSeller/MainPage/CreateLogins"
               className="flex items-center gap-3 px-4 py-3 rounded-xl
             text-neutral-700 hover:bg-neutral-100 transition-all"
             >
-              <Warehouse size={18} />
-              <span className="text-sm font-medium">Store Creation</span>
+              <User size={18} />
+              <span className="text-sm font-medium">Create Logins</span>
             </Link>
             {/* <Link
               href="/admin/AdminPortal/MainPage/TillRegister"
@@ -165,59 +157,6 @@ export default function AppSidebar({
               <User size={18} />
               <span className="text-sm font-medium">Create Login</span>
             </Link> */}
-
-            {/* Users Dropdown */}
-            <div>
-              <button
-                onClick={() => {
-                  toggleMenu("users");
-                  setActiveMenu2(null);
-                }}
-                className="w-full flex items-center justify-between
-              px-4 py-3 rounded-xl
-              text-neutral-700 hover:bg-neutral-100 transition-all"
-              >
-                <div className="flex items-center gap-3">
-                  <Users size={18} />
-                  <span className="text-sm font-medium">Create Login</span>
-                </div>
-                {activeMenu === "users" ? (
-                  <ChevronDown size={16} />
-                ) : (
-                  <ChevronRight size={16} />
-                )}
-              </button>
-
-              <div
-                className={`overflow-hidden transition-all duration-300
-              ${activeMenu === "users" ? "max-h-40 mt-2" : "max-h-0"}`}
-              >
-                <div className="ml-9 space-y-1">
-                  <Link
-                    href="/admin/AdminPortal/MainPage/CreateLogin/PosStoreLogin"
-                    className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
-                  >
-                    <div className="flex items-center gap-3">
-                      <BsShop size={18} />
-                      <span className="text-sm font-medium">
-                        Pos Store Logins
-                      </span>
-                    </div>
-                  </Link>
-                  <Link
-                    href="/admin/AdminPortal/MainPage/CreateLogin/OnlineStoreLogin"
-                    className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
-                  >
-                    <div className="flex items-center gap-3">
-                      <Globe size={18} />
-                      <span className="text-sm font-medium">
-                        Online Store Login
-                      </span>
-                    </div>
-                  </Link>
-                </div>
-              </div>
-            </div>
           </nav>
 
           {/* Footer */}
