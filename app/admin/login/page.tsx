@@ -24,6 +24,7 @@ export default function LoginForm() {
       if (data?.isValid) {
         // save token first
         localStorage.setItem("adminToken", data.token);
+        localStorage.setItem("adminEmail", email);
         setLoading(false);
         // absolute path
         window.location.href = "/admin/AdminPortal/MainPage/Dashboard";

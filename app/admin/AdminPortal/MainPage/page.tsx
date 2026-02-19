@@ -16,8 +16,10 @@ import {
   Building,
   Globe,
   Ship,
+  Warehouse,
 } from "lucide-react";
 import { FaCashRegister, FaMoneyBill } from "react-icons/fa";
+import { BsShop } from "react-icons/bs";
 
 export default function AppSidebar({
   children,
@@ -85,21 +87,29 @@ export default function AppSidebar({
               <span className="text-sm font-medium">Dashboard</span>
             </Link>
             <Link
+              href="/admin/AdminPortal/MainPage/StoreCreation"
+              className="flex items-center gap-3 px-4 py-3 rounded-xl
+            text-neutral-700 hover:bg-neutral-100 transition-all"
+            >
+              <Warehouse size={18} />
+              <span className="text-sm font-medium">Store Creation</span>
+            </Link>
+            {/* <Link
               href="/admin/AdminPortal/MainPage/TillRegister"
               className="flex items-center gap-3 px-4 py-3 rounded-xl
             text-neutral-700 hover:bg-neutral-100 transition-all"
             >
               <FaCashRegister size={18} />
               <span className="text-sm font-medium">Till Creation</span>
-            </Link>
-            <Link
+            </Link> */}
+            {/* <Link
               href="/admin/AdminPortal/MainPage/CreateLogin"
               className="flex items-center gap-3 px-4 py-3 rounded-xl
             text-neutral-700 hover:bg-neutral-100 transition-all"
             >
               <User size={18} />
               <span className="text-sm font-medium">Create Login</span>
-            </Link>
+            </Link> */}
 
             {/* Users Dropdown */}
             <div>
@@ -110,8 +120,8 @@ export default function AppSidebar({
               text-neutral-700 hover:bg-neutral-100 transition-all"
               >
                 <div className="flex items-center gap-3">
-                  <ShipIcon size={18} />
-                  <span className="text-sm font-medium">Shipment</span>
+                  <Users size={18} />
+                  <span className="text-sm font-medium">Create Login</span>
                 </div>
                 {activeMenu === "users" ? (
                   <ChevronDown size={16} />
@@ -126,21 +136,25 @@ export default function AppSidebar({
               >
                 <div className="ml-9 space-y-1">
                   <Link
-                    href="/admin/AdminPortal/MainPage/Shipment/Region"
+                    href=""
+                    className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
+                  >
+                    <div className="flex items-center gap-3">
+                      <BsShop size={18} />
+                      <span className="text-sm font-medium">
+                        Pos Store Logins
+                      </span>
+                    </div>
+                  </Link>
+                  <Link
+                    href=""
                     className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
                   >
                     <div className="flex items-center gap-3">
                       <Globe size={18} />
-                      <span className="text-sm font-medium">Region</span>
-                    </div>
-                  </Link>
-                  <Link
-                    href="/admin/AdminPortal/MainPage/Shipment/City"
-                    className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
-                  >
-                    <div className="flex items-center gap-3">
-                      <Building size={18} />
-                      <span className="text-sm font-medium">City</span>
+                      <span className="text-sm font-medium">
+                        Online Store Login
+                      </span>
                     </div>
                   </Link>
                   {/* <Link

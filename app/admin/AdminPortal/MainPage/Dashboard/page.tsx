@@ -133,13 +133,13 @@ export default function AdminDashboard() {
           </p>
         </div>
 
-        <button
+        {/* <button
           onClick={() => setShowStore(true)}
           className="px-5 py-2.5 rounded-xl bg-neutral-900 text-white text-sm
           shadow-lg shadow-black/10 hover:bg-neutral-800 transition"
         >
           + Add Stores
-        </button>
+        </button> */}
       </div>
 
       {/* KPIs */}

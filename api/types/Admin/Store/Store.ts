@@ -9,3 +9,15 @@ export type storeInital = {
   storeName: string;
   defaultStore: boolean;
 };
+
+export interface RequestStoreAddData {
+  email: string;
+  zoneID: string;
+  storeName: string;
+  description: string;
+}
+
+export interface ResponseStoreAddData {
+  status: string;
+  message?: string;
+}
