@@ -1,6 +1,7 @@
 "use client";
 import GetInitalStoreSalesMan from "@/api/lib/Admin/Stores/GetInitalStore/GetInitalStore";
 import GetTillForPos from "@/api/lib/Admin/TillRegister/TillGet/TillGet";
+import AddLoginForPos from "@/api/lib/OfflineSeller/MainPage/CreateLogins/CreateLogin";
 import {
   ResponseStoreList,
   storeListInital,
@@ -11,12 +12,23 @@ import {
 } from "@/api/types/Admin/TillRegister/TillRegister";
 import { Plus, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
-
-export default function AddLoginsOffline() {
+interface AddTillFormProps {
+  // Update: boolean;
+  // TillID: string;
+  onShowMessage: (message: string, type: "success" | "error") => void;
+  //initialData?: TillList | null;
+}
+export default function AddLoginsOffline({
+  onShowMessage,
+  // Update,
+  // initialData,
+  // TillID,
+}: AddTillFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [TillID, setTillID] = useState("");
   const [Email, setEmail] = useState("");
   const [Password, setPassword] = useState("");
+
   const [TillList, setTillList] = useState<TillList[]>([]);
 
   const getTill = async () => {
@@ -32,6 +44,37 @@ export default function AddLoginsOffline() {
       }
     }
   };
+
+  const CreateLogin = async () => {
+    try {
+      setIsLoading(true);
+      const token = localStorage.getItem("sellerToken");
+      const formData = {
+        email: Email,
+        password: Password,
+        tillID: TillID,
+      };
+      const response = await AddLoginForPos(formData, String(token));
+      if (response.status === 200) {
+        onShowMessage(
+          response.message || "Login Created successfully",
+          "success",
+        );
+        setEmail("");
+        setPassword("");
+        setTillID("");
+        // setIsTrue(false);
+        // setResponseBack("Record Added Successfully");
+      } else {
+        onShowMessage(response.message || "Something went wrong", "error");
+      }
+    } catch (err) {
+      onShowMessage("Network error. Please try again.", "error");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     getTill();
   }, []);
@@ -91,7 +134,7 @@ export default function AddLoginsOffline() {
           </div>
           <div className="flex justify-end">
             <button
-              //onClick={createStore}
+              onClick={CreateLogin}
               className="px-6 py-2 rounded-xl bg-neutral-900 text-white font-medium hover:bg-neutral-800 transition shadow-lg"
             >
               {isLoading ? "Saving..." : "Save"}

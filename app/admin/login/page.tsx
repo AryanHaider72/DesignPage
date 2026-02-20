@@ -17,20 +17,24 @@ export default function LoginForm() {
       const response = await AdminLoginApi(formData);
       console.log(response);
 
-      if (response.status !== 200) {
-        setShowMessage(response.message);
+      if (!response.success) {
+        // Show the error message from the API
+        setShowMessage(response.message); // This will show "Invalid Email/Password." or the formatted error
+        return;
       }
-      const data = response.data as ResponseLoginData;
+
+      // Success case
+      const data = response.data;
       if (data?.isValid) {
-        // save token first
         localStorage.setItem("adminToken", data.token);
         localStorage.setItem("adminEmail", email);
-        setLoading(false);
-        // absolute path
         window.location.href = "/admin/AdminPortal/MainPage/Dashboard";
       } else {
         setShowMessage(data?.message || "Login failed");
       }
+    } catch (error) {
+      setShowMessage("An unexpected error occurred");
+      console.error("Login error:", error);
     } finally {
       setLoading(false);
     }

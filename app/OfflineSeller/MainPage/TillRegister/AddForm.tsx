@@ -14,6 +14,7 @@ import { Plus, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
 
 interface Item {
+  image?: string;
   attributeID: string;
   barcode: string;
   name: string;
@@ -48,11 +49,15 @@ export default function AddTillForm({
   const [SubVarinetList, setSubVarinetList] = useState<VariantValue[]>([]);
   const [productList, setProductList] = useState<productList[]>([]);
   const [items, setItems] = useState<Item[]>([]);
+  const [qty, setQty] = useState(0);
+  const [searchText, setSearchText] = useState("");
+  const [Quantitiy, setQuantity] = useState(0);
   const productFetch = async () => {
     try {
       const token = localStorage.getItem("adminToken");
       const respone = await ProductSearchParam(String(token), ProductName);
       const data = respone.data as ProductFetchRepsonse;
+      console.log(data.productList);
       setProductList(data.productList);
     } finally {
     }
@@ -88,6 +93,12 @@ export default function AddTillForm({
       setSubVarinetList(data.variantValues);
     }
   };
+  const qutyAttribute = (ID: string) => {
+    const data = SubVarinetList.find((item) => item.attributeID === ID);
+    if (data) {
+      setQty(data.qty);
+    }
+  };
   const AddIteminTable = () => {
     const product = productList.find((p) => p.productName === ProductName);
     if (!product) return alert("Product not found");
@@ -102,20 +113,26 @@ export default function AddTillForm({
 
     const existingRecord = items.find((i) => i.barcode === subVariant.barcode);
     if (existingRecord) return alert("Record Already Exist");
-
+    const hasImages =
+      productList[0].images.length > 0
+        ? product.images[0].url
+        : "/placeholder.jpg";
     const newItem: Item = {
+      image: hasImages,
       attributeID: subVariant.attributeID,
       barcode: subVariant.barcode,
       name: product.productName,
-      qty: subVariant.qty,
+      qty: Quantitiy,
       varient: variant.variantName,
       subvarient: subVariant.varientValue,
     };
 
     setItems((prev) => [...prev, newItem]);
-    setProductName("");
-    setVarinetList([]);
-    setSubVarinetList([]);
+    // setProductName("");
+    // setVarinetList([]);
+    // setSubVarinetList([]);
+    setQty(0);
+    setQuantity(0);
   };
 
   const removeItemFromList = (index: string) => {
@@ -203,6 +220,15 @@ export default function AddTillForm({
       setIsLoading(false);
     }
   };
+  const filteredCapital = items.filter((emp) => {
+    const search = searchText.toLowerCase();
+    return (
+      emp.name.toLowerCase().includes(search) ||
+      emp.barcode.toLowerCase().includes(search) ||
+      emp.varient.toLowerCase().includes(search) ||
+      emp.subvarient.toLowerCase().includes(search)
+    );
+  });
 
   return (
     <>
@@ -310,22 +336,40 @@ export default function AddTillForm({
             <label className="block text-sm font-medium text-neutral-700 mb-1">
               SubVariant Name
             </label>
+            {/*  */}
+            <select
+              value={SubVarientName}
+              onChange={(e) => {
+                setSubVarientName(e.target.value);
+                qutyAttribute(e.target.value);
+              }}
+              className="w-full px-4 py-3 rounded-lg border border-neutral-200 shadow-sm focus:ring-2 focus:ring-neutral-900 focus:outline-none transition"
+            >
+              <option className="">Select Sub-Varient</option>
+              {SubVarinetList.map((item) => (
+                <option key={item.attributeID} value={item.attributeID}>
+                  {item.varientValue}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-neutral-700 mb-1">
+              Quantity {qty}
+            </label>
             <div className="flex gap-1">
-              <select
-                value={SubVarientName}
+              <input
+                type="number"
+                value={Quantitiy}
+                min={0}
+                max={qty}
                 onChange={(e) => {
-                  setSubVarientName(e.target.value);
-                  FetchVarientAttribute(e.target.value);
+                  const value = e.target.value;
+                  setQuantity(Number(value));
                 }}
-                className="w-full px-4 py-3 rounded-lg border border-neutral-200 shadow-sm focus:ring-2 focus:ring-neutral-900 focus:outline-none transition"
-              >
-                <option className="">Select Sub-Varient</option>
-                {SubVarinetList.map((item) => (
-                  <option key={item.attributeID} value={item.attributeID}>
-                    {item.varientValue}
-                  </option>
-                ))}
-              </select>
+                className={`w-full px-4 py-2 rounded-lg ${qty >= Quantitiy ? "border border-neutral-200 focus:ring-2 focus:ring-neutral-900" : "bg-red-100 border border-red-400 focus:ring-2 focus:ring-red-500"} shadow-sm  focus:outline-none transition`}
+                placeholder="Quantitiy"
+              />
               <button
                 onClick={AddIteminTable}
                 className="px-2 py-2 text-white rounded-md shadow-md cursor-pointer bg-yellow-500 hover:bg-yellow-600"
@@ -356,44 +400,65 @@ export default function AddTillForm({
         </div>
 
         {/* TABLE */}
-        <div className="w-full overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-neutral-200">
-                <th className="py-3 px-4 text-sm text-neutral-500">Barcode</th>
-                <th className="py-3 px-4 text-sm text-neutral-500">Name</th>
-                <th className="py-3 px-4 text-sm text-neutral-500">Vareint</th>
-                <th className="py-3 px-4 text-sm text-neutral-500">
-                  SubVarient
-                </th>
-                <th className="py-3 px-4 text-sm text-neutral-500">Quantity</th>
+        <div className="w-full">
+          <div className="flex gap-1">
+            <input
+              type="text"
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              className={`w-full px-4 py-2 rounded-lg border border-neutral-200 focus:ring-2 focus:ring-neutral-900 shadow-sm  focus:outline-none transition`}
+              placeholder="SearchItem"
+            />
+          </div>
+          <div className=" h-[400px] overflow-x-auto overflow-y-auto">
+            <table className="w-full text-left border-collapse ">
+              <thead>
+                <tr className="border-b border-neutral-200">
+                  <th className="py-3 px-4 text-sm text-neutral-500">Image</th>
+                  <th className="py-3 px-4 text-sm text-neutral-500">
+                    Barcode
+                  </th>
+                  <th className="py-3 px-4 text-sm text-neutral-500">Name</th>
+                  <th className="py-3 px-4 text-sm text-neutral-500">
+                    Vareint
+                  </th>
+                  <th className="py-3 px-4 text-sm text-neutral-500">
+                    SubVarient
+                  </th>
+                  <th className="py-3 px-4 text-sm text-neutral-500">
+                    Quantity
+                  </th>
 
-                <th className="py-3 px-4 text-sm text-neutral-500">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((item, index) => (
-                <tr
-                  key={index}
-                  className="border-b border-neutral-100 hover:bg-neutral-100/50 transition"
-                >
-                  <td className="py-3 px-4">{item.barcode}</td>
-                  <td className="py-3 px-4">{item.name}</td>
-                  <td className="py-3 px-4">{item.varient}</td>
-                  <td className="py-3 px-4">{item.subvarient}</td>
-                  <td className="py-3 px-4">{item.qty}</td>
-                  <td className="py-3 px-4">
-                    <button
-                      onClick={() => removeItemFromList(item.barcode)}
-                      className="px-2 py-2 text-white rounded-md shadow-md cursor-pointer bg-red-500 hover:bg-red-600"
-                    >
-                      <Trash />
-                    </button>
-                  </td>
+                  <th className="py-3 px-4 text-sm text-neutral-500">Action</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filteredCapital.map((item, index) => (
+                  <tr
+                    key={index}
+                    className="border-b border-neutral-100 hover:bg-neutral-100/50 transition"
+                  >
+                    <td className="py-3 px-4">
+                      <img src={item.image} className="w-10 h-10 rounded-md" />
+                    </td>
+                    <td className="py-3 px-4">{item.barcode}</td>
+                    <td className="py-3 px-4">{item.name}</td>
+                    <td className="py-3 px-4">{item.varient}</td>
+                    <td className="py-3 px-4">{item.subvarient}</td>
+                    <td className="py-3 px-4">{item.qty}</td>
+                    <td className="py-3 px-4">
+                      <button
+                        onClick={() => removeItemFromList(item.barcode)}
+                        className="px-2 py-2 text-white rounded-md shadow-md cursor-pointer bg-red-500 hover:bg-red-600"
+                      >
+                        <Trash />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </>

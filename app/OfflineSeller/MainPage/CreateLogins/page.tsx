@@ -2,11 +2,24 @@
 import { List, Plus } from "lucide-react";
 import { useState } from "react";
 import AddLoginsOffline from "./AddLoginForm";
+import MessagePopUp from "@/app/UsefullComponent/MessagePopup/page";
 
 export default function CreateLogins() {
+  const [showMessage, setShowMessage] = useState<string | null>(null);
+  const [messageType, setMessageType] = useState<"success" | "error">(
+    "success",
+  );
   const [view, setView] = useState<"list" | "form">("list");
   return (
     <>
+      {showMessage && (
+        <MessagePopUp
+          message={showMessage}
+          type={messageType}
+          duration={3000}
+          onClose={() => setShowMessage(null)}
+        />
+      )}
       <div className="space-y-6">
         {/* Top Buttons */}
         <div className="w-full bg-gray-50 shadow-sm flex justify-between px-1 py-2 rounded-lg">
@@ -37,7 +50,17 @@ export default function CreateLogins() {
           </h1>
         </div>
         {/*  */}
-        {view === "form" && <AddLoginsOffline />}
+        <div className="rounded-3xl bg-white/70 backdrop-blur-xl p-6 shadow-[0_20px_40px_rgba(0,0,0,0.07)] transition-all">
+          {view === "form" && (
+            <AddLoginsOffline
+              onShowMessage={(msg, type) => {
+                setShowMessage(msg);
+                setMessageType(type);
+                if (type === "success") setView("list");
+              }}
+            />
+          )}
+        </div>
       </div>
     </>
   );
