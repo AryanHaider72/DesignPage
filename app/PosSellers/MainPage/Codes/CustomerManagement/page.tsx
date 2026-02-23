@@ -4,6 +4,7 @@ import { useState } from "react";
 import AddCustomer from "./AddCustomer";
 import MessagePopUp from "@/app/UsefullComponent/MessagePopup/page";
 import { CustomerData } from "@/api/types/Posintegration/Customer";
+import GetCustomerData from "./GetCustomer";
 
 export default function CustomerManagement() {
   const [view, setView] = useState<"list" | "form">("list");
@@ -61,6 +62,20 @@ export default function CustomerManagement() {
                 setShowMessage(msg);
                 setMessageType(type);
                 if (type === "success") setView("list");
+              }}
+            />
+          )}
+          {view === "list" && (
+            <GetCustomerData
+              onShowMessage={(msg, type) => {
+                setShowMessage(msg);
+                setMessageType(type);
+                if (type === "success") setView("list");
+              }}
+              onEdit={(data: CustomerData) => {
+                setExpenseList(data);
+                setUpdate(true);
+                setView("form");
               }}
             />
           )}

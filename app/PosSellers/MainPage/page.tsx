@@ -147,7 +147,7 @@ export default function OfflineSellerPosSalePoint({
               </div>
             </div>
             <Link
-              href=""
+              href="/PosSellers/MainPage/SaleModule"
               className="flex items-center gap-3 px-4 py-3 rounded-xl
             text-neutral-700 hover:bg-neutral-100 transition-all"
             >

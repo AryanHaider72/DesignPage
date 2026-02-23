@@ -3,11 +3,11 @@
 import ErrorHandler from "@/api/ErrorHandler/ErrorHandler";
 import { getRequest } from "@/api/main/main";
 
-export default async function GetCustomer(token: string, data?: {}) {
+export default async function SearchByInvoice(token: string, saleID: string) {
   const customHeader: Record<string, string> = {};
   if (token) customHeader.Authorization = `Bearer ${token}`;
   const response = await getRequest(
-    `/api/Customer/seller/posIntegration/GetCustomer`,
+    `/api/sale/seller/posIntegration/GetInvoceInfo/${saleID}`,
     null,
     customHeader,
   );
@@ -24,6 +24,6 @@ export default async function GetCustomer(token: string, data?: {}) {
   return {
     data: response.data,
     status: response.status,
-    message: response.message,
+    message: response.message || "An unexpected error occurred",
   };
 }

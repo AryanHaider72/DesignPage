@@ -184,7 +184,7 @@ export default function AddCustomer({
           {Update ? (
             <div className="flex justify-end">
               <button
-                //onClick={addCustomer}
+                onClick={ModifyCustomer}
                 className="px-6 py-2 rounded-xl bg-neutral-900 text-white font-medium hover:bg-neutral-800 transition shadow-lg"
               >
                 {isLoading ? "Updating..." : "Update"}

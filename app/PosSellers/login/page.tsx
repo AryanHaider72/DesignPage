@@ -13,7 +13,7 @@ export default function PosSellerLogin() {
       setLoading(true);
       const formData = { Email: email, password: password };
       const response = await LoginOfflineSeller(formData);
-      console.log(response.data);
+      console.log(response);
 
       if (!response.success) {
         setLoading(true);

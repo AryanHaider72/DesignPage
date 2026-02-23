@@ -1,5 +1,6 @@
 "use server";
 
+import ErrorHandler from "@/api/ErrorHandler/ErrorHandler";
 import { getRequest } from "@/api/main/main";
 
 export default async function DeleteExpense(expenseID: string, token: string) {
@@ -13,10 +14,11 @@ export default async function DeleteExpense(expenseID: string, token: string) {
 
   // Success case
   if (!response.success) {
+    const message = ErrorHandler(response.status);
     return {
       data: response.data,
       status: response.status,
-      message: response.message,
+      message: message,
     };
   }
   return {

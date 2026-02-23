@@ -1,5 +1,6 @@
 "use server";
 
+import ErrorHandler from "@/api/ErrorHandler/ErrorHandler";
 import { postRequest } from "@/api/main/main";
 
 export default async function DeleteCustomer(
@@ -16,10 +17,11 @@ export default async function DeleteCustomer(
 
   // Success case
   if (!response.success) {
+    const message = ErrorHandler(response.status);
     return {
       data: response.data,
       status: response.status,
-      message: response.message,
+      message: message,
     };
   }
   return {

@@ -1,10 +1,8 @@
 import GetCountry from "@/api/lib/Admin/Country/countryGet";
 import ModifyRegionApi from "@/api/lib/Admin/Shipment/Region/Modifyregion";
 import AddRegionApi from "@/api/lib/Admin/Shipment/Region/regionAdd";
-import {
-  Countryget,
-  CountrygetApiResponse,
-} from "@/api/types/Admin/Country/country";
+import { Countryget } from "@/api/types/Admin/Shipment/Country/Country";
+
 import { regionlist } from "@/api/types/Admin/Shipment/Region/Region";
 import { use, useEffect, useState } from "react";
 interface AddTillFormProps {
