@@ -2,11 +2,27 @@
 import { List, Plus } from "lucide-react";
 import { useState } from "react";
 import AddCustomer from "./AddCustomer";
+import MessagePopUp from "@/app/UsefullComponent/MessagePopup/page";
+import { CustomerData } from "@/api/types/Posintegration/Customer";
 
 export default function CustomerManagement() {
   const [view, setView] = useState<"list" | "form">("list");
+  const [ExpenseList, setExpenseList] = useState<CustomerData>();
+  const [showMessage, setShowMessage] = useState<string | null>(null);
+  const [Update, setUpdate] = useState(false);
+  const [messageType, setMessageType] = useState<"success" | "error">(
+    "success",
+  );
   return (
     <>
+      {showMessage && (
+        <MessagePopUp
+          message={showMessage}
+          type={messageType}
+          duration={3000}
+          onClose={() => setShowMessage(null)}
+        />
+      )}
       <div className="space-y-6">
         {/* Top Buttons */}
         <div className="w-full bg-gray-50 shadow-sm flex justify-between px-1 py-2 rounded-lg">
@@ -37,7 +53,17 @@ export default function CustomerManagement() {
           </h1>
         </div>
         <div className="rounded-3xl bg-white/70 backdrop-blur-xl p-6 shadow-[0_20px_40px_rgba(0,0,0,0.07)] transition-all">
-          {view === "form" && <AddCustomer />}
+          {view === "form" && (
+            <AddCustomer
+              initialData={ExpenseList}
+              Update={Update}
+              onShowMessage={(msg, type) => {
+                setShowMessage(msg);
+                setMessageType(type);
+                if (type === "success") setView("list");
+              }}
+            />
+          )}
         </div>
       </div>
     </>

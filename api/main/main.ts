@@ -40,27 +40,23 @@ async function postRequest<T>(
   data: any,
   headers?: Record<string, string>,
 ): Promise<ApiResponse<T>> {
-  console.log(process.env.BASE_URL + url);
+  // console.log(process.env.BASE_URL + url);
   try {
     const response = await api.post<T>(url, data, { headers });
     return {
       success: true,
       data: response.data,
       status: response.status,
-      // error is omitted (undefined) for success case
     };
   } catch (error: any) {
-    // Check if the error has a response (HTTP error)
     if (error.response) {
       return {
         success: false,
         error:
           error.response.data?.message || error.response.data || error.message,
         status: error.response.status,
-        // data is omitted (undefined) for error case
       };
     }
-    // Network error or other issues
     return {
       success: false,
       error: error.message || "Network error",
@@ -69,5 +65,19 @@ async function postRequest<T>(
   }
 }
 
+// async function postRequest<T>(
+//   url: string,
+//   data: any,
+//   headers?: Record<string, string>,
+// ): Promise<ApiResponse<T>> {
+
+//   const response = await api.post<T>(url, data, { headers });
+
+//   return {
+//     success: true,
+//     data: response.data,
+//     status: response.status,
+//   };
+// }
 export default api;
 export { getRequest, postRequest };

@@ -89,7 +89,7 @@ export default function OfflineSellerPosSalePoint({
           {/* Navigation */}
           <nav className="flex-1 overflow-y-auto px-4 py-6 space-y-2">
             <Link
-              href="/OfflineSeller/PosSalePoint/Dashboard"
+              href="/PosSellers/PosSalePoint/Dashboard"
               className="flex items-center gap-3 px-4 py-3 rounded-xl
             text-neutral-700 hover:bg-neutral-100 transition-all"
             >
@@ -124,7 +124,7 @@ export default function OfflineSellerPosSalePoint({
               >
                 <div className="ml-9 space-y-1">
                   <Link
-                    href="/OfflineSeller/PosSalePoint/Codes/CustomerManagement"
+                    href="/PosSellers/MainPage/Codes/CustomerManagement"
                     className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
                   >
                     <div className="flex items-center gap-3">
@@ -135,7 +135,7 @@ export default function OfflineSellerPosSalePoint({
                 </div>
                 <div className="ml-9 space-y-1">
                   <Link
-                    href="/OfflineSeller/PosSalePoint/Codes/ExpenseManagement"
+                    href="/PosSellers/MainPage/Codes/ExpenseManagement"
                     className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
                   >
                     <div className="flex items-center gap-3">
@@ -147,7 +147,7 @@ export default function OfflineSellerPosSalePoint({
               </div>
             </div>
             <Link
-              href="/OfflineSeller/MainPage/CreateLogins"
+              href=""
               className="flex items-center gap-3 px-4 py-3 rounded-xl
             text-neutral-700 hover:bg-neutral-100 transition-all"
             >
@@ -155,7 +155,7 @@ export default function OfflineSellerPosSalePoint({
               <span className="text-sm font-medium">Sale Module</span>
             </Link>
             <Link
-              href="/OfflineSeller/MainPage/CreateLogins"
+              href=""
               className="flex items-center gap-3 px-4 py-3 rounded-xl
             text-neutral-700 hover:bg-neutral-100 transition-all"
             >

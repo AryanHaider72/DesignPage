@@ -7,11 +7,18 @@ import {
   ResponseLoginData,
 } from "@/api/types/Admin/Authentication/Login/login";
 
-export default async function LoginApi(data: RequestLoginData, token?: string) {
+export default async function LoginOfflineSeller(
+  data: RequestLoginData,
+  token?: string,
+) {
   const customHeader: Record<string, string> = {};
   if (token) customHeader.Authorization = `Bearer ${token}`;
 
-  const response = await postRequest(`/api/Seller/Login`, data, customHeader);
+  const response = await postRequest(
+    `/api/TillManagement/login`,
+    data,
+    customHeader,
+  );
 
   if (!response.success) {
     const message = ErrorHandler(response.status);
@@ -23,7 +30,6 @@ export default async function LoginApi(data: RequestLoginData, token?: string) {
       success: false,
     };
   }
-
   return {
     data: response.data as ResponseLoginData,
     status: response.status,
