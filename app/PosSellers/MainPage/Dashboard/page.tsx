@@ -52,9 +52,6 @@ export default function OfflineSellerDashboard() {
       console.log(data);
       setStoreList(data.storeList);
     }
-    if (response.status === 401) {
-      window.location.href = "/admin/login";
-    }
   };
   useEffect(() => {
     storesget();

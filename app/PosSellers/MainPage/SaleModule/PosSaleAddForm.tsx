@@ -13,8 +13,9 @@ import {
 } from "@/api/types/Posintegration/Product/ProductGet";
 import GetTillForSalesMan from "@/api/lib/OfflineSeller/MainPage/TillsGet/SalesManTill/SelemanGetTill";
 import GetProductSalesMan from "@/api/lib/PosIntegration/ProductSalesMan/GetProductSalesMan/GetProductSalesMan";
-import { Notebook } from "lucide-react";
+import { Notebook, Trash } from "lucide-react";
 import GetProductVarient from "@/api/lib/PosIntegration/ProductSalesMan/FetchProductVarient/FetchProductVarinet";
+import AddSale from "@/api/lib/PosIntegration/SalesPanel/SaleAdd/SaleAdd";
 interface newItem {
   attributeID: string;
   productName: string;
@@ -30,13 +31,26 @@ interface ShowSaleForm {
   onToggleReturnList: (value: boolean) => void;
   onToggleProductID: (value: string) => void;
   returnItemData: newItem[];
+  onToggleVarientLIstShow: (value: boolean) => void;
+  onToggleAttribuetID: (value: string) => void;
+  onQtyChange: (attributeID: string, qty: number) => void;
+  onOriginalChange: (attributeID: string, original: number) => void;
+  BarcodeValue: (value: string) => void;
+  resetReturnItemList: (value: boolean) => void;
 }
 
 export default function PosSaleAddForm({
   onToggleReturnList,
   returnItemData,
   onToggleProductID,
+  onToggleVarientLIstShow,
+  onToggleAttribuetID,
+  onQtyChange,
+  onOriginalChange,
+  BarcodeValue,
+  resetReturnItemList,
 }: ShowSaleForm) {
+  const [Loading, setLoading] = useState(false);
   const [ShowProduct, setShowProduct] = useState(false);
   const [TillID, setTillID] = useState("");
   const [SalesManID, setSalesManID] = useState("");
@@ -49,11 +63,20 @@ export default function PosSaleAddForm({
   const [AmountPaid, setAmountPaid] = useState(0);
   const [Discount, setDiscount] = useState(0);
   const [TotalBill, setTotalBill] = useState(0);
-  const [newItem, setNewItem] = useState<newItem[]>([]);
   const [salesmanList, setSalesmanList] = useState<Salesman[]>([]);
   const [customerList, setCustomerList] = useState<CustomerData[]>([]);
   const [productList2, setProductList2] = useState<Product[]>([]);
   const [TillList, setTillList] = useState<TillList[]>([]);
+
+  const resetForm = () => {
+    setBarcode("");
+    setDiscount(0);
+    setProductName("");
+    setDescription("");
+    resetReturnItemList(true);
+    setAmountPaid(0);
+    setLoading(false);
+  };
 
   const fetchSalesman = async () => {
     const token = localStorage.getItem("posSellerToken");
@@ -77,6 +100,7 @@ export default function PosSaleAddForm({
     const response = await GetCustomer(String(token));
     if (response.status === 200 || response.status === 201) {
       const data = response.data as ResponseCustomerGetData;
+      setCustomerID(data.customerList[0].customerID);
       setCustomerList(data.customerList);
     } else {
       setCustomerList([]);
@@ -123,6 +147,8 @@ export default function PosSaleAddForm({
   }, [ProductName]);
 
   useEffect(() => {
+    const date = new Date().toISOString().split("T")[0];
+    setSaleDate(date);
     getTill();
     fetchSalesman();
     CustomerGet();
@@ -130,6 +156,48 @@ export default function PosSaleAddForm({
   const filteredOptions = productList2.filter((opt) =>
     String(opt.productName).includes(ProductName.toLowerCase()),
   );
+  useEffect(() => {
+    const getItemTotal = (item: any) => {
+      const totalWithoutDiscount = item.qty * item.price;
+      const discountAmount = (item.price * item.discount) / 100; // discount only once
+      return totalWithoutDiscount - discountAmount;
+    };
+    const totalSum = returnItemData.reduce(
+      (total, item) => total + getItemTotal(item),
+      0,
+    );
+    setAmountPaid(totalSum);
+    setTotalBill(totalSum);
+  }, [returnItemData]);
+
+  const addSalepos = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("posSellerToken");
+      const formData = {
+        customerID: CustomerID,
+        postingDate: saleDate,
+        SalesmanID: SalesManID,
+        totalBill: TotalBill,
+        amountPaid: AmountPaid,
+        adjustment: Discount,
+        remarks: Description,
+        list: returnItemData.map((item) => ({
+          attributeID: item.attributeID,
+          qty: item.qty,
+          amount: item.price,
+          remakrs: "",
+        })),
+      };
+      const response = await AddSale(formData, String(token));
+      if (response.status === 200) {
+        resetForm();
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <>
       {/* {showReturnList && (
@@ -229,7 +297,13 @@ export default function PosSaleAddForm({
                   <input
                     type="text"
                     value={Barcode}
-                    onChange={(e) => setBarcode(e.target.value)}
+                    onChange={(e) => {
+                      setBarcode(e.target.value);
+                      BarcodeValue(e.target.value);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") BarcodeValue(Barcode);
+                    }}
                     className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
                     placeholder="Enter barcode"
                   />
@@ -266,7 +340,10 @@ export default function PosSaleAddForm({
                         className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
                         placeholder="Enter product name"
                       />
-                      <button className="px-2 py-2 bg-blue-500 hover:bg-blue-600 shadow-md rounded-md text-white">
+                      <button
+                        onClick={() => onToggleVarientLIstShow(true)}
+                        className="px-2 py-2 bg-blue-500 hover:bg-blue-600 shadow-md rounded-md text-white"
+                      >
                         <Notebook />
                       </button>
                     </div>
@@ -329,7 +406,7 @@ export default function PosSaleAddForm({
             </div>
             <hr className="border border-gray-200 mb-2" />
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[800px]">
+              <table className="w-full min-w-[500px]">
                 <thead>
                   <tr className="bg-gray-50">
                     <th className="py-3 px-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
@@ -359,54 +436,96 @@ export default function PosSaleAddForm({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {/* Example row - replace with dynamic data */}
-                  <tr className="hover:bg-gray-50 transition">
-                    <td className="py-3 px-4 text-sm">123456</td>
-                    <td className="py-3 px-4 text-sm">Product Name</td>
-                    <td className="py-3 px-4 text-sm">Red</td>
-                    <td className="py-3 px-4 text-sm">2</td>
-                    <td className="py-3 px-4 text-sm">50.00</td>
-                    <td className="py-3 px-4 text-sm">45.00</td>
-                    <td className="py-3 px-4 text-sm font-medium">90.00</td>
-                    <td className="py-3 px-4 text-sm">
-                      <button className="text-red-500 hover:text-red-700 transition">
-                        <svg
-                          className="w-5 h-5"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                          />
-                        </svg>
-                      </button>
-                    </td>
-                  </tr>
-                  {/* Add more rows as needed */}
+                  {returnItemData.length > 0 ? (
+                    <>
+                      {returnItemData.map((item, index) => (
+                        <>
+                          {}
+                          <tr
+                            key={item.attributeID}
+                            className={`${item.qty > item.stockQty ? "bg-red-200" : "hover:bg-gray-50"} transition`}
+                          >
+                            <td className="py-3 px-4 text-sm">
+                              {item.barcode}
+                            </td>
+                            <td className="py-3 px-4 text-sm">
+                              {item.productName}
+                            </td>
+                            <td className="py-3 px-4 text-sm">
+                              {item.varientValue}
+                            </td>
+                            <td className="px-4 py-2 text-center text-gray-700 font-medium">
+                              <input
+                                type="number"
+                                className="w-[8ch] text-center border rounded-md px-1 py-1"
+                                value={item.qty}
+                                min={1}
+                                onChange={(e) => {
+                                  const value = Number(e.target.value) || 1;
+                                  onQtyChange(item.attributeID, value);
+                                }}
+                              />
+                            </td>
+                            <td className="px-4 py-2 text-center text-gray-700 font-medium">
+                              <input
+                                type="number"
+                                size={20}
+                                className="w-[8ch] text-center border rounded-md px-1 py-1"
+                                value={item.price}
+                                min={1}
+                                onChange={(e) => {
+                                  const value = Number(e.target.value) || 1;
+                                  onOriginalChange(item.attributeID, value);
+                                }}
+                              />
+                            </td>
+                            <td className="py-3 px-4 text-sm">
+                              {item.discount}
+                            </td>
+                            <td className="py-3 px-4 text-sm font-medium">
+                              {item.qty * item.price -
+                                (item.price * item.qty * item.discount) / 100}
+                            </td>
+                            <td className="py-3 px-4 ">
+                              <button
+                                onClick={() =>
+                                  onToggleAttribuetID(item.attributeID)
+                                }
+                                className="px-2 py-2 bg-red-500 hover:bg-red-600 rounded-md text-white "
+                              >
+                                <Trash />
+                              </button>
+                            </td>
+                          </tr>
+                        </>
+                      ))}
+                    </>
+                  ) : (
+                    <tr>
+                      <td colSpan={8} className="py-16">
+                        <div className="flex flex-col items-center justify-center text-center text-gray-500">
+                          <svg
+                            className="w-14 h-14 text-gray-300 mb-3"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                            />
+                          </svg>
+                          <p className="text-sm">No products added yet</p>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
 
               {/* Empty State */}
-              <div className="text-center py-8 text-gray-500">
-                <svg
-                  className="w-12 h-12 mx-auto text-gray-300 mb-3"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
-                  />
-                </svg>
-                <p>No products added yet</p>
-              </div>
             </div>
           </div>
 
@@ -465,17 +584,21 @@ export default function PosSaleAddForm({
                     Remaining Balance:
                   </span>
                   <span
-                    className={`text-lg font-bold ${RemaningBalance > 0 ? "text-red-500" : "text-green-500"}`}
+                    className={`text-lg font-bold ${TotalBill - AmountPaid - Discount > 0 ? "text-red-500" : "text-green-500"}`}
                   >
-                    {RemaningBalance?.toFixed(2) || "0.00"} -/
+                    {(TotalBill - AmountPaid - Discount).toFixed(2) || "0.00"}{" "}
+                    -/
                   </span>
                 </div>
               </div>
 
               {/* Action Buttons */}
               <div className="space-y-2 pt-4">
-                <button className="w-full bg-black hover:bg-gray-900 text-white font-medium py-2.5 px-4 rounded-lg transition shadow-sm">
-                  Save
+                <button
+                  onClick={() => addSalepos()}
+                  className="w-full bg-black hover:bg-gray-900 text-white font-medium py-2.5 px-4 rounded-lg transition shadow-sm"
+                >
+                  {Loading ? "Saving..." : "Save"}
                 </button>
               </div>
             </div>
