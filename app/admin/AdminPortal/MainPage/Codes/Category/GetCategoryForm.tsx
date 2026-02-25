@@ -1,12 +1,15 @@
-"use client";
-import DeleteUnitApi from "@/api/lib/Admin/Codes/Unit/DeleteUnit/DeleteUnit";
-import GetUnitApi from "@/api/lib/Admin/Codes/Unit/GetUnit/GetUnit";
+import GetCategoryMainApi from "@/api/lib/Admin/Codes/Category/GetCategoryMain/GetCategoryMain";
+import DeleteCategorySubApi from "@/api/lib/Admin/Codes/Category/SubCategory/DeleteSubCategory/DeleteSubCategroy";
+import GetCategoruSubApi from "@/api/lib/Admin/Codes/Category/SubCategory/GetSubCategory/GetSubCategory";
 import GetInitalStoreSalesMan from "@/api/lib/Admin/Stores/GetInitalStore/GetInitalStore";
 import {
-  ResponseUnitAddData,
-  UnitApiResponse,
-  UnitList,
-} from "@/api/types/Admin/Codes/Unit/Unit";
+  CategoryMain,
+  CategoryMainApiResponse,
+} from "@/api/types/Admin/Codes/Category/MainCategory/MainCateogry";
+import {
+  CategorySub,
+  CategorySubApiResponse,
+} from "@/api/types/Admin/Codes/Category/SubCategory/SubCategory";
 import {
   ResponseStoreList,
   storeListInital,
@@ -15,22 +18,35 @@ import DeleteComponent from "@/app/UsefullComponent/DeleteComponent/page";
 import Spinner from "@/app/UsefullComponent/Spinner/page";
 import { Pencil, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
-
 interface AddExpenseProps {
-  onEdit: (Datalist: UnitList, StoreID: string) => void;
+  onEdit: (Datalist: CategorySub, StoreID: string) => void;
   onShowMessage: (message: any, type: "success" | "error") => void;
 }
-export default function GetFormUnit({
+export default function GetCategoryForm({
   onEdit,
   onShowMessage,
 }: AddExpenseProps) {
-  const [UnitList, setUnitList] = useState<UnitList[]>([]);
   const [loading, setLoading] = useState(false);
+  const [StoreID, setStoreID] = useState("");
+  const [catgeoryMainList, setCatgeoryMainList] = useState<CategoryMain[]>([]);
+  const [storeList, setStoreList] = useState<storeListInital[]>([]);
+  const [catgeorySubList, setCatgeorySubList] = useState<CategorySub[]>([]);
+  const [CategoryMainID, setCategoryMainID] = useState("");
   const [ID, setID] = useState("");
   const [Delete, setDelete] = useState(false);
-  const [StoreID, setStoreID] = useState("");
 
-  const [storeList, setStoreList] = useState<storeListInital[]>([]);
+  const getCategroyMain = async (storeID: string) => {
+    const token = localStorage.getItem("adminToken");
+    const response = await GetCategoryMainApi(String(token));
+
+    if (response.status === 200 || response.status === 201) {
+      const data = response.data as CategoryMainApiResponse;
+      setCatgeoryMainList(data.categoryList);
+      setCategoryMainID(data.categoryList[0].categoryID);
+
+      getSubCategroy(data.categoryList[0].categoryID, storeID);
+    }
+  };
 
   const getStores = async () => {
     const token = localStorage.getItem("adminToken");
@@ -38,23 +54,30 @@ export default function GetFormUnit({
     const data = response.data as ResponseStoreList;
     if (data.storeList.length > 0) {
       setStoreList(data.storeList);
-      setStoreID(data.storeList[0].storeID);
-      UnitGet(data.storeList[0].storeID);
+      const storeID = data.storeList[0].storeID;
+      console.log(storeID);
+      setStoreID(storeID);
+
+      getCategroyMain(storeID);
     } else {
       setStoreList([]);
     }
-    ``;
   };
-  const UnitGet = async (ID: string) => {
+
+  const getSubCategroy = async (ID: string, storeID: string) => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("posSellerToken");
-      const response = await GetUnitApi(String(token), ID);
+      const formData = {
+        categoryID: ID,
+        storeID: storeID,
+      };
+      const token = localStorage.getItem("adminToken");
+      const response = await GetCategoruSubApi(String(token), formData);
       if (response.status === 200 || response.status === 201) {
-        const data = response.data as UnitApiResponse;
-        setUnitList(data.categoryList);
+        const data = response.data as CategorySubApiResponse;
+        setCatgeorySubList(data.categoryList);
       } else {
-        setUnitList([]);
+        setCatgeorySubList([]);
       }
     } catch (err) {
       // setResponseBack(3);
@@ -62,17 +85,20 @@ export default function GetFormUnit({
       setLoading(false);
     }
   };
-  const UnitDelete = async (ID: string) => {
+  const SubCategoryDelete = async (ID: string) => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("posSellerToken");
-      const response = await DeleteUnitApi(
-        { unitID: ID, storeID: StoreID },
-        String(token),
-      );
+      const token = localStorage.getItem("adminToken");
+      const formData = {
+        subCategoryID: ID,
+        storeID: StoreID,
+      };
+      const response = await DeleteCategorySubApi(formData, String(token));
       if (response.status === 200 || response.status === 201) {
-        const data = UnitList.filter((item) => item.unitID !== ID);
-        setUnitList(data);
+        const data = catgeorySubList.filter(
+          (item) => item.subCategoryID !== ID,
+        );
+        setCatgeorySubList(data);
         setDelete(false);
       } else {
         setDelete(false);
@@ -88,12 +114,12 @@ export default function GetFormUnit({
     }
   };
   const fetchData = (ID: string) => {
-    const data = UnitList.find((item) => item.unitID === ID);
+    const data = catgeorySubList.find((item) => item.subCategoryID === ID);
     if (data) {
       const formData = {
-        unitID: data.unitID,
-        unitName: data.unitName,
-        abbreviation: data.abbreviation,
+        categoryID: data.categoryID,
+        subCategoryID: data.subCategoryID,
+        subCategoryName: data.subCategoryName,
         description: data.description,
       };
       onEdit(formData, StoreID);
@@ -102,6 +128,7 @@ export default function GetFormUnit({
   useEffect(() => {
     getStores();
   }, []);
+
   return (
     <>
       {Delete && (
@@ -110,10 +137,10 @@ export default function GetFormUnit({
             setDelete(false);
             setID("");
           }}
-          onConfirm={() => UnitDelete(ID)}
+          onConfirm={() => SubCategoryDelete(ID)}
         />
       )}
-      <div>
+      <div className="mt-2 ">
         <label className="block text-sm font-medium text-neutral-700 mb-1">
           Stores
         </label>
@@ -121,7 +148,7 @@ export default function GetFormUnit({
           value={StoreID}
           onChange={(e) => {
             setStoreID(e.target.value);
-            UnitGet(e.target.value);
+            getSubCategroy(CategoryMainID, e.target.value);
           }}
           className="w-full px-4 py-2 rounded-lg border border-neutral-200 shadow-sm focus:ring-2 focus:ring-neutral-900 focus:outline-none transition"
         >
@@ -140,28 +167,51 @@ export default function GetFormUnit({
         </select>
       </div>
       <div className="mt-2 ">
+        <label className="block text-sm font-medium text-neutral-700 mb-1">
+          Main Category
+        </label>
+        <select
+          value={CategoryMainID}
+          onChange={(e) => {
+            setCategoryMainID(e.target.value);
+            getSubCategroy(e.target.value, StoreID);
+          }}
+          className="w-full px-4 py-2 rounded-lg border border-neutral-200 shadow-sm focus:ring-2 focus:ring-neutral-900 focus:outline-none transition"
+        >
+          {catgeoryMainList.length === 0 ? (
+            <option> No Category Found</option>
+          ) : (
+            <>
+              <option>Select Category</option>
+              {catgeoryMainList.map((item) => (
+                <option key={item.categoryID} value={item.categoryID}>
+                  {item.categoryName}
+                </option>
+              ))}
+            </>
+          )}
+        </select>
+      </div>
+      <div className="mt-2 ">
         {loading ? (
           <div className="flex justify-center py-10">
             <Spinner />
           </div>
         ) : (
           <>
-            {UnitList.length > 0 ? (
+            {catgeorySubList.length > 0 ? (
               <div className="space-y-4">
-                {UnitList.map((item) => (
+                {catgeorySubList.map((item) => (
                   <div
-                    key={item.unitID}
+                    key={item.subCategoryID}
                     className="flex items-center justify-between bg-white shadow-md rounded-lg p-4 hover:shadow-xl transition relative"
                   >
                     {/* Left: Till Info */}
                     <div className="flex flex-col">
                       <span className="text-lg font-semibold text-gray-800">
-                        {item.unitName}
+                        {item.subCategoryName}
                       </span>
-                      <span className="text-sm mt-1  text-gray-800">
-                        <span className="font-bold">Abbreviation : </span>{" "}
-                        {item.abbreviation}
-                      </span>
+
                       <span className="text-sm mt-1  text-gray-800">
                         <span className="font-bold">Description : </span>{" "}
                         {item.description}{" "}
@@ -172,7 +222,7 @@ export default function GetFormUnit({
                     <div className="flex items-center gap-2">
                       <button
                         className="flex items-center gap-1 px-2 py-1 text-sm font-medium text-blue-600 border border-blue-600 rounded hover:bg-blue-50 transition"
-                        onClick={() => fetchData(item.unitID)}
+                        onClick={() => fetchData(item.subCategoryID)}
                       >
                         <Pencil />
                       </button>
@@ -180,7 +230,7 @@ export default function GetFormUnit({
                       <button
                         onClick={() => {
                           setDelete(true);
-                          setID(item.unitID);
+                          setID(item.subCategoryID);
                         }}
                         className="flex items-center gap-1 px-2 py-1 text-sm font-medium text-red-600 border border-red-600 rounded hover:bg-red-50 transition"
                       >
