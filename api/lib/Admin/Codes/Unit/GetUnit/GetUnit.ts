@@ -1,17 +1,14 @@
 "use server";
 
 import ErrorHandler from "@/api/ErrorHandler/ErrorHandler";
-import { postRequest } from "@/api/main/main";
+import { getRequest } from "@/api/main/main";
 
-export default async function DeleteSalePos(
-  token: string,
-  data: { saleID: string; invoiceNo: string },
-) {
+export default async function GetUnitApi(token: string, data: string) {
   const customHeader: Record<string, string> = {};
   if (token) customHeader.Authorization = `Bearer ${token}`;
-  const response = await postRequest(
-    `/api/sale/seller/posIntegration/DeleteSale`,
-    data,
+  const response = await getRequest(
+    `/api/Category/Units/GetUnit/${data}`,
+    null,
     customHeader,
   );
 
@@ -27,6 +24,6 @@ export default async function DeleteSalePos(
   return {
     data: response.data,
     status: response.status,
-    message: response.message || "An unexpected error occurred",
+    message: response.message,
   };
 }

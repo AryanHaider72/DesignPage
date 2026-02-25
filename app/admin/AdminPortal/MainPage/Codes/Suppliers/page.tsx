@@ -1,19 +1,18 @@
 "use client";
 import { List, Plus } from "lucide-react";
 import { useState } from "react";
-import AddCustomer from "./AddCustomer";
+import AddSupplierForm from "./AddFormSupplier";
 import MessagePopUp from "@/app/UsefullComponent/MessagePopup/page";
-import { CustomerData } from "@/api/types/Posintegration/Customer";
-import GetCustomerData from "./GetCustomer";
-
-export default function CustomerManagement() {
+import { SupplierData } from "@/api/types/Admin/Codes/Supplier/Supplier";
+import GetSupplierForm from "./GetSupplierFrom";
+export default function SupplierMain() {
   const [view, setView] = useState<"list" | "form">("list");
-  const [ExpenseList, setExpenseList] = useState<CustomerData>();
-  const [Update, setUpdate] = useState(false);
   const [showMessage, setShowMessage] = useState<string | null>(null);
   const [messageType, setMessageType] = useState<"success" | "error">(
     "success",
   );
+  const [Update, setUpdate] = useState(false);
+  const [SupplierList, setSupplierList] = useState<SupplierData>();
   return (
     <>
       {showMessage && (
@@ -30,7 +29,8 @@ export default function CustomerManagement() {
           <button
             onClick={() => {
               setView("list");
-              //   setTillData(undefined);
+              setSupplierList(undefined);
+              setUpdate(false);
             }}
             className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition
             ${view === "list" ? "bg-neutral-900 text-white" : "bg-white text-neutral-900 shadow hover:shadow-lg"}`}
@@ -50,13 +50,13 @@ export default function CustomerManagement() {
         </div>
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-semibold text-neutral-900">
-            Customer Management
+            Supplier Management
           </h1>
         </div>
         <div className="rounded-3xl bg-white/70 backdrop-blur-xl p-6 shadow-[0_20px_40px_rgba(0,0,0,0.07)] transition-all">
           {view === "form" && (
-            <AddCustomer
-              initialData={ExpenseList}
+            <AddSupplierForm
+              initialData={SupplierList}
               Update={Update}
               onShowMessage={(msg, type) => {
                 setShowMessage(msg);
@@ -66,14 +66,14 @@ export default function CustomerManagement() {
             />
           )}
           {view === "list" && (
-            <GetCustomerData
+            <GetSupplierForm
               onShowMessage={(msg, type) => {
                 setShowMessage(msg);
                 setMessageType(type);
                 if (type === "success") setView("list");
               }}
-              onEdit={(data: CustomerData) => {
-                setExpenseList(data);
+              onEdit={(data: SupplierData) => {
+                setSupplierList(data);
                 setUpdate(true);
                 setView("form");
               }}

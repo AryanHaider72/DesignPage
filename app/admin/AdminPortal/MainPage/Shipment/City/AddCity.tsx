@@ -2,11 +2,12 @@ import GetCountry from "@/api/lib/Admin/Country/countryGet";
 import AddZoneApi from "@/api/lib/Admin/Shipment/City/CityAdd/CityAdd";
 import ModifyCity from "@/api/lib/Admin/Shipment/City/ModifyCity/ModifyCity";
 import GetRegionApi from "@/api/lib/Admin/Shipment/Region/getRegion";
+
+import { zonelist } from "@/api/types/Admin/Shipment/City/City";
 import {
   Countryget,
   CountrygetApiResponse,
-} from "@/api/types/Admin/Country/country";
-import { zonelist } from "@/api/types/Admin/Shipment/City/City";
+} from "@/api/types/Admin/Shipment/Country/Country";
 import {
   regionlist,
   responseRegionList,

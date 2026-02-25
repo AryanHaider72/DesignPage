@@ -1,5 +1,4 @@
 "use client";
-import GetInitalStoreSalesMan from "@/api/lib/Admin/Stores/GetInitalStore/GetInitalStore";
 import GetTillForPos from "@/api/lib/Admin/TillRegister/TillGet/TillGet";
 import AddLoginForPos from "@/api/lib/OfflineSeller/MainPage/CreateLogins/CreateLogin";
 import {

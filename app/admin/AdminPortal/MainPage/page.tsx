@@ -19,9 +19,12 @@ import {
   Warehouse,
   Truck,
   Globe2,
+  List,
+  Weight,
 } from "lucide-react";
 import { FaCashRegister, FaMoneyBill } from "react-icons/fa";
 import { BsShop } from "react-icons/bs";
+import { RiAlignItemTopFill } from "react-icons/ri";
 
 export default function AppSidebar({
   children,
@@ -33,11 +36,16 @@ export default function AppSidebar({
 
   const [activeMenu2, setActiveMenu2] = useState<string | null>("");
 
+  const [activeMenu3, setActiveMenu3] = useState<string | null>("");
+
   const toggleMenu = (menu: string) => {
     setActiveMenu(activeMenu === menu ? null : menu);
   };
   const toggleMenu2 = (menu: string) => {
     setActiveMenu2(activeMenu2 === menu ? null : menu);
+  };
+  const toggleMenu3 = (menu: string) => {
+    setActiveMenu3(activeMenu3 === menu ? null : menu);
   };
 
   return (
@@ -93,12 +101,60 @@ export default function AppSidebar({
               <LayoutDashboard size={18} />
               <span className="text-sm font-medium">Dashboard</span>
             </Link>
+            <div>
+              <button
+                onClick={() => {
+                  toggleMenu3("users");
+                  setActiveMenu(null);
+                  setActiveMenu2(null);
+                }}
+                className="w-full flex items-center justify-between
+              px-4 py-3 rounded-xl
+              text-neutral-700 hover:bg-neutral-100 transition-all"
+              >
+                <div className="flex items-center gap-3">
+                  <List size={18} />
+                  <span className="text-sm font-medium"> Codes</span>
+                </div>
+                {activeMenu3 === "users" ? (
+                  <ChevronDown size={16} />
+                ) : (
+                  <ChevronRight size={16} />
+                )}
+              </button>
+              <div
+                className={`overflow-hidden transition-all duration-300
+              ${activeMenu3 === "users" ? "max-h-40 mt-2" : "max-h-0"}`}
+              >
+                <div className="ml-9 space-y-1">
+                  <Link
+                    href="/admin/AdminPortal/MainPage/Codes/Suppliers"
+                    className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
+                  >
+                    <div className="flex items-center gap-3">
+                      <User size={18} />
+                      <span className="text-sm font-medium">Supplier</span>
+                    </div>
+                  </Link>
+                  <Link
+                    href="/admin/AdminPortal/MainPage/Codes/Units"
+                    className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Weight size={18} />
+                      <span className="text-sm font-medium">Unit</span>
+                    </div>
+                  </Link>
+                </div>
+              </div>
+            </div>
 
             <div>
               <button
                 onClick={() => {
                   toggleMenu2("users");
                   setActiveMenu(null);
+                  setActiveMenu3(null);
                 }}
                 className="w-full flex items-center justify-between
               px-4 py-3 rounded-xl
@@ -172,6 +228,7 @@ export default function AppSidebar({
                 onClick={() => {
                   toggleMenu("users");
                   setActiveMenu2(null);
+                  setActiveMenu3(null);
                 }}
                 className="w-full flex items-center justify-between
               px-4 py-3 rounded-xl

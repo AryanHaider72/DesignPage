@@ -2,15 +2,19 @@
 
 import ErrorHandler from "@/api/ErrorHandler/ErrorHandler";
 import { postRequest } from "@/api/main/main";
-
-export default async function DeleteSalePos(
+import {
+  RequestSupplierAddData,
+  ResponseSupplierAddData,
+} from "@/api/types/Admin/Codes/Supplier/Supplier";
+export default async function AddSupplierApi(
+  data: RequestSupplierAddData,
   token: string,
-  data: { saleID: string; invoiceNo: string },
 ) {
   const customHeader: Record<string, string> = {};
   if (token) customHeader.Authorization = `Bearer ${token}`;
+
   const response = await postRequest(
-    `/api/sale/seller/posIntegration/DeleteSale`,
+    `/api/Supplier/seller/posIntegration/AddSupplier`,
     data,
     customHeader,
   );
@@ -19,14 +23,14 @@ export default async function DeleteSalePos(
   if (!response.success) {
     const message = ErrorHandler(response.status);
     return {
-      data: response.data,
+      data: response.data as ResponseSupplierAddData,
       status: response.status,
       message: message,
     };
   }
   return {
-    data: response.data,
+    data: response.data as ResponseSupplierAddData,
     status: response.status,
-    message: response.message || "An unexpected error occurred",
+    message: response.message || "Record Added Successfully",
   };
 }

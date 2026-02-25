@@ -3,14 +3,19 @@
 import ErrorHandler from "@/api/ErrorHandler/ErrorHandler";
 import { postRequest } from "@/api/main/main";
 
-export default async function DeleteSalePos(
+import {
+  RequestUnitAddData,
+  ResponseUnitAddData,
+} from "@/api/types/Admin/Codes/Unit/Unit";
+export default async function AddUnitApi(
+  data: RequestUnitAddData,
   token: string,
-  data: { saleID: string; invoiceNo: string },
 ) {
   const customHeader: Record<string, string> = {};
   if (token) customHeader.Authorization = `Bearer ${token}`;
+
   const response = await postRequest(
-    `/api/sale/seller/posIntegration/DeleteSale`,
+    `/api/Category/Units/AddUnit`,
     data,
     customHeader,
   );
@@ -19,14 +24,14 @@ export default async function DeleteSalePos(
   if (!response.success) {
     const message = ErrorHandler(response.status);
     return {
-      data: response.data,
+      data: response.data as ResponseUnitAddData,
       status: response.status,
       message: message,
     };
   }
   return {
-    data: response.data,
+    data: response.data as ResponseUnitAddData,
     status: response.status,
-    message: response.message || "An unexpected error occurred",
+    message: response.message || "Record Added Successfully",
   };
 }

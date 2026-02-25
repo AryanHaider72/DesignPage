@@ -3,14 +3,15 @@
 import ErrorHandler from "@/api/ErrorHandler/ErrorHandler";
 import { postRequest } from "@/api/main/main";
 
-export default async function DeleteSalePos(
+export default async function DeleteUnitApi(
+  data: { unitID: string; storeID: string },
   token: string,
-  data: { saleID: string; invoiceNo: string },
 ) {
   const customHeader: Record<string, string> = {};
   if (token) customHeader.Authorization = `Bearer ${token}`;
+
   const response = await postRequest(
-    `/api/sale/seller/posIntegration/DeleteSale`,
+    `/api/Category/Units/DeleteUnit`,
     data,
     customHeader,
   );
@@ -27,6 +28,6 @@ export default async function DeleteSalePos(
   return {
     data: response.data,
     status: response.status,
-    message: response.message || "An unexpected error occurred",
+    message: response.message || "Record Added Successfully",
   };
 }

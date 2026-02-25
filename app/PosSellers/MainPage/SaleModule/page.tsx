@@ -264,6 +264,11 @@ export default function PosSaleModule() {
             <PosSaleGetForm
               onListGet={setSaleList2}
               onShowItemList={setShowProductSoldList}
+              onShowMessage={(msg, type) => {
+                setShowMessage(msg);
+                setMessageType(type);
+                if (type === "success") setView("list");
+              }}
             />
           )}
         </div>

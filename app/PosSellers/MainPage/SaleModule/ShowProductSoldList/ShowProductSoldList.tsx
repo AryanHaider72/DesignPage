@@ -32,7 +32,7 @@ export default function ShowProductSoldListCall({ SaleItems }: GetData) {
               {SaleItems.map((item) => (
                 <>
                   {item.itemList.map((item2) => (
-                    <tr className="border-t">
+                    <tr key={item2.attributeID} className="border-t">
                       <td className="px-4 py-2 text-left">
                         {item.saleDate.split("T")[0]}
                       </td>
