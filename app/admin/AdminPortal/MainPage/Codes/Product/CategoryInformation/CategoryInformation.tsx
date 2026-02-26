@@ -24,16 +24,51 @@ interface UnitList {
   unitID: string;
   unitName: string;
 }
-export default function CategoryInformation() {
-  const [Length, setLength] = useState(0);
-  const [Weight, setWeight] = useState(0);
-  const [Width, setWidth] = useState(0);
-  const [Height, setHeight] = useState(0);
-  const [CategoryMainID, setCategoryMainID] = useState("");
-  const [subCategoryMainID, setSubCategoryMainID] = useState("");
-  const [FurtherCategoryMainID, setFurtherCategoryMainID] = useState("");
-  const [StoreID, setStoreID] = useState("");
-  const [UnitID, setUnitID] = useState("");
+interface ProductInformation {
+  // supplierID: string;
+  // invoiceNo: string;
+  // purchaseDate: string;
+  // productName: string;
+  // discount: number;
+  // threshold: number;
+  // storeSale: string;
+  // showinAllCountry: boolean;
+  // feturedProduct: boolean;
+  // showinCountry: boolean;
+  // notShowinCountry: boolean;
+  // description: string;
+  storeID: string;
+  length: Number;
+  height: Number;
+  depth: Number;
+  weight: Number;
+  categoryID: string;
+  unitID: string;
+  subCategoryDetailID: string;
+  subCategoryID: string;
+}
+interface CategoryInformationProps {
+  values: ProductInformation;
+  onEdit: (DataList: ProductInformation) => void;
+}
+export default function CategoryInformation({
+  values,
+  onEdit,
+}: CategoryInformationProps) {
+  const [Length, setLength] = useState(Number(values.length));
+  const [Weight, setWeight] = useState(Number(values.weight));
+  const [Width, setWidth] = useState(Number(values.depth));
+  const [Height, setHeight] = useState(Number(values.height));
+  const [CategoryMainID, setCategoryMainID] = useState(values.categoryID);
+  const [subCategoryMainID, setSubCategoryMainID] = useState(
+    values.subCategoryID,
+  );
+  const [FurtherCategoryMainID, setFurtherCategoryMainID] = useState(
+    values.subCategoryDetailID,
+  );
+  const [StoreID, setStoreID] = useState(values.storeID);
+  const [UnitID, setUnitID] = useState(values.unitID);
+
   const [UnitList, setUnitList] = useState<UnitList[]>([]);
   const [catgeoryMainList, setCatgeoryMainList] = useState<CategoryMain[]>([]);
   const [storeList, setStoreList] = useState<storeListInital[]>([]);
@@ -42,20 +77,30 @@ export default function CategoryInformation() {
     FurtherSub[]
   >([]);
 
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+
   const getStores = async () => {
     const token = localStorage.getItem("adminToken");
     const response = await GetInitalStoreSalesMan(String(token));
     const data = response.data as ResponseStoreList;
+
     if (data.storeList.length > 0) {
       setStoreList(data.storeList);
-      const storeID = data.storeList[0].storeID;
-      setStoreID(storeID);
 
-      getCategroyMain(storeID);
+      // Only set default store if no value from props AND first load
+      if (isInitialLoad && !values.storeID) {
+        const defaultStoreID = data.storeList[0].storeID;
+        setStoreID(defaultStoreID);
+        getCategroyMain(defaultStoreID);
+      } else if (values.storeID) {
+        // If props already have storeID, call category API for it
+        getCategroyMain(values.storeID);
+      }
     } else {
       setStoreList([]);
     }
   };
+
   const getCategroyMain = async (storeID: string) => {
     const token = localStorage.getItem("adminToken");
     const response = await GetCategoryMainApi(String(token));
@@ -63,23 +108,29 @@ export default function CategoryInformation() {
     if (response.status === 200 || response.status === 201) {
       const data = response.data as CategoryMainApiResponse;
       setCatgeoryMainList(data.categoryList);
-      setCategoryMainID(data.categoryList[0].categoryID);
 
-      getSubCategroy(data.categoryList[0].categoryID, storeID);
+      const selectedCategoryID =
+        values.categoryID || data.categoryList[0].categoryID;
+
+      setCategoryMainID(selectedCategoryID);
+
+      getSubCategroy(selectedCategoryID, storeID);
     }
   };
   const getSubCategroy = async (ID: string, storeID: string) => {
-    const formData = {
-      categoryID: ID,
-      storeID: storeID,
-    };
+    const formData = { categoryID: ID, storeID: storeID };
     const token = localStorage.getItem("adminToken");
     const response = await GetCategoruSubApi(String(token), formData);
+
     if (response.status === 200 || response.status === 201) {
       const data = response.data as CategorySubApiResponse;
       setCatgeorySubList(data.categoryList);
-      setSubCategoryMainID(data.categoryList[0].subCategoryID);
-      getFurtherSubCategroy(data.categoryList[0].subCategoryID, storeID, ID);
+      const selectedSubID =
+        values.subCategoryID || data.categoryList[0]?.subCategoryID;
+      if (selectedSubID) {
+        setSubCategoryMainID(selectedSubID);
+        getFurtherSubCategroy(selectedSubID, storeID, ID);
+      }
     } else {
       setCatgeorySubList([]);
     }
@@ -90,31 +141,58 @@ export default function CategoryInformation() {
     MainCat: string,
   ) => {
     const token = localStorage.getItem("adminToken");
-    const formData = {
-      subCategoryID: subCat,
-      storeID: Store,
-    };
+    const formData = { subCategoryID: subCat, storeID: Store };
     const response = await GetSubCategoryMoreApi(String(token), formData);
+
     if (response.status === 200 || response.status === 201) {
       const data = response.data as FurtherSubApiResponse;
       setFurtherCategorySubList(data.categoryList);
-      //   setFurtherCategoryMainID(data.categoryList[0].subCategoryDetailID);
-      //   handleUNitList(data.categoryList[0].subCategoryDetailID);
+
+      const initialFurtherID =
+        FurtherCategoryMainID || data.categoryList[0]?.subCategoryDetailID;
+      if (initialFurtherID) {
+        setFurtherCategoryMainID(initialFurtherID);
+        handleUnitList(initialFurtherID, data.categoryList);
+      }
     }
   };
 
-  const handleUNitList = (ID: string) => {
-    const data = FurtherCategorySubList.find(
-      (item) => item.subCategoryDetailID === ID,
-    );
-    if (data) {
-      console.log(data.unit);
-      setUnitList(data.unit);
-    }
+  const handleUnitList = (
+    ID: string,
+    sourceList: FurtherSub[] = FurtherCategorySubList,
+  ) => {
+    const data = sourceList.find((item) => item.subCategoryDetailID === ID);
+    if (data) setUnitList(data.unit);
   };
   useEffect(() => {
     getStores();
   }, []);
+
+  useEffect(() => {
+    const formData = {
+      storeID: StoreID,
+      length: Width,
+      height: Height,
+      depth: Length,
+      weight: Weight,
+      categoryID: CategoryMainID,
+      unitID: UnitID,
+      subCategoryDetailID: FurtherCategoryMainID,
+      subCategoryID: subCategoryMainID,
+    };
+    onEdit(formData);
+  }, [
+    StoreID,
+    Width,
+    Length,
+    Height,
+    Weight,
+    CategoryMainID,
+    subCategoryMainID,
+    FurtherCategoryMainID,
+    UnitID,
+  ]);
+
   return (
     <>
       <div className="space-y-4">
@@ -248,7 +326,7 @@ export default function CategoryInformation() {
               value={FurtherCategoryMainID}
               onChange={(e) => {
                 setFurtherCategoryMainID(e.target.value);
-                handleUNitList(e.target.value);
+                handleUnitList(e.target.value);
               }}
               className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition appearance-none cursor-pointer"
             >

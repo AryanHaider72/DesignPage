@@ -11,28 +11,63 @@ import {
 } from "@/api/types/Admin/Shipment/Country/Country";
 import { Plus, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { itemAxisPredicate } from "recharts/types/state/selectors/axisSelectors";
 
 interface ListingCountries {
   countryID: string;
   countryName: string;
 }
-export default function ProductInformation() {
+
+interface ProductInformation {
+  supplierID: string;
+  invoiceNo: string;
+  purchaseDate: string;
+  purchaseAdd: boolean;
+  productName: string;
+  discount: number;
+  threshold: number;
+  storeSale: string;
+  showinAllCountry: boolean;
+  feturedProduct: boolean;
+  showinCountry: boolean;
+  notShowinCountry: boolean;
+  description: string;
+  listCountry: ListingCountries[];
+}
+interface ProductINformationPassProps {
+  values: ProductInformation;
+  onEdit: (Datalist: ProductInformation) => void;
+}
+export default function ProductInformation({
+  values,
+  onEdit,
+}: ProductINformationPassProps) {
   const [CountryID, setCountryID] = useState("");
   const [CountryName, setCountryName] = useState("");
-  const [ProductName, setProductName] = useState("");
-  const [SupplierID, setSupplierID] = useState("");
-  const [Description, setDescription] = useState("");
-  const [Threshold, setThreshold] = useState(0);
-  const [Discount, setDiscount] = useState(0);
+  const [ProductName, setProductName] = useState(values.productName);
+  const [SupplierID, setSupplierID] = useState(values.supplierID);
+  const [Description, setDescription] = useState(values.description);
+  const [Threshold, setThreshold] = useState(Number(values.threshold));
+  const [Discount, setDiscount] = useState(Number(values.discount));
 
-  const [StoreSale, setStoreSale] = useState("OnlineStore");
-  const [PurchaseAdd, setPurchaseAdd] = useState("Yes");
-  const [FeaturedProduct, setFeaturedProduct] = useState("No");
-  const [CountryRestrict, setCountryRestrict] = useState("ShowInAllCountry");
+  const [StoreSale, setStoreSale] = useState(values.storeSale);
+  const [PurchaseAdd, setPurchaseAdd] = useState(
+    values.purchaseAdd ? "No" : "Yes",
+  );
+  const [FeaturedProduct, setFeaturedProduct] = useState(
+    values.feturedProduct ? "Yes" : "No",
+  );
+  const [CountryRestrict, setCountryRestrict] = useState(
+    values.showinAllCountry
+      ? "ShowInAllCountry"
+      : values.showinCountry
+        ? "ShowInSomeCountry"
+        : "HideInSomeCountry",
+  );
   const [SupplierList, setSupplierList] = useState<SupplierData[]>([]);
   const [listofCountry, setListofCountry] = useState<Countryget[]>([]);
   const [ListingCountries, setListingCountries] = useState<ListingCountries[]>(
-    [],
+    values.listCountry,
   );
 
   const SupplierGet = async () => {
@@ -41,7 +76,9 @@ export default function ProductInformation() {
     if (response.status === 200 || response.status === 201) {
       const data = response.data as ResponseSupplierGetData;
       setSupplierList(data.supplierList);
-      setSupplierID(data.supplierList[0].supplierID);
+      if (!SupplierID) {
+        setSupplierID(data.supplierList[0].supplierID);
+      }
     } else {
       setSupplierList([]);
     }
@@ -73,9 +110,43 @@ export default function ProductInformation() {
     }
   };
   useEffect(() => {
-    SupplierGet();
+    if (!SupplierList.length) {
+      SupplierGet();
+    }
     getCountry();
   }, []);
+
+  useEffect(() => {
+    const formData = {
+      supplierID: SupplierID,
+      invoiceNo: "",
+      purchaseDate: new Date().toISOString().split("T")[0],
+      productName: ProductName,
+      discount: Discount,
+      threshold: Threshold,
+      storeSale: StoreSale,
+      purchaseAdd: PurchaseAdd === "Yes",
+      feturedProduct: FeaturedProduct === "Yes",
+      showinAllCountry: CountryRestrict === "ShowInAllCountry",
+      showinCountry: CountryRestrict === "ShowInSomeCountry",
+      notShowinCountry: CountryRestrict === "HideInSomeCountry",
+      listCountry: ListingCountries.map((item) => ({
+        countryID: item.countryID,
+        countryName: item.countryName,
+      })),
+      description: Description,
+    };
+    onEdit(formData);
+  }, [
+    SupplierID,
+    ProductName,
+    Discount,
+    Threshold,
+    StoreSale,
+    FeaturedProduct,
+    CountryRestrict,
+    Description,
+  ]);
   return (
     <>
       <div className="space-y-4">
