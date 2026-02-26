@@ -23,10 +23,13 @@ import {
   Weight,
   ShoppingCart,
   ShoppingBag,
+  ShoppingBagIcon,
+  Shirt,
 } from "lucide-react";
 import { FaCashRegister, FaMoneyBill } from "react-icons/fa";
 import { BsShop } from "react-icons/bs";
 import { RiAlignItemTopFill } from "react-icons/ri";
+import { GiClothes } from "react-icons/gi";
 
 export default function AppSidebar({
   children,
@@ -126,7 +129,7 @@ export default function AppSidebar({
               </button>
               <div
                 className={`overflow-hidden transition-all duration-300
-              ${activeMenu3 === "users" ? "max-h-40 mt-2" : "max-h-0"}`}
+              ${activeMenu3 === "users" ? "max-h-50 mt-2" : "max-h-0"}`}
               >
                 <div className="ml-9 space-y-1">
                   <Link
@@ -152,10 +155,11 @@ export default function AppSidebar({
                     className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
                   >
                     <div className="flex items-center gap-3">
-                      <ShoppingCart size={18} />
+                      <Shirt size={18} />
                       <span className="text-sm font-medium">Category</span>
                     </div>
                   </Link>
+
                   <Link
                     href="/admin/AdminPortal/MainPage/Codes/SubCategory"
                     className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
@@ -163,6 +167,15 @@ export default function AppSidebar({
                     <div className="flex items-center gap-3">
                       <ShoppingBag size={18} />
                       <span className="text-sm font-medium">Sub-Category</span>
+                    </div>
+                  </Link>
+                  <Link
+                    href="/admin/AdminPortal/MainPage/Codes/Product"
+                    className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
+                  >
+                    <div className="flex items-center gap-3">
+                      <ShoppingCart size={18} />
+                      <span className="text-sm font-medium">Product</span>
                     </div>
                   </Link>
                 </div>

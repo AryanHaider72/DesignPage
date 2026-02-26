@@ -1,38 +1,25 @@
 "use client";
-import MessagePopUp from "@/app/UsefullComponent/MessagePopup/page";
 import { List, Plus } from "lucide-react";
 import { useState } from "react";
-import AddSubCategoryForm from "./AddSubCategoryForm";
-import { FurtherSub } from "@/api/types/Admin/Codes/Category/SubCategoryMore/SubCategoryMore";
-import GetSubCategoryForm from "./GetSubCategoryForm";
+import ProductAddForm from "./ProductAddForm";
 
-export default function SubCategoryMain() {
-  const [Update, setUpdate] = useState(false);
+export default function ProductForm() {
   const [view, setView] = useState<"list" | "form">("list");
   const [showMessage, setShowMessage] = useState<string | null>(null);
   const [messageType, setMessageType] = useState<"success" | "error">(
     "success",
   );
-  const [FurtherSubCategroy, setFurtherSubCategroy] = useState<FurtherSub>();
+  const [Update, setUpdate] = useState(false);
   const [ID, setID] = useState("");
-
   return (
     <>
-      {showMessage && (
-        <MessagePopUp
-          message={showMessage}
-          type={messageType}
-          duration={3000}
-          onClose={() => setShowMessage(null)}
-        />
-      )}
       <div className="space-y-6">
         {/* Top Buttons */}
         <div className="w-full bg-gray-50 shadow-sm flex justify-between px-1 py-2 rounded-lg">
           <button
             onClick={() => {
               setView("list");
-              setFurtherSubCategroy(undefined);
+              //setCategorySubList(undefined);
               setUpdate(false);
             }}
             className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition
@@ -53,37 +40,11 @@ export default function SubCategoryMain() {
         </div>
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-semibold text-neutral-900">
-            Sub-Category Management
+            Product Management
           </h1>
         </div>
         <div className="rounded-3xl bg-white/70 backdrop-blur-xl p-6 shadow-[0_20px_40px_rgba(0,0,0,0.07)] transition-all">
-          {view === "form" && (
-            <AddSubCategoryForm
-              initialData={FurtherSubCategroy}
-              storeID={ID}
-              Update={Update}
-              onShowMessage={(msg, type) => {
-                setShowMessage(msg);
-                setMessageType(type);
-                if (type === "success") setView("list");
-              }}
-            />
-          )}
-          {view === "list" && (
-            <GetSubCategoryForm
-              onShowMessage={(msg, type) => {
-                setShowMessage(msg);
-                setMessageType(type);
-                if (type === "success") setView("list");
-              }}
-              onEdit={(data: FurtherSub, storeID: string) => {
-                setFurtherSubCategroy(data);
-                setID(storeID);
-                setUpdate(true);
-                setView("form");
-              }}
-            />
-          )}
+          {view === "form" && <ProductAddForm />}
         </div>
       </div>
     </>

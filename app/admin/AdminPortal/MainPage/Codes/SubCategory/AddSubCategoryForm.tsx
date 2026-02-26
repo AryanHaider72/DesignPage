@@ -2,6 +2,7 @@
 import GetCategoryMainApi from "@/api/lib/Admin/Codes/Category/GetCategoryMain/GetCategoryMain";
 import GetCategoruSubApi from "@/api/lib/Admin/Codes/Category/SubCategory/GetSubCategory/GetSubCategory";
 import AddSubCategoryMoreApi from "@/api/lib/Admin/Codes/Category/SubCatgeroyMore/AddSubCategory/AddSubCategoryMore";
+import ModifySubCategoryMoreApi from "@/api/lib/Admin/Codes/Category/SubCatgeroyMore/ModifySubCategoryMore/ModifySubCategoryMore";
 import GetUnitApi from "@/api/lib/Admin/Codes/Unit/GetUnit/GetUnit";
 import GetInitalStoreSalesMan from "@/api/lib/Admin/Stores/GetInitalStore/GetInitalStore";
 import {
@@ -28,16 +29,16 @@ interface AddUnitProps {
   onShowMessage: (message: any, type: "success" | "error") => void;
 }
 interface itemsList {
-  storeID: string;
-  storeName: string;
-  categoryName: string;
-  categoryID: string;
-  unitName: string;
-  UnitID: string;
-  SubCategoryName: string;
-  FurtherSubCategoryName: string;
-  SubCategroyMainName: string;
-  SubCategoryMainID: string;
+  storeID?: string;
+  storeName?: string;
+  categoryName?: string;
+  categoryID?: string;
+  unitName?: string;
+  UnitID?: string;
+  SubCategoryName?: string;
+  FurtherSubCategoryName?: string;
+  SubCategroyMainName?: string;
+  SubCategoryMainID?: string;
 }
 export default function AddSubCategoryForm({
   initialData,
@@ -59,6 +60,7 @@ export default function AddSubCategoryForm({
   const [CategoryMainName, setCategoryMainName] = useState("");
   const [SubCategoryMainName, setSubCategoryMainName] = useState("");
   const [UnitID, setUnitID] = useState("");
+  const [DetailID, setDetailID] = useState("");
   const [FurtherSubCategory, setFurtherSubCategory] = useState("");
 
   const getCategroyMain = async (ID: string) => {
@@ -129,7 +131,7 @@ export default function AddSubCategoryForm({
         subCategoryID: SubCategoryMainID,
         name: FurtherSubCategory,
         units: items.map((item) => ({
-          unitID: item.UnitID,
+          unitID: item.UnitID || "",
         })),
       };
       const response = await AddSubCategoryMoreApi(formData, String(token));
@@ -168,14 +170,55 @@ export default function AddSubCategoryForm({
     setUnitID("");
     setItems((prev) => [...prev, newEntry]);
   };
-
+  const ModifyFurtherCategoryData = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("adminToken");
+      const formData = {
+        subCategoryID: SubCategoryMainID,
+        subCategoryDetailID: DetailID,
+        name: FurtherSubCategory,
+        units: items.map((item) => ({
+          unitID: item.UnitID || "",
+        })),
+      };
+      const response = await ModifySubCategoryMoreApi(formData, String(token));
+      if (response.status === 200) {
+        setItems([]);
+        setFurtherSubCategory("");
+        setUnitID("");
+        onShowMessage(
+          response.message || "Category Added successfully",
+          "success",
+        );
+      } else {
+        onShowMessage(response.message, "error");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
   const removeItem = (ID: string) => {
     const data = items.filter((item) => item.UnitID !== ID);
     if (data) {
       setItems(data);
     }
   };
-
+  useEffect(() => {
+    if (initialData) {
+      console.log(initialData);
+      setFurtherSubCategory(initialData.name);
+      setSubCategoryMainID(initialData.subCategoryID);
+      setDetailID(initialData.subCategoryDetailID);
+      setItems(
+        initialData.unit.map((item) => ({
+          unitName: item.unitName,
+          UnitID: item.unitID,
+          FurtherSubCategoryName: initialData.name,
+        })),
+      );
+    }
+  }, [initialData]);
   useEffect(() => {
     getStores();
   }, []);
@@ -189,6 +232,13 @@ export default function AddSubCategoryForm({
             </label>
             <select
               value={StoreID}
+              disabled={isFurtherSubCategoryLocked}
+              className={`w-full px-4 py-2 rounded-lg  border border-neutral-200 shadow-sm focus:ring-2 focus:ring-neutral-900 focus:outline-none transition
+                ${
+                  isFurtherSubCategoryLocked
+                    ? "bg-gray-50 cursor-not-allowed"
+                    : "bg-white"
+                }`}
               onChange={(e) => {
                 setStoreID(e.target.value);
                 const data = storeList.find(
@@ -198,7 +248,7 @@ export default function AddSubCategoryForm({
                   setCategoryMainName(data.storeName);
                 }
               }}
-              className="w-full px-4 py-2 rounded-lg border border-neutral-200 shadow-sm focus:ring-2 focus:ring-neutral-900 focus:outline-none transition"
+              //className="w-full px-4 py-2 rounded-lg border border-neutral-200 shadow-sm focus:ring-2 focus:ring-neutral-900 focus:outline-none transition"
             >
               {storeList.length === 0 ? (
                 <option> No Stores Found</option>
@@ -220,6 +270,13 @@ export default function AddSubCategoryForm({
             </label>
             <select
               value={CategoryMainID}
+              disabled={isFurtherSubCategoryLocked}
+              className={`w-full px-4 py-2 rounded-lg  border border-neutral-200 shadow-sm focus:ring-2 focus:ring-neutral-900 focus:outline-none transition
+                ${
+                  isFurtherSubCategoryLocked
+                    ? "bg-gray-50 cursor-not-allowed"
+                    : "bg-white"
+                }`}
               onChange={(e) => {
                 setCategoryMainID(e.target.value);
                 const data = catgeoryMainList.find(
@@ -229,7 +286,7 @@ export default function AddSubCategoryForm({
                   setCategoryMainName(data.categoryName);
                 }
               }}
-              className="w-full px-4 py-2 rounded-lg border border-neutral-200 shadow-sm focus:ring-2 focus:ring-neutral-900 focus:outline-none transition"
+              //className="w-full px-4 py-2 rounded-lg border border-neutral-200 shadow-sm focus:ring-2 focus:ring-neutral-900 focus:outline-none transition"
             >
               {catgeoryMainList.length === 0 ? (
                 <option> No Category Found</option>
@@ -251,6 +308,13 @@ export default function AddSubCategoryForm({
             </label>
             <select
               value={SubCategoryMainID}
+              disabled={isFurtherSubCategoryLocked}
+              className={`w-full px-4 py-2 rounded-lg  border border-neutral-200 shadow-sm focus:ring-2 focus:ring-neutral-900 focus:outline-none transition
+                ${
+                  isFurtherSubCategoryLocked
+                    ? "bg-gray-50 cursor-not-allowed"
+                    : "bg-white"
+                }`}
               onChange={(e) => {
                 setSubCategoryMainID(e.target.value);
                 const data = catgeorySubList.find(
@@ -260,7 +324,7 @@ export default function AddSubCategoryForm({
                   setSubCategoryMainName(data.subCategoryName);
                 }
               }}
-              className="w-full px-4 py-2 rounded-lg border border-neutral-200 shadow-sm focus:ring-2 focus:ring-neutral-900 focus:outline-none transition"
+              //className="w-full px-4 py-2 rounded-lg border border-neutral-200 shadow-sm focus:ring-2 focus:ring-neutral-900 focus:outline-none transition"
             >
               {catgeorySubList.length === 0 ? (
                 <option> No Sub-Category Found</option>
@@ -331,7 +395,7 @@ export default function AddSubCategoryForm({
           {Update ? (
             <div className="flex justify-end">
               <button
-                //onClick={ModifyCategoryData}
+                onClick={ModifyFurtherCategoryData}
                 className="px-6 py-2 rounded-xl bg-neutral-900 text-white font-medium hover:bg-neutral-800 transition shadow-lg"
               >
                 {loading ? "Updating..." : "Update"}
@@ -353,12 +417,6 @@ export default function AddSubCategoryForm({
             <thead>
               <tr className="border-b border-neutral-200">
                 <th className="py-3 px-4 text-sm text-neutral-500">#</th>
-                <th className="py-3 px-4 text-sm text-neutral-500">
-                  Store Name
-                </th>
-                <th className="py-3 px-4 text-sm text-neutral-500">
-                  Category Name
-                </th>
                 <th className="py-3 px-4 text-sm text-neutral-500">Unit</th>
                 <th className="py-3 px-4 text-sm text-neutral-500">
                   Sub-Category
@@ -376,16 +434,13 @@ export default function AddSubCategoryForm({
                   className="border-b border-neutral-100 hover:bg-neutral-100/50 transition"
                 >
                   <td className="py-3 px-4">{index + 1}</td>
-
-                  <td className="py-3 px-4">{item.storeName}</td>
-                  <td className="py-3 px-4">{item.categoryName}</td>
                   <td className="py-3 px-4">{item.unitName}</td>
                   <td className="py-3 px-4">{item.SubCategoryName}</td>
                   <td className="py-3 px-4">{item.FurtherSubCategoryName}</td>
 
                   <td className="py-3 px-4">
                     <button
-                      onClick={() => removeItem(item.UnitID)}
+                      onClick={() => removeItem(item.UnitID || "")}
                       className="px-2 py-2 text-white rounded-md shadow-md cursor-pointer bg-red-500 hover:bg-red-600"
                     >
                       <Trash />

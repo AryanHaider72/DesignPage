@@ -29,8 +29,9 @@ export type Unit = {
 };
 export interface RequestSubModifyData {
   subCategoryDetailID: string;
+  subCategoryID: string;
   name: string;
-  units: { unitID: string }[];
+  units: unitList[];
   // subCategoryID: string;
 }
 export interface ResponseSubModifyData {
