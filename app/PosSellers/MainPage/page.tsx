@@ -154,14 +154,14 @@ export default function OfflineSellerPosSalePoint({
               <FaCashRegister size={18} />
               <span className="text-sm font-medium">Sale Module</span>
             </Link>
-            {/* <Link
-              href=""
+            <Link
+              href="/PosSellers/MainPage/SaleReturn"
               className="flex items-center gap-3 px-4 py-3 rounded-xl
             text-neutral-700 hover:bg-neutral-100 transition-all"
             >
               <Handshake size={18} />
               <span className="text-sm font-medium">Return Module</span>
-            </Link> */}
+            </Link>
             {/* <Link
               href="/admin/AdminPortal/MainPage/TillRegister"
               className="flex items-center gap-3 px-4 py-3 rounded-xl

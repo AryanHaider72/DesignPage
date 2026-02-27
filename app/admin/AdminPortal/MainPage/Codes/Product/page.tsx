@@ -6,6 +6,7 @@ import MessagePopUp from "@/app/UsefullComponent/MessagePopup/page";
 import GetProductsFunctionForm from "./GetProductForm";
 import ModifyBasicInfo from "./GetProduct/ModifyBasicInfo/page";
 import ModifyVarientForm from "./GetProduct/ModifyVarient/ModifyVarient";
+import ModifyImagesMainForm from "./GetProduct/ModifyImages/page";
 interface ModfiyBasicInfoData {
   storeID: string;
   storeName: string;
@@ -87,6 +88,17 @@ export default function ProductForm() {
       {ModifyItem === "basic" && ModfiyBasicInfoData && (
         <ModifyBasicInfo
           values={ModfiyBasicInfoData}
+          isOpen={setModifyItem}
+          onShowMessage={(msg, type) => {
+            setShowMessage(msg);
+            setMessageType(type);
+            if (type === "success") setRefreshKey((prev) => prev + 1);
+          }}
+        />
+      )}
+      {ModifyItem === "images" && (
+        <ModifyImagesMainForm
+          values={ID}
           isOpen={setModifyItem}
           onShowMessage={(msg, type) => {
             setShowMessage(msg);

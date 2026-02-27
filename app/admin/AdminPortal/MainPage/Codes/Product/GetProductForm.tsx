@@ -368,6 +368,10 @@ export default function GetProductsFunctionForm({
                             </div>
 
                             <button
+                              onClick={() => {
+                                productID(item.productID);
+                                values("images");
+                              }}
                               title="Edit Images"
                               className="absolute -top-2 -right-2 bg-slate-900/80 hover:bg-slate-900 text-white p-1.5 rounded-full shadow"
                             >
