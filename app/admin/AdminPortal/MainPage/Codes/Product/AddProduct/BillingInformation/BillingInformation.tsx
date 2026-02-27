@@ -47,26 +47,27 @@ interface varientAttributes {
 interface Imagettype {
   image: File;
 }
+interface BillingInfomration {
+  AmountPaid: number;
+  totalBill: number;
+  discount: number;
+}
 interface BillingAddProductProps {
+  onEdit: (DataPassed: BillingInfomration) => void;
   productInfo: ProductInfo;
   CategoryInfo: CategoryInfo;
   listVarient: listVarient[];
   Imagettype: Imagettype[];
 }
 export default function BillingInformation({
+  onEdit,
   productInfo,
-  CategoryInfo,
   listVarient,
-  Imagettype,
 }: BillingAddProductProps) {
   const [RemaningBalance, setRemaningBalance] = useState(0);
   const [AmountPaid, setAmountPaid] = useState(0);
   const [Discount, setDiscount] = useState(0);
   const [TotalBill, setTotalBill] = useState(0);
-
-  useEffect(() => {
-    console.log(productInfo, CategoryInfo, listVarient, Imagettype);
-  }, [productInfo, CategoryInfo, listVarient, Imagettype]);
 
   useEffect(() => {
     const costPrice = listVarient.reduce((total, variant) => {
@@ -77,6 +78,15 @@ export default function BillingInformation({
     }, 0);
     setAmountPaid(costPrice);
     setTotalBill(costPrice);
+  }, []);
+
+  useEffect(() => {
+    const formData = {
+      AmountPaid: AmountPaid,
+      totalBill: TotalBill,
+      discount: Discount,
+    };
+    onEdit(formData);
   }, []);
   return (
     <>

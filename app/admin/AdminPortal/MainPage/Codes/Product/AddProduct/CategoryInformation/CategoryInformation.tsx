@@ -38,10 +38,10 @@ interface ProductInformation {
   // notShowinCountry: boolean;
   // description: string;
   storeID: string;
-  length: Number;
-  height: Number;
-  depth: Number;
-  weight: Number;
+  length: number;
+  height: number;
+  depth: number;
+  weight: number;
   categoryID: string;
   unitID: string;
   subCategoryDetailID: string;

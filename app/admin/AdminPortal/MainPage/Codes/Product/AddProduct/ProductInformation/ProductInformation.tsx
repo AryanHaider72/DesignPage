@@ -76,6 +76,7 @@ export default function ProductInformation({
     if (response.status === 200 || response.status === 201) {
       const data = response.data as ResponseSupplierGetData;
       setSupplierList(data.supplierList);
+      console.log(data.supplierList);
       if (!SupplierID) {
         setSupplierID(data.supplierList[0].supplierID);
       }
@@ -118,7 +119,7 @@ export default function ProductInformation({
 
   useEffect(() => {
     const formData = {
-      supplierID: SupplierID,
+      supplierID: SupplierID || "dc4f35c5-8b69-454b-b3c5-75f16b2c54be",
       invoiceNo: "",
       purchaseDate: new Date().toISOString().split("T")[0],
       productName: ProductName,

@@ -241,6 +241,7 @@ export default function AddSubCategoryForm({
                 }`}
               onChange={(e) => {
                 setStoreID(e.target.value);
+                getSubCategroy(CategoryMainID, e.target.value);
                 const data = storeList.find(
                   (item) => item.storeID === e.target.value,
                 );

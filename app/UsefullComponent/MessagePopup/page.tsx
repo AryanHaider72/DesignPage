@@ -62,7 +62,7 @@ export default function MessagePopUp({
   };
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-start justify-center">
+    <div className="fixed inset-0 z-[99999] flex items-start justify-center">
       {/* Backdrop with blur */}
       <div
         className={`absolute inset-0 bg-black/10 backdrop-blur-sm transition-all duration-300

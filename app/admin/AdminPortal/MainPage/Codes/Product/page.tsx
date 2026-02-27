@@ -2,6 +2,52 @@
 import { List, Plus } from "lucide-react";
 import { useState } from "react";
 import ProductAddForm from "./ProductAddForm";
+import MessagePopUp from "@/app/UsefullComponent/MessagePopup/page";
+import GetProductsFunctionForm from "./GetProductForm";
+import ModifyBasicInfo from "./GetProduct/ModifyBasicInfo/page";
+import ModifyVarientForm from "./GetProduct/ModifyVarient/ModifyVarient";
+interface ModfiyBasicInfoData {
+  storeID: string;
+  storeName: string;
+  productID: string;
+  supplierID: string;
+  storeSale: string;
+  categoryID: string;
+  subCategoryID: string;
+  subCategoryDetailID: string;
+  unitID: string;
+  productName: string;
+  description: string;
+  feturedProduct: boolean;
+  discount: number;
+  currentStock: number;
+  threshold: number;
+  width: number;
+  height: number;
+  depth: number;
+  weight: number;
+  showinAllCountry: boolean;
+  showinCountry: boolean;
+  notShowinCountry: boolean;
+  countryList: countryList[];
+}
+type countryList = {
+  countryID: string;
+  countryName: string;
+};
+interface Variant {
+  varientID: string;
+  variantName: string;
+  variantValues: VariantValue[];
+}
+type VariantValue = {
+  attributeID: string;
+  varientValue: string;
+  costPrice: number;
+  salePrice: number;
+  qty: number;
+  barcode: string;
+};
 
 export default function ProductForm() {
   const [view, setView] = useState<"list" | "form">("list");
@@ -9,10 +55,46 @@ export default function ProductForm() {
   const [messageType, setMessageType] = useState<"success" | "error">(
     "success",
   );
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [ModfiyBasicInfoData, setModfiyBasicInfoData] =
+    useState<ModfiyBasicInfoData>();
+  const [VarientListData, setVarientListData] = useState<Variant[]>([]);
+  const [ModifyItem, setModifyItem] = useState("");
   const [Update, setUpdate] = useState(false);
   const [ID, setID] = useState("");
   return (
     <>
+      {showMessage && (
+        <MessagePopUp
+          message={showMessage}
+          type={messageType}
+          duration={3000}
+          onClose={() => setShowMessage(null)}
+        />
+      )}
+      {ModifyItem === "varient" && (
+        <ModifyVarientForm
+          values={VarientListData}
+          isOpen={setModifyItem}
+          onShowMessage={(msg, type) => {
+            setShowMessage(msg);
+            setMessageType(type);
+            if (type === "success") setRefreshKey((prev) => prev + 1);
+          }}
+        />
+      )}
+
+      {ModifyItem === "basic" && ModfiyBasicInfoData && (
+        <ModifyBasicInfo
+          values={ModfiyBasicInfoData}
+          isOpen={setModifyItem}
+          onShowMessage={(msg, type) => {
+            setShowMessage(msg);
+            setMessageType(type);
+            if (type === "success") setRefreshKey((prev) => prev + 1);
+          }}
+        />
+      )}
       <div className="space-y-6">
         {/* Top Buttons */}
         <div className="w-full bg-gray-50 shadow-sm flex justify-between px-1 py-2 rounded-lg">
@@ -44,7 +126,29 @@ export default function ProductForm() {
           </h1>
         </div>
         <div className="rounded-3xl bg-white/70 backdrop-blur-xl p-6 shadow-[0_20px_40px_rgba(0,0,0,0.07)] transition-all">
-          {view === "form" && <ProductAddForm />}
+          {view === "form" && (
+            <ProductAddForm
+              onShowMessage={(msg, type) => {
+                setShowMessage(msg);
+                setMessageType(type);
+                if (type === "success") setView("list");
+              }}
+            />
+          )}
+          {view === "list" && (
+            <GetProductsFunctionForm
+              productID={setID}
+              refreshKey={refreshKey}
+              values={setModifyItem}
+              onModifyData={setModfiyBasicInfoData}
+              onVarientData={setVarientListData}
+              onShowMessage={(msg, type) => {
+                setShowMessage(msg);
+                setMessageType(type);
+                if (type === "success") setView("list");
+              }}
+            />
+          )}
         </div>
       </div>
     </>
