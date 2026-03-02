@@ -1,16 +1,34 @@
 "use client";
 import GetSalePosReturn from "@/api/lib/PosIntegration/SaleReturn/GetSaleReturn/GetSaleReturn";
+import DeleteSalePos from "@/api/lib/PosIntegration/SalesPanel/DeleteSale/DeleteSale";
 import {
   GetReturnResponse,
   ReturnSale,
 } from "@/api/types/Posintegration/ReturnItem/ReturnItem";
+import DeleteComponent from "@/app/UsefullComponent/DeleteComponent/page";
 import Spinner from "@/app/UsefullComponent/Spinner/page";
 import { List, Receipt, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
 
-export default function GetSaleReturnForm() {
+interface SaleGetFromProps {
+  showInvocie: (data: boolean) => void;
+  reciptData: (data: ReturnSale) => void;
+  onListGet: (sale: ReturnSale) => void;
+  onShowItemList: (value: boolean) => void;
+  onShowMessage: (message: any, type: "success" | "error") => void;
+}
+export default function GetSaleReturnForm({
+  showInvocie,
+  reciptData,
+  onListGet,
+  onShowItemList,
+  onShowMessage,
+}: SaleGetFromProps) {
   const [isloading, setIsLoading] = useState(false);
   const [SaleList, setSaleList] = useState<ReturnSale[]>([]);
+  const [ID, setID] = useState("");
+  const [Invoice, setInvoice] = useState("");
+  const [Delete, setDelete] = useState(false);
 
   const saleGetReturn = async () => {
     try {
@@ -29,8 +47,54 @@ export default function GetSaleReturnForm() {
     saleGetReturn();
   }, []);
 
+  const FetchData = (ID: string) => {
+    const data = SaleList.find((item) => item.saleID === ID);
+    if (data) {
+      onListGet(data);
+    }
+  };
+  const FetchDataFor = (ID: string) => {
+    const data = SaleList.find((item) => item.saleID === ID);
+    if (data) {
+      reciptData(data);
+      showInvocie(true);
+    }
+  };
+  const SaleDelete = async (ID: string) => {
+    try {
+      setIsLoading(true);
+      const token = localStorage.getItem("posSellerToken");
+      const formData = {
+        saleID: ID,
+        invoiceNo: Invoice,
+      };
+      const response = await DeleteSalePos(String(token), formData);
+      if (response.status === 200 || response.status === 201) {
+        setSaleList((item) => item.filter((emp) => emp.saleID !== ID));
+        setDelete(false);
+        setID("");
+      } else {
+        setDelete(false);
+        onShowMessage(
+          response.message || "An Error Occured while Deleting.",
+          "error",
+        );
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
   return (
     <>
+      {Delete && (
+        <DeleteComponent
+          onCancel={() => {
+            setDelete(false);
+            setID("");
+          }}
+          onConfirm={() => SaleDelete(ID)}
+        />
+      )}
       {isloading ? (
         <div className="flex justify-center py-10">
           <Spinner />
@@ -69,10 +133,10 @@ export default function GetSaleReturnForm() {
                   {/* Right: Action Buttons */}
                   <div className="flex items-center gap-2">
                     <button
-                      //   onClick={() => {
-                      //     onShowItemList(true);
-                      //     FetchData(item.saleID);
-                      //   }}
+                      onClick={() => {
+                        onShowItemList(true);
+                        FetchData(item.saleID);
+                      }}
                       title="List"
                       className="relative flex items-center gap-1 px-2 py-1 text-sm font-medium text-yellow-600 border border-yellow-600 rounded hover:bg-yellow-50 transition"
                     >
@@ -94,21 +158,20 @@ export default function GetSaleReturnForm() {
                             <Pencil />
                           </button> */}
                     <button
-                      // onClick={() => {
-                      //   setDelete(true);
-                      //   setID(item.expenseID);
-                      // }}
+                      onClick={() => {
+                        FetchDataFor(item.saleID);
+                      }}
                       title="Receipt"
                       className="flex items-center gap-1 px-2 py-1 text-sm font-medium text-green-600 border border-green-600 rounded hover:bg-green-50 transition"
                     >
                       <Receipt />
                     </button>
                     <button
-                      //   onClick={() => {
-                      //     setDelete(true);
-                      //     setID(item.saleID);
-                      //     setInvoice(String(item.invoiceNo));
-                      //   }}
+                      onClick={() => {
+                        setDelete(true);
+                        setID(item.saleID);
+                        setInvoice(String(item.invoiceNo));
+                      }}
                       title="Delete"
                       className="flex items-center gap-1 px-2 py-1 text-sm font-medium text-red-600 border border-red-600 rounded hover:bg-red-50 transition"
                     >

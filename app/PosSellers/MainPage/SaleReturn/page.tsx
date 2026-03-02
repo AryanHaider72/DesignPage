@@ -1,10 +1,13 @@
 "use client";
-import { List, Plus } from "lucide-react";
+import { List, Plus, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import AddSaleForm from "./AddSaleForm";
 import AddReturnItemtoSaleform from "./AddReturnItem/page";
 import MessagePopUp from "@/app/UsefullComponent/MessagePopup/page";
 import GetSaleReturnForm from "./getSaleReturnForm";
+import { ReturnSale } from "@/api/types/Posintegration/ReturnItem/ReturnItem";
+import ShowProductSoldListCall from "./ReturnItemList/ReturnItemlist";
+import ReceiptPrintModal from "./ReciptPrintModel/ReciptPrintModel";
 
 interface newItem {
   attributeID: string;
@@ -21,6 +24,10 @@ export default function SaleReturnFormMain() {
   const [isOpenReturn, setisOpenReturn] = useState(false);
   const [newItem, setNewItem] = useState<newItem[]>([]);
   const [showMessage, setShowMessage] = useState<string | null>(null);
+  const [SaleList2, setSaleList2] = useState<ReturnSale>();
+  const [ReturnList, setReturnList] = useState<ReturnSale>();
+  const [ShowInvoiceData, setShowInvoiceData] = useState(false);
+  const [ShowProductSoldList, setShowProductSoldList] = useState(false);
   const [messageType, setMessageType] = useState<"success" | "error">(
     "success",
   );
@@ -86,6 +93,42 @@ export default function SaleReturnFormMain() {
             Sale Return Management
           </h1>
         </div>
+        {ShowProductSoldList && (
+          <div className="fixed inset-0 w-full  h-screen flex items-center justify-center bg-black/50 backdrop-blur-sm z-100">
+            <div className="bg-white  rounded-2xl shadow-lg p-6 w-full max-w-4xl ">
+              <div className="flex w-full justify-end">
+                <button
+                  onClick={() => {
+                    setShowProductSoldList(false);
+                  }}
+                  className="text-right text-gray-600 hover:text-red-500"
+                >
+                  <X />
+                </button>
+              </div>
+              <ShowProductSoldListCall
+                SaleItems={SaleList2 ? [SaleList2] : []}
+              />
+            </div>
+          </div>
+        )}
+        {ShowInvoiceData && (
+          <div className="fixed inset-0 w-full  h-screen flex items-center justify-center bg-black/50 backdrop-blur-sm z-100">
+            <div className="bg-white  rounded-2xl shadow-lg p-6 w-full max-w-4xl ">
+              <div className="flex w-full justify-end">
+                <button
+                  onClick={() => {
+                    setShowInvoiceData(false);
+                  }}
+                  className="text-right text-gray-600 hover:text-red-500"
+                >
+                  <X />
+                </button>
+              </div>
+              <ReceiptPrintModal getData={ReturnList ? [ReturnList] : []} />
+            </div>
+          </div>
+        )}
         <div className="rounded-3xl bg-white/70 backdrop-blur-xl p-6 shadow-[0_20px_40px_rgba(0,0,0,0.07)] transition-all">
           {view === "form" && (
             <AddSaleForm
@@ -100,7 +143,19 @@ export default function SaleReturnFormMain() {
               }}
             />
           )}
-          {view === "list" && <GetSaleReturnForm />}
+          {view === "list" && (
+            <GetSaleReturnForm
+              showInvocie={setShowInvoiceData}
+              reciptData={setReturnList}
+              onListGet={setSaleList2}
+              onShowItemList={setShowProductSoldList}
+              onShowMessage={(msg, type) => {
+                setShowMessage(msg);
+                setMessageType(type);
+                if (type === "success") setView("list");
+              }}
+            />
+          )}
         </div>
       </div>
     </>
