@@ -1,5 +1,6 @@
 import GetTillForSalesMan from "@/api/lib/OfflineSeller/MainPage/TillsGet/SalesManTill/SelemanGetTill";
 import GetProductSalesMan from "@/api/lib/PosIntegration/ProductSalesMan/GetProductSalesMan/GetProductSalesMan";
+import AddSalePosReturn from "@/api/lib/PosIntegration/SaleReturn/AddSaleReturn/AddSaleReturn";
 import GetSalePosInvoice from "@/api/lib/PosIntegration/SalesPanel/SaleGetInvoice/SaleGetInvoice";
 import SearchByInvoice from "@/api/lib/PosIntegration/SearchHistory/SearchByInvoice/SearchInvocie";
 import SearchByProduct from "@/api/lib/PosIntegration/SearchHistory/SearchProduct/SearchProduct";
@@ -12,7 +13,7 @@ import {
   ProductApiResponseSalesMan,
 } from "@/api/types/Posintegration/Product/ProductGet";
 import { responseGetSale, Sale } from "@/api/types/Posintegration/Salespanel";
-import { Plus } from "lucide-react";
+import { Check, Plus, ShoppingCart, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
 
 interface historyData {
@@ -25,6 +26,7 @@ interface historyData {
   maxQty: number;
   saleDate: string;
   customerName: string;
+  customerID: string;
 }
 
 interface responseList {
@@ -33,8 +35,28 @@ interface responseList {
 
 interface AddReturnForm {
   isOpenReturn: (data: boolean) => void;
+  exchangeItems: newItem[];
+  removeItem: (data: string) => void;
+  handleResetNewItem: (data: boolean) => void;
+  onShowMessage: (message: any, type: "success" | "error") => void;
 }
-export default function AddSaleForm({ isOpenReturn }: AddReturnForm) {
+interface newItem {
+  attributeID: string;
+  productName: string;
+  qty: number;
+  varientValue: string;
+  price: number;
+  barcode: string;
+  stockQty: number;
+  discount: number;
+}
+export default function AddSaleForm({
+  isOpenReturn,
+  exchangeItems,
+  removeItem,
+  handleResetNewItem,
+  onShowMessage,
+}: AddReturnForm) {
   const [open, setOpen] = useState(false);
   const [Loading, setLoading] = useState(false);
   const [ShowProduct, setShowProduct] = useState(false);
@@ -44,6 +66,7 @@ export default function AddSaleForm({ isOpenReturn }: AddReturnForm) {
   const [returnType, setReturnType] = useState("");
   const [selectedOption, setSelectedOption] = useState("inovice");
   const [CustomerName, setCustomerName] = useState("");
+  const [CustomerID, setCustomerID] = useState("");
   const [inoviceNo, setInvoiceNo] = useState("");
   const [ProductName, setProductName] = useState("");
   const [SaleList, setSaleList] = useState<Sale[]>([]);
@@ -53,12 +76,14 @@ export default function AddSaleForm({ isOpenReturn }: AddReturnForm) {
   const [AmountPaid, setAmountPaid] = useState(0);
   const [Discount, setDiscount] = useState(0);
   const [TotalBill, setTotalBill] = useState(0);
+  const [TotalExchnage, setTotalExchnage] = useState(0);
 
   const saleGet = async () => {
     const token = localStorage.getItem("posSellerToken");
     const response = await GetSalePosInvoice(String(token));
     if (response.status === 200 || response.status === 201) {
       const data = response.data as responseGetSale;
+      console.log(data);
       setSaleList(data.saleList);
     }
   };
@@ -85,10 +110,12 @@ export default function AddSaleForm({ isOpenReturn }: AddReturnForm) {
             maxQty: item.qty,
             saleDate: item.saleDate,
             customerName: item.customerName,
+            customerID: item.customerID,
           })) || [],
         );
         if (data.showHistory && data.showHistory.length > 0) {
           setCustomerName(data.showHistory[0].customerName);
+          setCustomerID(data.showHistory[0].customerID);
         }
       }
     }
@@ -149,18 +176,23 @@ export default function AddSaleForm({ isOpenReturn }: AddReturnForm) {
   };
 
   useEffect(() => {
+    const date = new Date().toISOString().split("T")[0];
+    setSaleDate(date);
     saleGet();
     getTill();
   }, []);
 
-  // Calculate total bill whenever InvocieHistory changes
   useEffect(() => {
     const total = InvocieHistory.reduce((sum, item) => {
       return sum + item.salePrice * item.qty;
     }, 0);
+    const totalExchange = exchangeItems.reduce((sum, item) => {
+      return sum + item.price * item.qty;
+    }, 0);
+    setTotalExchnage(totalExchange);
     setTotalBill(total);
     setAmountPaid(total); // Initialize AmountPaid with total
-  }, [InvocieHistory]);
+  }, [InvocieHistory, exchangeItems]);
 
   const filteredOptions = SaleList.filter((opt) =>
     String(opt.invoiceNo).toLowerCase().includes(inoviceNo.toLowerCase()),
@@ -182,6 +214,8 @@ export default function AddSaleForm({ isOpenReturn }: AddReturnForm) {
   };
 
   const handleSave = async (type: string) => {
+    if (!returnType) return alert("please select a return Type");
+
     let totalBill = 0;
     let amountPaid = 0;
     // if (returnType === "refund") {
@@ -200,17 +234,13 @@ export default function AddSaleForm({ isOpenReturn }: AddReturnForm) {
       totalBill = -TotalBill;
       amountPaid = 0;
     }
-    // if (type === "exchange") {
-    //   totalBill =
-    //     totalExchange - totalReturn > 0
-    //       ? totalExchange - totalReturn - Discount
-    //       : -Math.abs(totalExchange - totalReturn - Discount);
-    //   amountPaid =
-    //     totalExchange - totalReturn > 0 ? AmountPaid : -Math.abs(AmountPaid);
-    // }
+    if (type === "Exchange") {
+      totalBill = TotalBill - TotalExchnage;
+      amountPaid = AmountPaid + Discount;
+    }
     const formData = {
       saleID: SaleID,
-      customerID: CustomerName,
+      customerID: CustomerID,
       postingDate: saleDate,
       totalBill,
       amountPaid,
@@ -218,33 +248,75 @@ export default function AddSaleForm({ isOpenReturn }: AddReturnForm) {
       RetunrType: type,
       remarks: "",
 
-      //   ...(type === "exchange"
-      //     ? {
-      //         listReturn: returnItems,
-      //         listExcahnge: items,
-      //       }
-      //     : {
-      //         listReturn: returnItems,
-      //         listExcahnge: [],
-      //       }),
+      ...(type === "exchange"
+        ? {
+            listReturn: InvocieHistory.map((item) => ({
+              attributeID: item.attributeID,
+              productName: item.productName,
+              barcode: item.barcode,
+              qty: item.qty,
+              rate: item.salePrice,
+            })),
+            listExcahnge: exchangeItems.map((item) => ({
+              attributeID: item.attributeID,
+              productName: item.productName,
+              barcode: item.barcode,
+              qty: item.qty,
+              rate: item.price,
+            })),
+          }
+        : {
+            listReturn: InvocieHistory.map((item) => ({
+              attributeID: item.attributeID,
+              productName: item.productName,
+              barcode: item.barcode,
+              qty: item.qty,
+              rate: item.salePrice,
+            })),
+            listExcahnge: [],
+          }),
     };
-    const token = localStorage.getItem("tokenPosSale");
+    const token = localStorage.getItem("posSellerToken");
     console.log(formData);
     try {
       setLoading(true);
       const response = await AddSalePosReturn(formData, String(token));
       if (response.status === 200 || response.status === 201) {
+        handleResetNewItem(true);
         setAmountPaid(0);
         setDiscount(0);
         setInvocieHistory([]);
         setInvoiceNo("");
-        setReturnType("refund");
+        setProductName("");
+        setCustomerName("");
+        setSaleDate("");
+        setCustomerID("");
+        setSaleID("");
+        setReturnType("");
+        setTotalBill(0);
+        setTotalExchnage(0);
+        onShowMessage(
+          response.message || "Customer Added successfully",
+          "success",
+        );
+      } else {
+        onShowMessage(response.message, "error");
       }
     } finally {
       setLoading(false);
     }
   };
 
+  const handleReturnTypeChange = (type: string) => {
+    setReturnType(type);
+  };
+  const removeItemFromList = (ID: string) => {
+    removeItem(ID);
+  };
+  const handleRemoveInvoiceItems = (ID: string) => {
+    const updated = InvocieHistory.filter((item) => item.attributeID !== ID);
+    setInvocieHistory(updated);
+  };
   return (
     <>
       <div className="w-full mx-auto p-6 min-h-screen">
@@ -468,29 +540,55 @@ export default function AddSaleForm({ isOpenReturn }: AddReturnForm) {
                     Rs. {(TotalBill - Discount).toFixed(2)}
                   </span>
                 </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">
+                    Exchange Amount:
+                  </span>
+                  <span className="text-lg font-semibold text-gray-800">
+                    Rs. {TotalExchnage.toFixed(2)}
+                  </span>
+                </div>
 
+                {/* Remaining Balance */}
                 {/* Remaining Balance */}
                 <div className="flex justify-between items-center pt-2 border-t border-gray-200">
                   <span className="text-sm font-medium text-gray-700">
                     Remaining Balance:
                   </span>
-                  <span
-                    className={`text-lg font-bold ${
-                      TotalBill - AmountPaid - Discount > 0
-                        ? "text-red-500"
-                        : TotalBill - AmountPaid - Discount < 0
-                          ? "text-blue-500"
-                          : "text-green-500"
-                    }`}
-                  >
-                    Rs. {(TotalBill - AmountPaid - Discount).toFixed(2)}
-                    {TotalBill - AmountPaid - Discount > 0
-                      ? " (Due)"
-                      : TotalBill - AmountPaid - Discount < 0
-                        ? " (Change)"
-                        : ""}
-                  </span>
+
+                  {(() => {
+                    const remaining =
+                      TotalBill - Discount - TotalExchnage - AmountPaid;
+
+                    let statusText = "";
+                    let statusColor = "";
+
+                    if (remaining > 0) {
+                      statusText = " (Due)";
+                      statusColor = "text-red-500";
+                    } else if (remaining < 0) {
+                      statusText = " (Change)";
+                      statusColor = "text-blue-500";
+                    } else {
+                      statusText = " (Settled)"; // ✅ NEW TERM
+                      statusColor = "text-green-600";
+                    }
+
+                    return (
+                      <span className={`text-lg font-bold ${statusColor}`}>
+                        Rs. {remaining.toFixed(2)} {statusText}
+                      </span>
+                    );
+                  })()}
                 </div>
+              </div>
+              <div className="space-y-2 pt-4">
+                <button
+                  onClick={() => handleSave(returnType)}
+                  className="w-full bg-black hover:bg-gray-900 text-white font-medium py-2.5 px-4 rounded-lg transition shadow-sm"
+                >
+                  {Loading ? "Saving..." : "Save"}
+                </button>
               </div>
             </div>
           </div>
@@ -526,6 +624,9 @@ export default function AddSaleForm({ isOpenReturn }: AddReturnForm) {
                     </th>
                     <th className="px-4 py-2 text-center text-gray-700 font-medium whitespace-nowrap">
                       Total
+                    </th>
+                    <th className="px-4 py-2 text-center text-gray-700 font-medium whitespace-nowrap">
+                      Action
                     </th>
                     <th className="px-4 py-2 text-center text-gray-700 font-medium whitespace-nowrap">
                       Action
@@ -575,20 +676,50 @@ export default function AddSaleForm({ isOpenReturn }: AddReturnForm) {
                       </td>
                       <td className="px-4 py-2 text-center text-gray-700 whitespace-nowrap">
                         <div className="flex justify-center gap-2">
-                          <button className="px-3 py-1.5 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700 hover:bg-yellow-200 transition">
-                            Refund
-                          </button>
-                          <button className="px-3 py-1.5 rounded-full text-xs font-semibold bg-green-100 text-green-700 hover:bg-green-200 transition">
-                            Credit
-                          </button>
+                          {["refund", "credit", "Exchange"].map((type) => {
+                            const isActive = returnType === type;
+
+                            return (
+                              <button
+                                key={type}
+                                onClick={() => {
+                                  handleReturnTypeChange(type);
+                                  if (type === "Exchange") isOpenReturn(true);
+                                }}
+                                className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200
+                                  ${
+                                    isActive
+                                      ? type === "refund"
+                                        ? "bg-yellow-500 text-white shadow-md scale-105"
+                                        : type === "credit"
+                                          ? "bg-green-500 text-white shadow-md scale-105"
+                                          : "bg-purple-500 text-white shadow-md scale-105"
+                                      : type === "refund"
+                                        ? "bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
+                                        : type === "credit"
+                                          ? "bg-green-100 text-green-700 hover:bg-green-200"
+                                          : "bg-purple-100 text-purple-700 hover:bg-purple-200"
+                                  }
+                                `}
+                              >
+                                {type.charAt(0).toUpperCase() + type.slice(1)}
+                                {isActive && (
+                                  <Check size={12} className="inline ml-1" />
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </td>
+                      <td className="px-4 py-2 text-center text-gray-700 whitespace-nowrap">
+                        <div className="flex justify-center gap-2">
                           <button
-                            onClick={() => {
-                              setReturnType("Exchange");
-                              isOpenReturn(true);
-                            }}
-                            className="px-3 py-1.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-700 hover:bg-purple-200 transition"
+                            onClick={() =>
+                              handleRemoveInvoiceItems(item.attributeID)
+                            }
+                            className="px-3 py-1.5 rounded-md text-white font-semibold bg-red-500  hover:bg-red-600 transition"
                           >
-                            Exchange
+                            <Trash />
                           </button>
                         </div>
                       </td>
@@ -598,6 +729,107 @@ export default function AddSaleForm({ isOpenReturn }: AddReturnForm) {
               </table>
             </div>
           </div>
+        )}
+        {returnType === "Exchange" && (
+          <>
+            {exchangeItems.length > 0 && (
+              <div className="mt-6 flex-1 min-w-0 bg-white rounded-xl shadow-sm border border-gray-100 p-5 overflow-x-auto">
+                <h2 className="text-lg font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-100">
+                  Exchange Items
+                </h2>
+                <div className="w-full">
+                  <table className="w-full border border-gray-50 rounded-lg overflow-hidden">
+                    <thead className="bg-gray-100">
+                      <tr>
+                        <th className="px-4 py-2 text-left text-gray-700 font-medium whitespace-nowrap">
+                          Barcode
+                        </th>
+                        <th className="px-4 py-2 text-left text-gray-700 font-medium whitespace-nowrap">
+                          Product Name
+                        </th>
+                        <th className="px-4 py-2 text-center text-gray-700 font-medium whitespace-nowrap">
+                          Variant
+                        </th>
+                        <th className="px-4 py-2 text-center text-gray-700 font-medium whitespace-nowrap">
+                          Qty
+                        </th>
+                        <th className="px-4 py-2 text-center text-gray-700 font-medium whitespace-nowrap">
+                          Original Price
+                        </th>
+                        <th className="px-4 py-2 text-center text-gray-700 font-medium whitespace-nowrap">
+                          Discount
+                        </th>
+                        <th className="px-4 py-2 text-center text-gray-700 font-medium whitespace-nowrap">
+                          Total
+                        </th>
+                        <th className="px-4 py-2 text-center text-gray-700 font-medium whitespace-nowrap">
+                          Action
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {exchangeItems.map((item, index) => (
+                        <tr
+                          key={item.attributeID}
+                          className={`${
+                            item.stockQty < item.qty
+                              ? "bg-red-50"
+                              : "hover:bg-gray-50"
+                          } transition-colors`}
+                        >
+                          <td className="px-4 py-2 text-left text-gray-700 whitespace-nowrap">
+                            {item.barcode}
+                          </td>
+                          <td className="px-4 py-2 text-left text-gray-700 whitespace-nowrap">
+                            {item.productName}
+                          </td>
+                          <td className="px-4 py-2 text-center text-gray-700 whitespace-nowrap">
+                            {item.varientValue || "N/A"}
+                          </td>
+                          <td className="px-4 py-2 text-center text-gray-700 whitespace-nowrap">
+                            <input
+                              type="number"
+                              className="w-20 text-center border rounded-md px-2 py-1 border-gray-200"
+                              value={item.qty}
+                              onChange={(e) => {
+                                const value = parseInt(e.target.value) || 1;
+                                handleQuantityChange(index, value);
+                              }}
+                              min={1}
+                              max={item.stockQty}
+                            />
+                          </td>
+                          <td className="px-4 py-2 text-center text-gray-700 whitespace-nowrap">
+                            Rs. {item.price?.toFixed(2) || "0.00"}
+                          </td>
+                          <td className="px-4 py-2 text-center text-gray-700 whitespace-nowrap font-medium">
+                            Rs. {item.discount?.toFixed(2) || "0.00"}
+                          </td>
+                          <td className="px-4 py-2 text-center text-gray-700 whitespace-nowrap font-medium">
+                            Rs.{" "}
+                            {item.qty * item.price -
+                              (item.discount * (item.qty * item.price)) / 100}
+                          </td>
+                          <td className="px-4 py-2 text-center text-gray-700 whitespace-nowrap">
+                            <div className="flex justify-center gap-2">
+                              <button
+                                onClick={() =>
+                                  removeItemFromList(item.attributeID)
+                                }
+                                className="px-3 py-1.5 rounded-md text-white font-semibold bg-red-500  hover:bg-red-600 transition"
+                              >
+                                <Trash />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
     </>

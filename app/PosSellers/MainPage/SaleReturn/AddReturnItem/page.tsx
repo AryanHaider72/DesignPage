@@ -7,11 +7,13 @@ import {
   ProductApiResponseSalesMan,
   varinetMessage,
 } from "@/api/types/Posintegration/Product/ProductGet";
-import { Plus, Trash, X } from "lucide-react";
+import { Plus, ShoppingCart, Trash, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 interface AddReturnForm {
   isOpenReturn: (data: boolean) => void;
+  addItemsList: (data: newItem[]) => void;
+  removeItem: string;
 }
 interface newItem {
   attributeID: string;
@@ -54,6 +56,8 @@ interface variantValues {
 }
 export default function AddReturnItemtoSaleform({
   isOpenReturn,
+  addItemsList,
+  removeItem,
 }: AddReturnForm) {
   const [Barcode, setBarcode] = useState("");
   const [showVareintList, setShowVareintList] = useState(false);
@@ -137,7 +141,7 @@ export default function AddReturnItemtoSaleform({
       }
     }
   };
-  const removeItem = (attribuetID: string) => {
+  const removeItemFromList = (attribuetID: string) => {
     setNewItem((item) =>
       item.filter((item2) => item2.attributeID !== attribuetID),
     );
@@ -185,7 +189,6 @@ export default function AddReturnItemtoSaleform({
       );
     }
   };
-
   const handleAddEvent = () => {
     const data = AttribuetListInPopUp.find(
       (item) => item.attributeID === attributeID,
@@ -209,6 +212,10 @@ export default function AddReturnItemtoSaleform({
     setVarintListInPopUp([]);
     setAttribuetListInPopUp([]);
   };
+  const handleAddItminList = () => {
+    addItemsList(newItem);
+  };
+
   useEffect(() => {
     if (!ProductName || ProductName.trim().length === 0) return;
 
@@ -445,7 +452,9 @@ export default function AddReturnItemtoSaleform({
                             </td>
                             <td className="py-3 px-4 ">
                               <button
-                                onClick={() => removeItem(item.attributeID)}
+                                onClick={() =>
+                                  removeItemFromList(item.attributeID)
+                                }
                                 className="px-2 py-2 bg-red-500 hover:bg-red-600 rounded-md text-white "
                               >
                                 <Trash />
@@ -480,11 +489,22 @@ export default function AddReturnItemtoSaleform({
                 </tbody>
               </table>
 
-              {/* Empty State */}
+              <div className="mt-10 flex w-full justify-end">
+                <button
+                  onClick={() => {
+                    handleAddItminList();
+                    isOpenReturn(false);
+                  }}
+                  title="Add Item"
+                  className="px-2 py-3 bg-green-600 hover:bg-green-700  text-white rounded-md shadow-md flex justify-between gap-2"
+                >
+                  <ShoppingCart />
+                  <span className="text-lg mx-2">Add Item</span>
+                </button>
+              </div>
             </div>
           </>
         </div>
-        <button></button>
       </div>
     </>
   );

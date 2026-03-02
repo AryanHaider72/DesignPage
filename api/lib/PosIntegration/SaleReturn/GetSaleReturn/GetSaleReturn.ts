@@ -1,19 +1,14 @@
 "use server";
 
 import ErrorHandler from "@/api/ErrorHandler/ErrorHandler";
-import { postRequest } from "@/api/main/main";
-import { requestAddSaleReturn } from "@/api/types/Posintegration/ReturnItem/ReturnItem";
+import { getRequest } from "@/api/main/main";
 
-export default async function AddSalePosReturn(
-  data: requestAddSaleReturn,
-  token: string,
-) {
+export default async function GetSalePosReturn(token: string, data?: {}) {
   const customHeader: Record<string, string> = {};
   if (token) customHeader.Authorization = `Bearer ${token}`;
-
-  const response = await postRequest(
-    `/api/sale/seller/posIntegration/AddReturn`,
-    data,
+  const response = await getRequest(
+    `/api/sale/seller/posIntegration/GetReturn`,
+    null,
     customHeader,
   );
 
@@ -29,6 +24,6 @@ export default async function AddSalePosReturn(
   return {
     data: response.data,
     status: response.status,
-    message: response.message || "Record Added Successfully",
+    message: response.message || "An unexpected error occurred",
   };
 }
