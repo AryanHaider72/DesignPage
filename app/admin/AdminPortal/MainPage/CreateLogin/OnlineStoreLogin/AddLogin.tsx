@@ -1,3 +1,4 @@
+import CreateLoginsApi from "@/api/lib/Admin/CreateLogins/CreateLogin";
 import GetInitalStoreSalesMan from "@/api/lib/Admin/Stores/GetInitalStore/GetInitalStore";
 import {
   ResponseStoreList,
@@ -10,7 +11,13 @@ interface itemsList {
   storeID: string;
   storeName: string;
 }
-export default function AddLoginsOnline() {
+interface AddUnitProps {
+  // initialData?: CategorySub | null;
+  // storeID: string;
+  // Update: boolean;
+  onShowMessage: (message: any, type: "success" | "error") => void;
+}
+export default function AddLoginsOnline({ onShowMessage }: AddUnitProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [storeID, setStoreID] = useState("");
   const [Email, setEmail] = useState("");
@@ -51,7 +58,37 @@ export default function AddLoginsOnline() {
     const data = items.filter((item) => item.storeID !== index);
     setItems(data);
   };
-
+  const handleSaveCreateLogin = async () => {
+    try {
+      setIsLoading(true);
+      const token = localStorage.getItem("adminToken");
+      const formData = {
+        userName: "",
+        email: Email,
+        password: Password,
+        phoneNo: "",
+        status: "OnlineSeller",
+        stores: items.map((list) => ({
+          storeID: list.storeID,
+        })),
+        address: "",
+      };
+      const response = await CreateLoginsApi(formData, String(token));
+      if (response.status === 200 || response.status === 201) {
+        setItems([]);
+        setEmail("");
+        setPassword("");
+        onShowMessage(
+          response.message || "Login Created successfully",
+          "success",
+        );
+      } else {
+        onShowMessage(response.message, "error");
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
   return (
     <>
       <div className="w-full flex flex-col lg:flex-row gap-8">
@@ -115,7 +152,7 @@ export default function AddLoginsOnline() {
           </div>
           <div className="flex justify-end">
             <button
-              //onClick={createStore}
+              onClick={handleSaveCreateLogin}
               className="px-6 py-2 rounded-xl bg-neutral-900 text-white font-medium hover:bg-neutral-800 transition shadow-lg"
             >
               {isLoading ? "Saving..." : "Save"}

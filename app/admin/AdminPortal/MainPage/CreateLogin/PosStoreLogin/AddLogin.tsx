@@ -1,4 +1,4 @@
-import CreateLoginsApi from "@/api/lib/Admin/CreateLogins/CreateLogin";
+import CreateLoginsApi from "@/api/lib/Admin/CreateLogins/CcreateLogin/CreateLogin";
 import GetInitalStoreSalesMan from "@/api/lib/Admin/Stores/GetInitalStore/GetInitalStore";
 import {
   ResponseStoreList,

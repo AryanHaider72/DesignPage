@@ -24,10 +24,15 @@ export default function LoginForm() {
       }
       if (response.success) {
         const data = response.data;
-        console.log(data);
-        localStorage.setItem("adminToken", data?.token);
-        localStorage.setItem("adminEmail", email);
-        window.location.href = "/admin/AdminPortal/MainPage/Dashboard";
+        if (data.status === "OfflineSeller") {
+          window.location.href = "/OfflineSeller/MainPage/Dashboard";
+          localStorage.setItem("sellerToken", data?.token);
+        }
+        if (data.status === "Platform Owner") {
+          localStorage.setItem("sellerToken", data?.token);
+          localStorage.setItem("adminEmail", email);
+          window.location.href = "/admin/AdminPortal/MainPage/Dashboard";
+        }
         setLoading(false);
         return;
       }

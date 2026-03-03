@@ -114,7 +114,7 @@ export default function SaleReturnFormMain() {
         )}
         {ShowInvoiceData && (
           <div className="fixed inset-0 w-full  h-screen flex items-center justify-center bg-black/50 backdrop-blur-sm z-100">
-            <div className="bg-white  rounded-2xl shadow-lg p-6 w-full max-w-4xl ">
+            <div className="bg-white  rounded-2xl shadow-lg p-6 w-full max-w-3xl ">
               <div className="flex w-full justify-end">
                 <button
                   onClick={() => {

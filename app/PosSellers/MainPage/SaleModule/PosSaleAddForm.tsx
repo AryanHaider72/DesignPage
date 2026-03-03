@@ -114,6 +114,7 @@ export default function PosSaleAddForm({
     if (response.status === 200) {
       const data = response.data as RespiosneGetTills;
       if (data?.tillList?.length > 0) {
+        console.log(data);
         setTillList(data.tillList);
         setTillID(data.tillList[0].tillID);
       } else {
@@ -130,6 +131,7 @@ export default function PosSaleAddForm({
 
     if (response.status === 200 || response.status === 201) {
       const data = response.data as ProductApiResponseSalesMan;
+      console.log(data);
       setProductList2(data.productList);
     } else {
       setProductList2([]);
@@ -153,9 +155,7 @@ export default function PosSaleAddForm({
     fetchSalesman();
     CustomerGet();
   }, []);
-  const filteredOptions = productList2.filter((opt) =>
-    String(opt.productName).includes(ProductName.toLowerCase()),
-  );
+
   useEffect(() => {
     const getItemTotal = (item: any) => {
       const totalWithoutDiscount = item.qty * item.price;
@@ -348,9 +348,9 @@ export default function PosSaleAddForm({
                           <Notebook />
                         </button>
                       </div>
-                      {ShowProduct && filteredOptions.length > 0 && (
+                      {ShowProduct && productList2.length > 0 && (
                         <ul className="relative  w-full bg-white border border-neutral-200 rounded mt-1 shadow-sm max-h-40 overflow-auto">
-                          {filteredOptions.map((opt, index) => (
+                          {productList2.map((opt, index) => (
                             <li
                               key={index}
                               onMouseDown={() => {
