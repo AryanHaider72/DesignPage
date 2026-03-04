@@ -1,22 +1,22 @@
 "use client";
+import { Variant } from "@/api/types/Posintegration/Product/ProductGet";
 import { Plus, X } from "lucide-react";
 import { useState } from "react";
 
 interface newItem {
   attributeID: string;
-  productName: string;
   qty: number;
   varientValue: string;
   price: number;
   barcode: string;
   stockQty: number;
   discount: number;
+  productName?: string;
 }
+
 interface VarintList {
-  productName: string;
   varientID: string;
   variantName: string;
-  discount: number;
   variantValues: variantValues[];
 }
 interface variantValues {
@@ -29,55 +29,36 @@ interface variantValues {
 }
 interface ShowSaleForm {
   onToggleVarientList: (value: boolean) => void;
-  VarintListInPopUp: VarintList[];
+  VarintListInPopUp: Variant[];
   onAddVarientItem: (item: newItem) => void;
 }
+
 export default function ShowVarientItems({
   onToggleVarientList,
   VarintListInPopUp,
   onAddVarientItem,
 }: ShowSaleForm) {
-  const [newItem, setNewItem] = useState<newItem[]>([]);
-
-  //   const handleAddtoList = (attributeID: string) => {
-  //     // find item
-  //     const data = VarintListInPopUp.find(
-  //       (item) => item.attributeID === attributeID,
-  //     );
-  //     if (!data) return;
-
-  //     const newEntry: newItem = {
-  //       attributeID: data.attributeID,
-  //       productName: data.productName,
-  //       qty: -1, // negative for return
-  //       varientValue: data.varientValue,
-  //       price: data.salePrice,
-  //       barcode: data.barcode,
-  //       stockQty: Math.abs(data.qty),
-  //       discount: 0,
-  //     };
-
-  //     onAddVarientItem(newEntry);
-  //   };
-
   const handleAddtoList = (varientID: string, attributeID: string) => {
     const data = VarintListInPopUp.find((item) => item.varientID === varientID);
     if (!data) return;
-    const attribute = data.variantValues.find(
+
+    const attribute = data.varientSubList.find(
       (item) => item.attributeID === attributeID,
     );
     if (!attribute) return;
 
     const newEntry: newItem = {
-      attributeID: attribute.attributeID,
       productName: data.productName,
+      attributeID: attribute.attributeID,
       qty: 1,
       varientValue: attribute.varientValue,
       price: attribute.salePrice,
       barcode: attribute.barcode,
       stockQty: attribute.qty,
       discount: 0,
+      // productName is optional, so it's okay to omit it
     };
+
     onAddVarientItem(newEntry);
   };
 
@@ -95,10 +76,8 @@ export default function ShowVarientItems({
       </div>
       <div className="w-full overflow-x-auto mt-2">
         {VarintListInPopUp.map((item, index) => (
-          <>
-            <h1 key={item.varientID} className="text-lg font-bold">
-              {item.variantName}
-            </h1>
+          <div key={item.varientID}>
+            <h1 className="text-lg font-bold">{item.variantName}</h1>
             <table className="w-full border border-gray-200 rounded-lg">
               <thead className="bg-gray-100">
                 <tr>
@@ -120,8 +99,8 @@ export default function ShowVarientItems({
                 </tr>
               </thead>
               <tbody>
-                {item.variantValues.map((item2) => (
-                  <tr className="border-t">
+                {item.varientSubList.map((item2) => (
+                  <tr key={item2.attributeID} className="border-t">
                     <td className="px-4 py-2 text-left">{item2.barcode}</td>
                     <td className="px-4 py-2 text-center">
                       {item2.varientValue}
@@ -133,16 +112,16 @@ export default function ShowVarientItems({
                         onClick={() =>
                           handleAddtoList(item.varientID, item2.attributeID)
                         }
-                        className="px-2 py-1 bg-yellow-500 text-white rounded-md"
+                        className="px-2 py-1 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition-colors"
                       >
-                        <Plus />
+                        <Plus size={16} />
                       </button>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-          </>
+          </div>
         ))}
       </div>
     </>

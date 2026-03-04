@@ -18,7 +18,7 @@ import GetProductVarient from "@/api/lib/PosIntegration/ProductSalesMan/FetchPro
 import AddSale from "@/api/lib/PosIntegration/SalesPanel/SaleAdd/SaleAdd";
 interface newItem {
   attributeID: string;
-  productName: string;
+  productName?: string;
   qty: number;
   varientValue: string;
   price: number;
@@ -30,12 +30,14 @@ interface newItem {
 interface ShowSaleForm {
   onToggleReturnList: (value: boolean) => void;
   onToggleProductID: (value: string) => void;
+  productData: (value: Product[]) => void;
   returnItemData: newItem[];
   onToggleVarientLIstShow: (value: boolean) => void;
   onToggleAttribuetID: (value: string) => void;
   onQtyChange: (attributeID: string, qty: number) => void;
   onOriginalChange: (attributeID: string, original: number) => void;
   BarcodeValue: (value: string) => void;
+  TillIDPass: (value: string) => void;
   resetReturnItemList: (value: boolean) => void;
 }
 
@@ -43,11 +45,13 @@ export default function PosSaleAddForm({
   onToggleReturnList,
   returnItemData,
   onToggleProductID,
+  productData,
   onToggleVarientLIstShow,
   onToggleAttribuetID,
   onQtyChange,
   onOriginalChange,
   BarcodeValue,
+  TillIDPass,
   resetReturnItemList,
 }: ShowSaleForm) {
   const [Loading, setLoading] = useState(false);
@@ -131,8 +135,8 @@ export default function PosSaleAddForm({
 
     if (response.status === 200 || response.status === 201) {
       const data = response.data as ProductApiResponseSalesMan;
-      console.log(data);
       setProductList2(data.productList);
+      productData(data.productList);
     } else {
       setProductList2([]);
     }
@@ -301,6 +305,7 @@ export default function PosSaleAddForm({
                       onChange={(e) => {
                         setBarcode(e.target.value);
                         BarcodeValue(e.target.value);
+                        TillIDPass(TillID);
                       }}
                       onKeyDown={(e) => {
                         if (e.key === "Enter") BarcodeValue(Barcode);

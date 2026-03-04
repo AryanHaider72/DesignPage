@@ -23,7 +23,7 @@ import {
   List,
   Handshake,
 } from "lucide-react";
-import { FaCashRegister, FaMoneyBill } from "react-icons/fa";
+import { FaCashRegister, FaExchangeAlt, FaMoneyBill } from "react-icons/fa";
 import { BsShop } from "react-icons/bs";
 
 export default function OfflineSellerPosSalePoint({
@@ -147,6 +147,14 @@ export default function OfflineSellerPosSalePoint({
               </div>
             </div>
             <Link
+              href="/PosSellers/MainPage/TillTransfer"
+              className="flex items-center gap-3 px-4 py-3 rounded-xl
+            text-neutral-700 hover:bg-neutral-100 transition-all"
+            >
+              <FaExchangeAlt size={18} />
+              <span className="text-sm font-medium">Till Transfer</span>
+            </Link>
+            <Link
               href="/PosSellers/MainPage/SaleModule"
               className="flex items-center gap-3 px-4 py-3 rounded-xl
             text-neutral-700 hover:bg-neutral-100 transition-all"
@@ -162,14 +170,7 @@ export default function OfflineSellerPosSalePoint({
               <Handshake size={18} />
               <span className="text-sm font-medium">Return Module</span>
             </Link>
-            {/* <Link
-              href="/admin/AdminPortal/MainPage/TillRegister"
-              className="flex items-center gap-3 px-4 py-3 rounded-xl
-            text-neutral-700 hover:bg-neutral-100 transition-all"
-            >
-              <FaCashRegister size={18} />
-              <span className="text-sm font-medium">Till Creation</span>
-            </Link> */}
+
             {/* <Link
               href="/admin/AdminPortal/MainPage/CreateLogin"
               className="flex items-center gap-3 px-4 py-3 rounded-xl

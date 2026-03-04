@@ -27,7 +27,7 @@ export interface productList {
   notShowinCountry: boolean;
   //countryList: countryList[];
   images: Image[];
-  variants: Variant[];
+  varient: Variant[];
 }
 export type Image = {
   urlID: string;
@@ -37,7 +37,7 @@ export type Image = {
 export type Variant = {
   varientID: string;
   variantName: string;
-  variantValues: VariantValue[];
+  varientSubList: VariantValue[];
 };
 export type VariantValue = {
   attributeID: string;

@@ -83,14 +83,14 @@ export default function AddTillForm({
   const FetchVarinet = (ID: string) => {
     const data = productList.find((item) => item.productID === ID);
     if (data) {
-      setVarinetList(data.variants);
+      setVarinetList(data.varient);
     }
   };
   const FetchVarientAttribute = (ID: string) => {
     const data = varinetList.find((item) => item.varientID === ID);
     if (data) {
       console.log(data);
-      setSubVarinetList(data.variantValues);
+      setSubVarinetList(data.varientSubList);
     }
   };
   const qutyAttribute = (ID: string) => {

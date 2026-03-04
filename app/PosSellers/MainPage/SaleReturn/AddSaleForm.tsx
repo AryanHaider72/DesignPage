@@ -169,6 +169,7 @@ export default function AddSaleForm({
 
     if (response.status === 200 || response.status === 201) {
       const data = response.data as ProductApiResponseSalesMan;
+      console.log(data);
       setProductList2(data.productList);
     } else {
       setProductList2([]);

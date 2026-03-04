@@ -5,7 +5,11 @@ import { useEffect, useState } from "react";
 import PosSaleAddForm from "./PosSaleAddForm";
 import ShowReturnItemsList from "./ShowReturnListItem/page";
 import GetProductVarient from "@/api/lib/PosIntegration/ProductSalesMan/FetchProductVarient/FetchProductVarinet";
-import { varinetMessage } from "@/api/types/Posintegration/Product/ProductGet";
+import {
+  Product,
+  Variant,
+  varinetMessage,
+} from "@/api/types/Posintegration/Product/ProductGet";
 import ShowVarientItems from "./ShowVarientItems/page";
 import GetProductBarcode from "@/api/lib/PosIntegration/ProductSalesMan/SearchByBarcode/SearchByBarcode";
 import PosSaleGetForm from "./PosSaleGetForm";
@@ -14,7 +18,7 @@ import ShowProductSoldListCall from "./ShowProductSoldList/ShowProductSoldList";
 
 interface newItem {
   attributeID: string;
-  productName: string;
+  productName?: string;
   qty: number;
   varientValue: string;
   price: number;
@@ -23,11 +27,9 @@ interface newItem {
   discount: number;
 }
 interface VarintList {
-  productName: string;
   varientID: string;
   variantName: string;
-  discount: number;
-  variantValues: variantValues[];
+  varientSubList: variantValues[];
 }
 interface variantValues {
   attributeID: string;
@@ -59,7 +61,10 @@ export default function PosSaleModule() {
   const [Update, setUpdate] = useState(false);
   const [newItem, setNewItem] = useState<newItem[]>([]);
   const [productID, setProductID] = useState("");
+  const [productList2, setProductList2] = useState<Product[]>([]);
+  const [VarintListInPopUp, setVarintListInPopUp] = useState<Variant[]>([]);
   const [AttributeID, setAttributeID] = useState("");
+  const [ID, setID] = useState("");
   const [barcode, setbarcode] = useState("");
   const [reset, setReset] = useState(false);
   const [SaleList2, setSaleList2] = useState<Sale>();
@@ -68,27 +73,36 @@ export default function PosSaleModule() {
     "success",
   );
   const [view, setView] = useState<"list" | "form">("list");
-  const [VarintListInPopUp, setVarintListInPopUp] = useState<VarintList[]>([]);
 
   useEffect(() => {
     if (productID) {
-      varinetList(productID);
+      console.log(productList2);
+      fetchData(productID);
     }
   }, [productID]);
 
-  const varinetList = async (ID: string) => {
-    const token = localStorage.getItem("posSellerToken");
-    const response = await GetProductVarient(String(token), ID);
-    if (response.status === 200 || response.status === 201) {
-      const data = response.data as varinetMessage;
-      if (data.variants.length > 0) {
-        setShowVareintList(true);
-        setVarintListInPopUp(data.variants);
-      } else {
-        setShowVareintList(false);
-        setVarintListInPopUp([]);
-      }
+  const fetchData = (ID: string) => {
+    const product = productList2.find((item) => item.productID === ID);
+
+    if (!product) {
+      setVarintListInPopUp([]);
+      return;
     }
+
+    const variants: Variant[] = product.varient.map((item2) => ({
+      productName: product.productName,
+      varientID: item2.varientID,
+      variantName: item2.variantName,
+      varientSubList: item2.varientSubList.map((item3) => ({
+        attributeID: item3.attributeID,
+        varientValue: item3.varientValue,
+        costPrice: item3.costPrice,
+        salePrice: item3.salePrice,
+        qty: item3.qty,
+        barcode: item3.barcode,
+      })),
+    }));
+    setVarintListInPopUp(variants);
   };
   useEffect(() => {
     if (reset) {
@@ -97,20 +111,21 @@ export default function PosSaleModule() {
   }, [reset]);
 
   useEffect(() => {
-    if (barcode) {
-      getProductBarcode(barcode);
+    if (barcode && ID) {
+      getProductBarcode(barcode, ID);
     }
-  }, [barcode]);
+  }, [barcode, ID]);
 
-  const getProductBarcode = async (barcode: string) => {
+  const getProductBarcode = async (barcode: string, ID: string) => {
     const token = localStorage.getItem("posSellerToken");
 
     if (!token) return;
 
-    const response = await GetProductBarcode(token, barcode);
+    const response = await GetProductBarcode(token, barcode, ID);
 
     if (response.status === 200 || response.status === 201) {
       const data = response.data as ProductApiResponseBarcode;
+      console.log(data);
       const newData = data.productList[0];
       const mappedData: newItem = {
         attributeID: newData.attributeID,
@@ -123,13 +138,16 @@ export default function PosSaleModule() {
         discount: 0,
       };
       addOrIncreaseQty(mappedData);
+    } else {
+      alert("Item Does not Exist in your Till.");
+      setbarcode("");
     }
   };
 
-  const addOrIncreaseQty = (item: newItem) => {
+  const addOrIncreaseQty = (item2: newItem) => {
     setNewItem((prev) => {
       const existingIndex = prev.findIndex(
-        (p) => p.attributeID === item.attributeID,
+        (p) => p.attributeID === item2.attributeID,
       );
 
       if (existingIndex !== -1) {
@@ -138,7 +156,7 @@ export default function PosSaleModule() {
         );
       }
 
-      return [...prev, { ...item, qty: item.qty ?? 1 }];
+      return [...prev, { ...item2, qty: item2.qty ?? 1 }];
     });
   };
   useEffect(() => {
@@ -238,6 +256,7 @@ export default function PosSaleModule() {
               onToggleReturnList={setShowReturnList}
               returnItemData={newItem}
               onToggleProductID={setProductID}
+              productData={setProductList2}
               onToggleVarientLIstShow={setShowVareintList}
               onToggleAttribuetID={setAttributeID}
               onQtyChange={(attributeID, qty) => {
@@ -257,6 +276,7 @@ export default function PosSaleModule() {
                 );
               }}
               BarcodeValue={setbarcode}
+              TillIDPass={setID}
               resetReturnItemList={setReset}
             />
           )}

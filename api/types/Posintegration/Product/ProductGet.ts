@@ -26,7 +26,7 @@ export interface Product {
   notShowinCountry: boolean;
   countryList: countryList[];
   images: Image[];
-  variants: Variant[];
+  varient: Variant[];
 }
 
 // Image sub-type
@@ -36,11 +36,12 @@ export type Image = {
 };
 
 // Variant sub-type
-export type Variant = {
+export interface Variant {
+  productName?: string;
   varientID: string;
   variantName: string;
-  variantValues: VariantValue[];
-};
+  varientSubList: VariantValue[];
+}
 
 export interface varinetMessage {
   message: string;
@@ -55,14 +56,14 @@ export type VariantbyProductID = {
 };
 
 // Variant value sub-type
-export type VariantValue = {
+export interface VariantValue {
   attributeID: string;
   varientValue: string;
   costPrice: number;
   salePrice: number;
   qty: number;
   barcode: string;
-};
+}
 export type countryList = {
   countryID: string;
   countryName: string;

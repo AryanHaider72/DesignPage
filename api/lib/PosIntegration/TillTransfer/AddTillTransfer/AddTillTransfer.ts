@@ -1,18 +1,19 @@
 "use server";
 
 import ErrorHandler from "@/api/ErrorHandler/ErrorHandler";
-import { getRequest } from "@/api/main/main";
+import { postRequest } from "@/api/main/main";
+import { requestTransferTill } from "@/api/types/Posintegration/TillTransfer/TillTransfer";
 
-export default async function GetProductBarcode(
+export default async function AddTillTransferPosSale(
+  data: requestTransferTill,
   token: string,
-  barcode: string,
-  tillID: string,
 ) {
   const customHeader: Record<string, string> = {};
   if (token) customHeader.Authorization = `Bearer ${token}`;
-  const response = await getRequest(
-    `/api/TillManagement/SalesMan/ProductList/SearchByBarcode/${barcode}/${tillID}`,
-    null,
+
+  const response = await postRequest(
+    `/api/TillTransfer/TransferTill/AddTill`,
+    data,
     customHeader,
   );
 
@@ -28,6 +29,6 @@ export default async function GetProductBarcode(
   return {
     data: response.data,
     status: response.status,
-    message: response.message || "An unexpected error occurred",
+    message: response.message || "Record Added Successfully",
   };
 }
