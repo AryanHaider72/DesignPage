@@ -1,19 +1,16 @@
 "use client";
 import { List, Plus } from "lucide-react";
-import { useEffect, useState } from "react";
-import GetCity from "./GetCity";
+import { useState } from "react";
+import HeaderImageProfile from "./HeaderImageProfile";
+import ImagesProfile from "./ImagesProfile";
 import MessagePopUp from "@/app/UsefullComponent/MessagePopup/page";
-import AddCity from "./AddCity";
-import { zonelist } from "@/api/types/Admin/Shipment/City/City";
 
-export default function ShipmentCity() {
+export default function StoreProfile() {
   const [view, setView] = useState<"list" | "form">("list");
-  const [update, setUpdate] = useState(false);
   const [showMessage, setShowMessage] = useState<string | null>(null);
   const [messageType, setMessageType] = useState<"success" | "error">(
     "success",
   );
-  const [cityList, setCityList] = useState<zonelist>();
   return (
     <>
       {showMessage && (
@@ -28,7 +25,10 @@ export default function ShipmentCity() {
         {/* Top Buttons */}
         <div className="w-full bg-gray-50 shadow-sm flex justify-between px-1 py-2 rounded-lg">
           <button
-            onClick={() => setView("list")}
+            onClick={() => {
+              setView("list");
+              //setTillData(undefined);
+            }}
             className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition
             ${view === "list" ? "bg-neutral-900 text-white" : "bg-white text-neutral-900 shadow hover:shadow-lg"}`}
           >
@@ -47,28 +47,12 @@ export default function ShipmentCity() {
         </div>
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-semibold text-neutral-900">
-            City Management
+            Store Profile
           </h1>
         </div>
-
-        {/* Body */}
         <div className="rounded-3xl bg-white/70 backdrop-blur-xl p-6 shadow-[0_20px_40px_rgba(0,0,0,0.07)] transition-all">
-          {/* List View */}
-          {view === "list" && (
-            <GetCity
-              onEdit={(till, id) => {
-                setCityList(till);
-                setView("form");
-                setUpdate(true);
-              }}
-            />
-          )}
-
-          {/* Form View */}
           {view === "form" && (
-            <AddCity
-              initialData={cityList}
-              Update={update}
+            <HeaderImageProfile
               onShowMessage={(msg, type) => {
                 setShowMessage(msg);
                 setMessageType(type);
@@ -76,6 +60,7 @@ export default function ShipmentCity() {
               }}
             />
           )}
+          {view === "list" && <ImagesProfile />}
         </div>
       </div>
     </>

@@ -329,6 +329,7 @@ export default function GetProductsFunctionForm({
           </select>
         </div>
       </div>
+      {productList.length}
       {productList.length > 0 ? (
         <>
           <div className="mt-2">

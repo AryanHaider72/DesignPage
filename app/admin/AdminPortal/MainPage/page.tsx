@@ -25,11 +25,14 @@ import {
   ShoppingBag,
   ShoppingBagIcon,
   Shirt,
+  BriefcaseIcon,
+  Building2,
 } from "lucide-react";
 import { FaCashRegister, FaMoneyBill } from "react-icons/fa";
 import { BsShop } from "react-icons/bs";
 import { RiAlignItemTopFill } from "react-icons/ri";
 import { GiClothes } from "react-icons/gi";
+import { CgProfile } from "react-icons/cg";
 
 export default function AppSidebar({
   children,
@@ -40,6 +43,7 @@ export default function AppSidebar({
   const [activeMenu, setActiveMenu] = useState<string | null>("");
 
   const [activeMenu2, setActiveMenu2] = useState<string | null>("");
+  const [activeMenu4, setActiveMenu4] = useState<string | null>("");
 
   const [activeMenu3, setActiveMenu3] = useState<string | null>("");
 
@@ -51,6 +55,9 @@ export default function AppSidebar({
   };
   const toggleMenu3 = (menu: string) => {
     setActiveMenu3(activeMenu3 === menu ? null : menu);
+  };
+  const toggleMenu4 = (menu: string) => {
+    setActiveMenu4(activeMenu4 === menu ? null : menu);
   };
 
   return (
@@ -112,6 +119,7 @@ export default function AppSidebar({
                   toggleMenu3("users");
                   setActiveMenu(null);
                   setActiveMenu2(null);
+                  setActiveMenu4(null);
                 }}
                 className="w-full flex items-center justify-between
               px-4 py-3 rounded-xl
@@ -188,6 +196,7 @@ export default function AppSidebar({
                   toggleMenu2("users");
                   setActiveMenu(null);
                   setActiveMenu3(null);
+                  setActiveMenu4(null);
                 }}
                 className="w-full flex items-center justify-between
               px-4 py-3 rounded-xl
@@ -230,14 +239,57 @@ export default function AppSidebar({
                 </div>
               </div>
             </div>
-            <Link
-              href="/admin/AdminPortal/MainPage/StoreCreation"
-              className="flex items-center gap-3 px-4 py-3 rounded-xl
-            text-neutral-700 hover:bg-neutral-100 transition-all"
-            >
-              <Warehouse size={18} />
-              <span className="text-sm font-medium">Store Creation</span>
-            </Link>
+            <div>
+              <button
+                onClick={() => {
+                  toggleMenu4("users");
+                  setActiveMenu(null);
+                  setActiveMenu2(null);
+                  setActiveMenu3(null);
+                }}
+                className="w-full flex items-center justify-between
+              px-4 py-3 rounded-xl
+              text-neutral-700 hover:bg-neutral-100 transition-all"
+              >
+                <div className="flex items-center gap-3">
+                  <Warehouse size={18} />
+                  <span className="text-sm font-medium"> Store Management</span>
+                </div>
+                {activeMenu4 === "users" ? (
+                  <ChevronDown size={16} />
+                ) : (
+                  <ChevronRight size={16} />
+                )}
+              </button>
+
+              <div
+                className={`overflow-hidden transition-all duration-300
+              ${activeMenu4 === "users" ? "max-h-40 mt-2" : "max-h-0"}`}
+              >
+                <div className="ml-9 space-y-1">
+                  <Link
+                    href="/admin/AdminPortal/MainPage/StoreManagement/StoreCreation"
+                    className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
+                  >
+                    <div className="flex items-center gap-3">
+                      <BriefcaseIcon size={18} />
+                      <span className="text-sm font-medium">
+                        Store Ceration
+                      </span>
+                    </div>
+                  </Link>
+                  <Link
+                    href="/admin/AdminPortal/MainPage/StoreManagement/StoreProfile"
+                    className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Building2 size={18} />
+                      <span className="text-sm font-medium">Store Profile</span>
+                    </div>
+                  </Link>
+                </div>
+              </div>
+            </div>
             {/* <Link
               href="/admin/AdminPortal/MainPage/TillRegister"
               className="flex items-center gap-3 px-4 py-3 rounded-xl
