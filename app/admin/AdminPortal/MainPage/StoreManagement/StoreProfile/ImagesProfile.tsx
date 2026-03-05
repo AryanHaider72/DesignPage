@@ -12,7 +12,7 @@ import {
 } from "@/api/types/Admin/Store/StoreHomepageSetting/StoreHomepageSetting";
 import DeleteComponent from "@/app/UsefullComponent/DeleteComponent/page";
 import Spinner from "@/app/UsefullComponent/Spinner/page";
-import { Ellipsis, Trash } from "lucide-react";
+import { Ellipsis, Pencil, Trash } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 type ImageItem = {
   file: File;
@@ -21,8 +21,16 @@ type ImageItem = {
 type List = {
   imageUrl: string;
 };
-
-export default function ImagesProfile() {
+interface getDataFromPorps {
+  initalData: (data: StoreHomeGet) => void;
+  storeID: (data: string) => void;
+  updateData: (data: boolean) => void;
+}
+export default function ImagesProfile({
+  initalData,
+  storeID,
+  updateData,
+}: getDataFromPorps) {
   const [StoreID, setStoreID] = useState("");
   const [ID, setID] = useState("");
   const [Delete, setDelete] = useState(false);
@@ -52,6 +60,7 @@ export default function ImagesProfile() {
       const response = await StoreHomePageGetSetting(ID, String(token));
       if (response.status === 200 || response.status === 201) {
         const data = response.data as StoreHomeSettingGetApiResponse;
+        console.log(data);
         setDefaultStoreProductList(data.storeList);
       }
     } finally {
@@ -70,9 +79,19 @@ export default function ImagesProfile() {
     } finally {
     }
   };
+
   useEffect(() => {
     getStores();
   }, []);
+
+  const fetchData = (ID: string) => {
+    const data = DefaultStoreProductList.find((item) => item.userID === ID);
+    if (data) {
+      initalData(data);
+      storeID(StoreID);
+    }
+  };
+
   return (
     <>
       {Delete && (
@@ -144,6 +163,16 @@ export default function ImagesProfile() {
                   >
                     <Pencil />
                   </button> */}
+                    <button
+                      onClick={() => {
+                        fetchData(item.userID);
+                        updateData(true);
+                      }}
+                      title="Edit"
+                      className="flex items-center gap-1 px-2 py-1 text-sm font-medium text-yellow-600 border border-yellow-600 rounded hover:bg-yellow-50 transition"
+                    >
+                      <Pencil />
+                    </button>
                     <button
                       //   onClick={() => {
                       //     setStoresDefault(item.storeID);

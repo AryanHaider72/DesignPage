@@ -1,12 +1,22 @@
 "use client";
+import { categoryList } from "@/api/types/Customer/LandingPage/Category/GetCategroy";
 import CartItems from "@/app/UsefullComponent/CartSidebar/page";
 import SearchSidebarCompnent from "@/app/UsefullComponent/SearchComponent/page";
 import { Heart, Search, ShoppingCart, User } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-export default function Navbar({ scrolled }: { scrolled: boolean }) {
-  const list = ["Men", "Women", "Children", "Teen Boys"];
+interface NavbarProps {
+  scrolled: boolean;
+  categoryList: categoryList[]; // Changed from function to array
+  logoUrl: string;
+}
+
+export default function Navbar({
+  scrolled,
+  categoryList,
+  logoUrl,
+}: NavbarProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [cartShow, setCartShow] = useState(false);
   const [SearchShow, setSearchShow] = useState(false);
@@ -15,18 +25,12 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
 
   useEffect(() => {
     if (cartShow) {
-      // Mount immediately
       setMounted(true);
-
-      // Animate in next frame
       requestAnimationFrame(() => {
         setAnimate(true);
       });
     } else {
-      // Animate out
       setAnimate(false);
-
-      // Unmount AFTER animation
       const timer = setTimeout(() => setMounted(false), 300);
       return () => clearTimeout(timer);
     }
@@ -57,8 +61,8 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
           {/* LEFT */}
           <div className="hidden md:flex">
             <ul className="flex items-center gap-8 font-medium">
-              {list.map((item, index) => (
-                <li key={index}>
+              {categoryList.map((item, index) => (
+                <li key={index} className="relative group">
                   <a
                     href="#"
                     className={`font-raleway tracking-wide relative text-md transition
@@ -67,8 +71,35 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
                       after:w-0 after:bg-current after:transition-all hover:after:w-full
                     `}
                   >
-                    {item}
+                    <span className="uppercase">{item.subCategoryName}</span>
                   </a>
+                  {item.subCategory.length > 0 ? (
+                    <div
+                      className="absolute left-0 top-full mt-2 w-64 bg-white shadow-lg rounded-md p-4 
+                    opacity-0 invisible group-hover:opacity-100 group-hover:visible
+                    transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 z-50"
+                    >
+                      <ul className="space-y-2">
+                        {item.subCategory.map((item: any) => (
+                          <li key={item.subCategoryDetailID}>
+                            <Link
+                              href={
+                                {
+                                  //pathname: `/${category.subCategoryID}/shop`,
+                                  //query: { qID: item.subCategoryDetailID },
+                                }
+                              }
+                              className="text-md  px-2 flex flex-col gap-2 hover:scale-105 transition-transform duration-300 cursor-pointer"
+                            >
+                              {item.name.toUpperCase()}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : (
+                    <ul className="space-y-2"></ul>
+                  )}
                 </li>
               ))}
             </ul>
@@ -77,7 +108,7 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
           {/* CENTER */}
           <div>
             <a href="/" className="flex items-center gap-2">
-              <img src="/logo.png" className="h-10" alt="Logo" />
+              <img src={logoUrl} className="h-10" alt="Logo" />
             </a>
           </div>
 
@@ -196,14 +227,14 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
       {isMenuOpen && (
         <div className="fixed top-[90px] z-80 left-0 w-full bg-white shadow-md p-4 md:hidden">
           <ul className="flex flex-col gap-4">
-            {list.map((item, index) => (
+            {categoryList.map((item, index) => (
               <li key={index}>
                 <a
                   href="#"
-                  className="font-raleway tracking-wide text-lg text-black hover:text-gray-600"
+                  className="font-raleway tracking-wide text-md text-black hover:text-gray-600"
                   onClick={() => setIsMenuOpen(false)} // Close menu on item click
                 >
-                  {item}
+                  <span className="uppercase">{item.subCategoryName}</span>
                 </a>
               </li>
             ))}

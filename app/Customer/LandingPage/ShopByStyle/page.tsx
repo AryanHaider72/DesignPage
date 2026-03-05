@@ -1,6 +1,9 @@
+import { categoryList } from "@/api/types/Customer/LandingPage/Category/GetCategroy";
 import Link from "next/link";
-
-export default function ShopByStyle() {
+interface NavbarProps {
+  categoryList: categoryList[]; // Changed from function to array
+}
+export default function ShopByStyle({ categoryList }: NavbarProps) {
   const categories = [
     {
       images:
@@ -39,19 +42,28 @@ export default function ShopByStyle() {
         </h2>
         <p className=" mb-4">Find the perfect look for every occasion</p>
         <div className="flex w-full justify-center gap-10">
-          {categories.map((item, index) => (
-            <Link
-              href={`/Customer/Shop/${index}`}
-              className="flex flex-col hover:underline transition-transform cursor-pointer"
-              key={index}
-            >
-              <img
-                src={item.images}
-                className="w-32 h-32 bg-gray-300 rounded-full object-cover hover:scale-[1.05] transition-transform"
-              />
+          {categoryList.map((item, index) => (
+            <>
+              <Link
+                href={`/Customer/Shop/${index}`}
+                className="flex flex-col hover:underline transition-transform cursor-pointer"
+                key={index}
+              >
+                {item.subCategory[0]?.imagelist?.length > 0 ? (
+                  <img
+                    src={item.subCategory[0]?.imagelist[0].url}
+                    className="w-32 h-32 bg-gray-300 rounded-full object-cover hover:scale-[1.05] transition-transform"
+                  />
+                ) : (
+                  <img
+                    src={"/placeholder.jpg"}
+                    className="w-32 h-32 bg-gray-300 rounded-full object-cover hover:scale-[1.05] transition-transform"
+                  />
+                )}
 
-              <p className="mt-2 text-md font-bold">{item.subCategoryName}</p>
-            </Link>
+                <p className="mt-2 text-md font-bold">{item.subCategoryName}</p>
+              </Link>
+            </>
           ))}
         </div>
       </div>
