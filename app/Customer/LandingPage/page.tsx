@@ -17,12 +17,28 @@ import {
   CustomerStoreInfoResponse,
   storeGet,
 } from "@/api/types/Customer/LandingPage/StoreInfo/StoreInfo";
+import GetCustomerFeaturedProductApi from "@/api/lib/Customer/LandingPage/FeaturedProduct/FeaturedProduct";
+import {
+  FeaturedProductForCustomer,
+  ProductApiResponseCustomer,
+} from "@/api/types/Customer/LandingPage/Product/Product";
+import GetProductCustomerApi from "@/api/lib/Customer/LandingPage/CustomerProductsFetched/CustomerFecthedProduct";
+import CartItems from "@/app/UsefullComponent/CartSidebar/page";
+import FilterComponent from "@/app/UsefullComponent/FilterComponent/page";
+import SearchSidebarCompnent from "@/app/UsefullComponent/SearchComponent/page";
 
 export default function HomePage() {
   const [loading, setLoading] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [categoryList, setCategoryList] = useState<categoryList[]>([]);
   const [storeInfo, setStoreInfo] = useState<storeGet[]>([]);
+  const [showItem, setShowItem] = useState(false);
+  const [FeaturedProduct, setFeaturedProduct] = useState<
+    FeaturedProductForCustomer[]
+  >([]);
+  const [ProductList, setProductList] = useState<FeaturedProductForCustomer[]>(
+    [],
+  );
 
   useEffect(() => {
     const handleScroll = () => {
@@ -55,21 +71,48 @@ export default function HomePage() {
     } finally {
     }
   };
+
+  const getFeaturedProduct = async () => {
+    try {
+      const response = await GetCustomerFeaturedProductApi();
+      if (response.status === 200 || response.status === 201) {
+        const data = response.data as ProductApiResponseCustomer;
+        setFeaturedProduct(data.productList);
+      }
+    } finally {
+    }
+  };
+  const getProduct = async () => {
+    try {
+      const response = await GetProductCustomerApi();
+      if (response.status === 200 || response.status === 201) {
+        const data = response.data as ProductApiResponseCustomer;
+        setProductList(data.productList);
+      }
+    } finally {
+    }
+  };
   useEffect(() => {
     getStores();
     getCategory();
+    getFeaturedProduct();
   }, []);
-
+  useEffect(() => {
+    if (FeaturedProduct) {
+      getProduct();
+    }
+  }, [FeaturedProduct]);
   return (
     <>
       <Navbar
         scrolled={scrolled}
         categoryList={categoryList}
         logoUrl={storeInfo[0]?.logoUrl}
+        productList={ProductList}
       />
       <MainBannerPage store={storeInfo} />
       <ShopByStyle categoryList={categoryList} />
-      <MostFeaturedorPopular />
+      <MostFeaturedorPopular FeaturedProduct={FeaturedProduct} />
       <FeaturedProducts categoryList={categoryList} />
       <ChooseUs />
       <Footer />

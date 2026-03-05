@@ -1,5 +1,6 @@
 "use client";
 import { categoryList } from "@/api/types/Customer/LandingPage/Category/GetCategroy";
+import { FeaturedProductForCustomer } from "@/api/types/Customer/LandingPage/Product/Product";
 import CartItems from "@/app/UsefullComponent/CartSidebar/page";
 import SearchSidebarCompnent from "@/app/UsefullComponent/SearchComponent/page";
 import { Heart, Search, ShoppingCart, User } from "lucide-react";
@@ -10,12 +11,14 @@ interface NavbarProps {
   scrolled: boolean;
   categoryList: categoryList[]; // Changed from function to array
   logoUrl: string;
+  productList: FeaturedProductForCustomer[];
 }
 
 export default function Navbar({
   scrolled,
   categoryList,
   logoUrl,
+  productList,
 }: NavbarProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [cartShow, setCartShow] = useState(false);
@@ -188,7 +191,7 @@ export default function Navbar({
               ✕
             </button>
 
-            <CartItems />
+            <CartItems productList={productList} />
           </div>
         </div>
       )}

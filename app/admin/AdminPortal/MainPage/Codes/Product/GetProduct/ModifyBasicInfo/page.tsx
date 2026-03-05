@@ -254,6 +254,7 @@ export default function ModifyBasicInfo({
         subCategoryDetailID: FurtherCategoryMainID,
         subCategoryID: subCategoryMainID,
         unitID: UnitID,
+        feturedProduct: FeaturedProduct === "Yes" ? true : false,
         discount: Discount,
         currentStock: 0,
         threshold: Threshold,

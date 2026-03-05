@@ -23,11 +23,7 @@ export default function FeaturedProducts({
     const data = categoryList.find((item) => item.subCategoryName === name);
 
     if (data) {
-      const filteredItems = data.subCategory.filter(
-        (item) => data.subCategory.length > 0,
-      );
-
-      setItemData(filteredItems);
+      setItemData(data.subCategory);
     }
   };
   return (
@@ -44,26 +40,24 @@ export default function FeaturedProducts({
 
           {/* RIGHT: List */}
           <ul className="flex flex-wrap items-center gap-6 md:gap-12">
-            {categoryList
-              .filter((item) => item.subCategory && item.subCategory.length > 0)
-              .map((item, index) => (
-                <li key={index}>
-                  <button
-                    onClick={() => {
-                      fetchData(item.subCategoryName);
-                      setValue(item.subCategoryName);
-                    }}
-                    className={`
+            {categoryList.map((item, index) => (
+              <li key={index}>
+                <button
+                  onClick={() => {
+                    fetchData(item.subCategoryName);
+                    setValue(item.subCategoryName);
+                  }}
+                  className={`
                   relative text-lg md:text-xl font-raleway tracking-wide text-black
                   after:absolute after:-bottom-1 after:left-0 after:h-[2px] after:bg-black after:transition-all
                   ${value === item.subCategoryName ? "after:w-full" : "after:w-0"}
                   hover:after:w-full
                 `}
-                  >
-                    {item.subCategoryName.toUpperCase()}
-                  </button>
-                </li>
-              ))}
+                >
+                  {item.subCategoryName.toUpperCase()}
+                </button>
+              </li>
+            ))}
           </ul>
         </div>
 

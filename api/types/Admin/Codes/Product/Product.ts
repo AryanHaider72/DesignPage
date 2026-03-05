@@ -14,6 +14,7 @@ export interface ProductAddRequest {
   showinCountry: boolean;
   notShowinCountry: boolean;
   description: string;
+  feturedProduct: boolean;
   width: number;
   height: number;
   depth: number;

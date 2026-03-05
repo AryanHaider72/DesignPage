@@ -43,7 +43,7 @@ export default function ShopByStyle({ categoryList }: NavbarProps) {
         <p className=" mb-4">Find the perfect look for every occasion</p>
         <div className="flex w-full justify-center gap-10">
           {categoryList.map((item, index) => (
-            <>
+            <div key={index}>
               <Link
                 href={`/Customer/Shop/${index}`}
                 className="flex flex-col hover:underline transition-transform cursor-pointer"
@@ -63,7 +63,7 @@ export default function ShopByStyle({ categoryList }: NavbarProps) {
 
                 <p className="mt-2 text-md font-bold">{item.subCategoryName}</p>
               </Link>
-            </>
+            </div>
           ))}
         </div>
       </div>

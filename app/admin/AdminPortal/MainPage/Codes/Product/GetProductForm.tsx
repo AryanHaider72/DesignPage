@@ -249,6 +249,7 @@ export default function GetProductsFunctionForm({
   const fetchDatabasicInfo = (ID: string) => {
     const data = productList.find((item) => item.productID === ID);
     if (data) {
+      console.log(data);
       const newData: ModfiyBasicInfoData = {
         storeID: data.storeID,
         supplierID: data.supplierID,
@@ -277,6 +278,7 @@ export default function GetProductsFunctionForm({
           countryName: item.countryName,
         })),
       };
+      console.log(newData);
       onModifyData(newData);
     }
   };

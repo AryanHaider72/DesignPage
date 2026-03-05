@@ -1,8 +1,12 @@
+import { FeaturedProductForCustomer } from "@/api/types/Customer/LandingPage/Product/Product";
 import { CreditCard, Minus, Plus, ShoppingCart, Trash } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-export default function CartItems() {
+interface CartItemprops {
+  productList: FeaturedProductForCustomer[];
+}
+export default function CartItems({ productList }: CartItemprops) {
   const [NumberofProduct, setNumberofProduct] = useState(1);
   const items = [
     {
@@ -30,6 +34,10 @@ export default function CartItems() {
     (currentAmount / freeShippingGoal) * 100,
     100,
   );
+
+  useEffect(() => {
+    console.log(productList);
+  }, [productList]);
   return (
     <div className="w-full p-5 flex flex-col h-full">
       {/* Header */}
