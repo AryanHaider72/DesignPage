@@ -2,7 +2,7 @@
 import { CartData } from "@/api/types/CookiesApi/CartItem";
 import { cookies } from "next/headers";
 
-export async function addToServerCart(item: CartData) {
+export async function addToServerCart(item: CartData[]) {
   const cookieStore = await cookies();
   cookieStore.set("cart", JSON.stringify(item), {
     httpOnly: true,

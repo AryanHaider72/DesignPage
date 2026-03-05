@@ -1,13 +1,42 @@
+import { getServerCart } from "@/api/lib/CookiesApi/GetCart/GetCart";
+import { removeItemFromServerCart } from "@/api/lib/CookiesApi/RemoveCart/RemoveCart";
+import { CartData } from "@/api/types/CookiesApi/CartItem";
 import { FeaturedProductForCustomer } from "@/api/types/Customer/LandingPage/Product/Product";
-import { CreditCard, Minus, Plus, ShoppingCart, Trash } from "lucide-react";
+import {
+  CreditCard,
+  Heart,
+  Minus,
+  Plus,
+  ShoppingCart,
+  Trash,
+} from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-
+interface cartItems {
+  attributeID: string;
+  qty: number;
+}
 interface CartItemprops {
+  commitChange: () => void;
   productList: FeaturedProductForCustomer[];
 }
-export default function CartItems({ productList }: CartItemprops) {
+interface GetProductFromCookies {
+  productID: string;
+  productName: string;
+  image: string;
+  attributeID: string;
+  variantValue: string;
+  price: number;
+  qty: number;
+}
+
+export default function CartItems({
+  commitChange,
+  productList,
+}: CartItemprops) {
   const [NumberofProduct, setNumberofProduct] = useState(1);
+  const [cartItem, setCarItem] = useState<cartItems[]>([]);
+  const [productItem, setProductItem] = useState<GetProductFromCookies[]>([]);
   const items = [
     {
       name: "Product1",
@@ -35,9 +64,56 @@ export default function CartItems({ productList }: CartItemprops) {
     100,
   );
 
+  const cartData = async () => {
+    const cart = await getServerCart();
+
+    setCarItem(cart);
+
+    const items = filterItems(cart, productList);
+
+    setProductItem(items);
+  };
+  const filterItems = (
+    cart: CartData[],
+    productList: FeaturedProductForCustomer[],
+  ) => {
+    const result: any[] = [];
+
+    cart.forEach((cartItem) => {
+      productList.forEach((product) => {
+        product.variants.forEach((variant: any) => {
+          variant.variantValues.forEach((value: any) => {
+            if (value.attributeID === cartItem.attributeID) {
+              result.push({
+                productID: product.productID,
+                productName: product.productName,
+                image: product.images?.[0]?.url,
+                attributeID: value.attributeID,
+                variantValue: value.varientValue,
+                price: value.salePrice,
+                qty: cartItem.qty,
+              });
+            }
+          });
+        });
+      });
+    });
+
+    return result;
+  };
+  const deleteProduct = async (attribuetID: string) => {
+    //const token = localStorage.getItem("token1");
+    await removeItemFromServerCart(attribuetID);
+    setProductItem(
+      productItem.filter((item) => item.attributeID !== attribuetID),
+    );
+    cartData();
+    commitChange();
+    //await RemoveFromCart(productID, String(token));
+  };
   useEffect(() => {
-    console.log(productList);
-  }, [productList]);
+    cartData();
+  }, []);
   return (
     <div className="w-full p-5 flex flex-col h-full">
       {/* Header */}
@@ -68,36 +144,44 @@ export default function CartItems({ productList }: CartItemprops) {
 
       {/* Items List */}
       <div className="flex-1 mt-10 overflow-y-auto space-y-4">
-        {items.map((item, index) => (
-          <div key={index} className="flex gap-3 items-start">
+        {productItem.map((item, index) => (
+          <div
+            key={index}
+            className="flex gap-3 p-2 border border-gray-100 shadow-md items-start"
+          >
             {/* Checkbox */}
-            <input type="checkbox" className="w-5 h-5 mt-2" />
+            <input type="checkbox" className="w-5 h-5 mt-10" />
 
             {/* Item Info */}
             <div className="flex-1 flex gap-3">
               <img
-                src={item.image}
-                alt={item.name}
+                src={item.image || "/placeholder.jpg"}
+                alt={item.productName}
                 className="w-24 h-24 object-cover rounded"
               />
               <div className="flex flex-col justify-between flex-1">
+                <div className="flex justify-end items-center">
+                  <button
+                    onClick={() => deleteProduct(item.attributeID)}
+                    className="bg-gray-100 p-1 rounded"
+                  >
+                    <Trash className="w-4 h-4 text-gray-800 hover:text-black" />
+                  </button>
+                </div>
                 <div>
-                  <p className="text-sm text-gray-500">{item.varient}</p>
+                  <p className="text-sm text-gray-500">{item.variantValue}</p>
                   <h3 className="text-lg font-medium text-gray-800">
-                    {item.name}
+                    {item.productName}
                   </h3>
                   <p className="text-gray-600">Rs. {item.price} -/</p>
                 </div>
 
                 {/* Quantity & Delete */}
-                <div className="flex justify-between items-center mt-2">
-                  <button className="bg-gray-100 p-1 rounded">
-                    <Trash className="w-4 h-4 text-gray-800 hover:text-black" />
-                  </button>
+                <div className="flex justify-end items-center">
                   <div className="flex items-center border border-gray-300 rounded-md overflow-hidden">
                     <button
                       className={`px-2 py-1 bg-gray-100 ${
-                        item.quantity === 1
+                        item.qty === 1
                           ? "opacity-50 cursor-not-allowed"
                           : "hover:bg-gray-200"
                       }`}
@@ -107,7 +191,7 @@ export default function CartItems({ productList }: CartItemprops) {
                     >
                       <Minus size={16} />
                     </button>
-                    <span className="px-3 py-1">{item.quantity}</span>
+                    <span className="px-3 py-1">{item.qty}</span>
                     <button
                       className="px-2 py-1 bg-gray-100 hover:bg-gray-200"
                       onClick={() => setNumberofProduct((prev) => prev + 1)}
@@ -132,8 +216,8 @@ export default function CartItems({ productList }: CartItemprops) {
 
         <div className="flex  gap-2">
           <button className="w-full flex justify-center items-center gap-2 bg-black text-white py-3 rounded hover:bg-white hover:text-black border transition-all duration-300">
-            <ShoppingCart />
-            View Cart
+            <Heart />
+            View Wishlist
           </button>
           <Link
             href={"/Customer/Checkout"}

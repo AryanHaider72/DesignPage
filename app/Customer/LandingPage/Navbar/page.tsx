@@ -1,4 +1,5 @@
 "use client";
+import { getServerCart } from "@/api/lib/CookiesApi/GetCart/GetCart";
 import { categoryList } from "@/api/types/Customer/LandingPage/Category/GetCategroy";
 import { FeaturedProductForCustomer } from "@/api/types/Customer/LandingPage/Product/Product";
 import CartItems from "@/app/UsefullComponent/CartSidebar/page";
@@ -7,11 +8,16 @@ import { Heart, Search, ShoppingCart, User } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+interface cartItems {
+  attributeID: string;
+  qty: number;
+}
 interface NavbarProps {
   scrolled: boolean;
-  categoryList: categoryList[]; // Changed from function to array
+  categoryList: categoryList[];
   logoUrl: string;
   productList: FeaturedProductForCustomer[];
+  onCommit: () => void;
 }
 
 export default function Navbar({
@@ -19,13 +25,23 @@ export default function Navbar({
   categoryList,
   logoUrl,
   productList,
+  onCommit,
 }: NavbarProps) {
+  const [cartItem, setCarItem] = useState<cartItems[]>([]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [cartShow, setCartShow] = useState(false);
   const [SearchShow, setSearchShow] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [animate, setAnimate] = useState(false);
 
+  const cartData = async () => {
+    const cart = await getServerCart();
+    setCarItem(cart);
+    console.log(cart);
+  };
+  useEffect(() => {
+    cartData();
+  }, [onCommit]);
   useEffect(() => {
     if (cartShow) {
       setMounted(true);
@@ -144,7 +160,7 @@ export default function Navbar({
             >
               <ShoppingCart size={20} />
               <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white">
-                3
+                {cartItem.length}
               </span>
             </button>
 
@@ -191,7 +207,13 @@ export default function Navbar({
               ✕
             </button>
 
-            <CartItems productList={productList} />
+            <CartItems
+              commitChange={() => {
+                cartData();
+                onCommit();
+              }}
+              productList={productList}
+            />
           </div>
         </div>
       )}

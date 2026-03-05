@@ -26,13 +26,18 @@ import GetProductCustomerApi from "@/api/lib/Customer/LandingPage/CustomerProduc
 import CartItems from "@/app/UsefullComponent/CartSidebar/page";
 import FilterComponent from "@/app/UsefullComponent/FilterComponent/page";
 import SearchSidebarCompnent from "@/app/UsefullComponent/SearchComponent/page";
-
+import { getServerCart } from "@/api/lib/CookiesApi/GetCart/GetCart";
+interface cartItems {
+  attributeID: string;
+  qty: number;
+}
 export default function HomePage() {
   const [loading, setLoading] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [categoryList, setCategoryList] = useState<categoryList[]>([]);
   const [storeInfo, setStoreInfo] = useState<storeGet[]>([]);
   const [showItem, setShowItem] = useState(false);
+  const [cartItem, setCarItem] = useState<cartItems[]>([]);
   const [FeaturedProduct, setFeaturedProduct] = useState<
     FeaturedProductForCustomer[]
   >([]);
@@ -40,14 +45,15 @@ export default function HomePage() {
     [],
   );
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-    };
+  const item = () =>
+    void useEffect(() => {
+      const handleScroll = () => {
+        setScrolled(window.scrollY > 50);
+      };
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+      window.addEventListener("scroll", handleScroll);
+      return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
 
   const getCategory = async () => {
     try {
@@ -109,10 +115,14 @@ export default function HomePage() {
         categoryList={categoryList}
         logoUrl={storeInfo[0]?.logoUrl}
         productList={ProductList}
+        onCommit={item}
       />
       <MainBannerPage store={storeInfo} />
       <ShopByStyle categoryList={categoryList} />
-      <MostFeaturedorPopular FeaturedProduct={FeaturedProduct} />
+      <MostFeaturedorPopular
+        FeaturedProduct={FeaturedProduct}
+        onCommitChnage={item}
+      />
       <FeaturedProducts categoryList={categoryList} />
       <ChooseUs />
       <Footer />

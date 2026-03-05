@@ -1,13 +1,18 @@
 "use client";
 import { addToServerCart } from "@/api/lib/CookiesApi/AddCart/AddCart";
+import { getServerCart } from "@/api/lib/CookiesApi/GetCart/GetCart";
+import { removeItemFromServerCart } from "@/api/lib/CookiesApi/RemoveCart/RemoveCart";
+import { CartData } from "@/api/types/CookiesApi/CartItem";
 import { FeaturedProductForCustomer } from "@/api/types/Customer/LandingPage/Product/Product";
 import { ChevronLeft, ChevronRight, Heart } from "lucide-react";
 import Link from "next/link";
 import { useRef, useState } from "react";
 interface feturedProductProps {
+  onCommitChnage: () => void;
   FeaturedProduct: FeaturedProductForCustomer[];
 }
 export default function MostFeaturedorPopular({
+  onCommitChnage,
   FeaturedProduct,
 }: feturedProductProps) {
   const list = ["Featured", "Most Popular"];
@@ -125,14 +130,17 @@ export default function MostFeaturedorPopular({
   };
 
   const addToCart = async (ID: string) => {
-    const formData = {
+    const newItem: CartData = {
       attributeID: ID,
       qty: 1,
     };
-    console.log(formData);
-    const response = await addToServerCart(formData);
-    console.log(response);
+    const currentCart = await getServerCart();
+
+    const updatedCart = [...currentCart, newItem];
+    await addToServerCart(updatedCart);
+    onCommitChnage();
   };
+
   return (
     <>
       <div className=" mt-10 mb-10 flex w-full flex-col gap-8 md:flex-row md:items-start md:justify-around md:gap-16">
