@@ -2,6 +2,7 @@
 import { getServerCart } from "@/api/lib/CookiesApi/GetCart/GetCart";
 import { categoryList } from "@/api/types/Customer/LandingPage/Category/GetCategroy";
 import { FeaturedProductForCustomer } from "@/api/types/Customer/LandingPage/Product/Product";
+import { useAppContext } from "@/app/useContext";
 import CartItems from "@/app/UsefullComponent/CartSidebar/page";
 import SearchSidebarCompnent from "@/app/UsefullComponent/SearchComponent/page";
 import { Heart, Search, ShoppingCart, User } from "lucide-react";
@@ -37,7 +38,6 @@ export default function Navbar({
   const cartData = async () => {
     const cart = await getServerCart();
     setCarItem(cart);
-    console.log(cart);
   };
   useEffect(() => {
     cartData();
@@ -80,7 +80,7 @@ export default function Navbar({
           {/* LEFT */}
           <div className="hidden md:flex">
             <ul className="flex items-center gap-8 font-medium">
-              {categoryList.map((item, index) => (
+              {categoryList?.map((item, index) => (
                 <li key={index} className="relative group">
                   <a
                     href="#"
@@ -208,11 +208,13 @@ export default function Navbar({
             </button>
 
             <CartItems
+              logoUrl={logoUrl}
               commitChange={() => {
                 cartData();
                 onCommit();
               }}
               productList={productList}
+              categoryList={categoryList}
             />
           </div>
         </div>

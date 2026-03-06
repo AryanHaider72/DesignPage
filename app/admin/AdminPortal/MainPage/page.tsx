@@ -27,6 +27,8 @@ import {
   Shirt,
   BriefcaseIcon,
   Building2,
+  Motorbike,
+  PlaneIcon,
 } from "lucide-react";
 import { FaCashRegister, FaMoneyBill } from "react-icons/fa";
 import { BsShop } from "react-icons/bs";
@@ -218,6 +220,26 @@ export default function AppSidebar({
               ${activeMenu2 === "users" ? "max-h-40 mt-2" : "max-h-0"}`}
               >
                 <div className="ml-9 space-y-1">
+                  <Link
+                    href="/admin/AdminPortal/MainPage/Shipment/DelieveryStandard"
+                    className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Motorbike size={18} />
+                      <span className="text-sm font-medium">Delievry</span>
+                    </div>
+                  </Link>
+                  <Link
+                    href="/admin/AdminPortal/MainPage/Shipment/InternationDelievry"
+                    className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
+                  >
+                    <div className="flex items-center gap-3">
+                      <PlaneIcon size={18} />
+                      <span className="text-sm font-medium">
+                        Internation Delievry
+                      </span>
+                    </div>
+                  </Link>
                   <Link
                     href="/admin/AdminPortal/MainPage/Shipment/Region"
                     className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"

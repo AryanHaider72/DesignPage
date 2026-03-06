@@ -1,13 +1,19 @@
 "use server";
-import ErrorHandler from "@/api/ErrorHandler/ErrorHandler";
-import { getRequest } from "@/api/main/main";
 
-export default async function GetRegionApi(ID: string, token: string) {
+import ErrorHandler from "@/api/ErrorHandler/ErrorHandler";
+import { postRequest } from "@/api/main/main";
+
+import { AddDelievryRequrest } from "@/api/types/Admin/Shipment/Delievry/Delievry";
+export default async function AddDelievryStandard(
+  data: AddDelievryRequrest,
+  token: string,
+) {
   const customHeader: Record<string, string> = {};
   if (token) customHeader.Authorization = `Bearer ${token}`;
-  const response = await getRequest(
-    `/api/Shippment/admin/GetRegion/${ID}`,
-    null,
+
+  const response = await postRequest(
+    `/api/Shippment/admin/AddDelievryStandard`,
+    data,
     customHeader,
   );
 
@@ -23,6 +29,6 @@ export default async function GetRegionApi(ID: string, token: string) {
   return {
     data: response.data,
     status: response.status,
-    message: response.message,
+    message: response.message || "Record Added Successfully",
   };
 }

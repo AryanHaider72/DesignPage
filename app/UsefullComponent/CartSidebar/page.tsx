@@ -1,7 +1,10 @@
 import { getServerCart } from "@/api/lib/CookiesApi/GetCart/GetCart";
+import { modifyCartServer } from "@/api/lib/CookiesApi/ModifyCart/ModifCart";
 import { removeItemFromServerCart } from "@/api/lib/CookiesApi/RemoveCart/RemoveCart";
 import { CartData } from "@/api/types/CookiesApi/CartItem";
+import { categoryList } from "@/api/types/Customer/LandingPage/Category/GetCategroy";
 import { FeaturedProductForCustomer } from "@/api/types/Customer/LandingPage/Product/Product";
+import CheckOut from "@/app/Customer/Checkout/page";
 import {
   CreditCard,
   Heart,
@@ -17,6 +20,8 @@ interface cartItems {
   qty: number;
 }
 interface CartItemprops {
+  categoryList: categoryList[];
+  logoUrl: string;
   commitChange: () => void;
   productList: FeaturedProductForCustomer[];
 }
@@ -31,32 +36,23 @@ interface GetProductFromCookies {
 }
 
 export default function CartItems({
+  categoryList,
+  logoUrl,
   commitChange,
   productList,
 }: CartItemprops) {
   const [NumberofProduct, setNumberofProduct] = useState(1);
   const [cartItem, setCarItem] = useState<cartItems[]>([]);
   const [productItem, setProductItem] = useState<GetProductFromCookies[]>([]);
-  const items = [
-    {
-      name: "Product1",
-      price: 2000,
-      instock: true,
-      varient: "lg",
-      quantity: NumberofProduct,
-      image:
-        "https://res.cloudinary.com/daz8ajhg3/image/upload/v1768383056/aihoosp7suvhzxyhgyqy.webp",
-    },
-    {
-      name: "Product2",
-      price: 3000,
-      instock: false,
-      varient: "sm",
-      quantity: NumberofProduct,
-      image:
-        "https://res.cloudinary.com/daz8ajhg3/image/upload/v1768380152/uhasiygte64batlkoafh.jpg",
-    },
-  ];
+  const [checkedItems, setCheckedItems] = useState<string[]>([]);
+
+  const handleCheckboxChange = (attributeID: string) => {
+    setCheckedItems((prev) =>
+      prev.includes(attributeID)
+        ? prev.filter((id) => id !== attributeID)
+        : [...prev, attributeID],
+    );
+  };
   const freeShippingGoal = 8000;
   const currentAmount = 4000;
   const progressPercentage = Math.min(
@@ -109,11 +105,37 @@ export default function CartItems({
     );
     cartData();
     commitChange();
-    //await RemoveFromCart(productID, String(token));
+  };
+  const updateQuantity = async (attributeID: any, newQuantity: any) => {
+    if (newQuantity < 1) return;
+    setProductItem((prev) =>
+      prev.map((item, i) =>
+        item.attributeID === attributeID ? { ...item, qty: newQuantity } : item,
+      ),
+    );
+    const response = await modifyCartServer(
+      String(attributeID),
+      Number(newQuantity),
+    );
+    console.log(response);
+  };
+  const checkOut = () => {
+    const selectedProducts = productItem
+      .filter((item) => checkedItems.includes(item.attributeID))
+      .map((item) => ({
+        attributeID: item.attributeID,
+        qty: item.qty,
+      }));
+
+    localStorage.setItem("checkoutItems", JSON.stringify(selectedProducts));
+    window.location.href = "/Customer/Checkout";
   };
   useEffect(() => {
     cartData();
   }, []);
+  const subtotal = productItem
+    .filter((item) => checkedItems.includes(item.attributeID))
+    .reduce((total, item) => total + item.price * item.qty, 0);
   return (
     <div className="w-full p-5 flex flex-col h-full">
       {/* Header */}
@@ -150,7 +172,12 @@ export default function CartItems({
             className="flex gap-3 p-2 border border-gray-100 shadow-md items-start"
           >
             {/* Checkbox */}
-            <input type="checkbox" className="w-5 h-5 mt-10" />
+            <input
+              type="checkbox"
+              className="w-5 h-5 mt-10"
+              checked={checkedItems.includes(item.attributeID)}
+              onChange={() => handleCheckboxChange(item.attributeID)}
+            />
 
             {/* Item Info */}
             <div className="flex-1 flex gap-3">
@@ -178,23 +205,23 @@ export default function CartItems({
 
                 {/* Quantity & Delete */}
                 <div className="flex justify-end items-center">
-                  <div className="flex items-center border border-gray-300 rounded-md overflow-hidden">
+                  <div className="flex items-center justify-between w-25 border border-gray-300 rounded-md shadow-sm bg-gray-200 px-2 py-1">
                     <button
-                      className={`px-2 py-1 bg-gray-100 ${
-                        item.qty === 1
-                          ? "opacity-50 cursor-not-allowed"
-                          : "hover:bg-gray-200"
-                      }`}
                       onClick={() =>
-                        setNumberofProduct((prev) => Math.max(prev - 1, 1))
+                        updateQuantity(item.attributeID, item.qty - 1)
                       }
+                      className="p-1 bg-white shadow-sm rounded"
                     >
                       <Minus size={16} />
                     </button>
-                    <span className="px-3 py-1">{item.qty}</span>
+
+                    <p className="text-lg font-medium">{item.qty}</p>
+
                     <button
-                      className="px-2 py-1 bg-gray-100 hover:bg-gray-200"
-                      onClick={() => setNumberofProduct((prev) => prev + 1)}
+                      onClick={() =>
+                        updateQuantity(item.attributeID, item.qty + 1)
+                      }
+                      className="p-1 bg-white hover:bg-gray-100 shadow-sm rounded"
                     >
                       <Plus size={16} />
                     </button>
@@ -211,7 +238,9 @@ export default function CartItems({
         <hr className="border-gray-300 mb-2" />
         <div className="flex justify-between mb-4">
           <span className="text-lg text-gray-800 font-medium">Sub Total:</span>
-          <span className="text-lg text-gray-900 font-bold">5,000 -/</span>
+          <span className="text-lg text-gray-900 font-bold">
+            {subtotal.toLocaleString()} -/
+          </span>
         </div>
 
         <div className="flex  gap-2">
@@ -219,13 +248,13 @@ export default function CartItems({
             <Heart />
             View Wishlist
           </button>
-          <Link
-            href={"/Customer/Checkout"}
+          <div
+            onClick={checkOut}
             className=" w-full flex justify-center items-center gap-2 bg-black text-white py-3 rounded hover:bg-white hover:text-black border transition-all duration-300"
           >
             <CreditCard />
             CheckOut
-          </Link>
+          </div>
         </div>
       </div>
     </div>

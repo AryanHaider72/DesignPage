@@ -1,12 +1,16 @@
 "use server";
+
 import ErrorHandler from "@/api/ErrorHandler/ErrorHandler";
 import { getRequest } from "@/api/main/main";
 
-export default async function GetRegionApi(ID: string, token: string) {
+export default async function DeleteDelieveryStandardApi(
+  token: string,
+  ID: string,
+) {
   const customHeader: Record<string, string> = {};
   if (token) customHeader.Authorization = `Bearer ${token}`;
   const response = await getRequest(
-    `/api/Shippment/admin/GetRegion/${ID}`,
+    `/api/Shippment/admin/DeleteDelievryStandard/${ID}`,
     null,
     customHeader,
   );

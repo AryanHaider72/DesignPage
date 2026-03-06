@@ -2,7 +2,7 @@
 
 import { getRequest } from "@/api/main/main";
 
-export default async function GetCountry(token: string, data?: {}) {
+export default async function GetCountry(token?: string, data?: {}) {
   const customHeaders: Record<string, string> = {};
   if (token) customHeaders.Authorization = `Bearer ${token}`;
   const response = await getRequest(

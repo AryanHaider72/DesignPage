@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import ChooseUs from "./ChooseUS/page";
 import FeaturedProducts from "./FeaturedProducts/page";
 import Footer from "./FooterSection/page";
@@ -23,91 +23,37 @@ import {
   ProductApiResponseCustomer,
 } from "@/api/types/Customer/LandingPage/Product/Product";
 import GetProductCustomerApi from "@/api/lib/Customer/LandingPage/CustomerProductsFetched/CustomerFecthedProduct";
-import CartItems from "@/app/UsefullComponent/CartSidebar/page";
-import FilterComponent from "@/app/UsefullComponent/FilterComponent/page";
-import SearchSidebarCompnent from "@/app/UsefullComponent/SearchComponent/page";
-import { getServerCart } from "@/api/lib/CookiesApi/GetCart/GetCart";
+import { useAppContext } from "@/app/useContext";
 interface cartItems {
   attributeID: string;
   qty: number;
 }
 export default function HomePage() {
+  const { categoryList, storeInfo, ProductList, FeaturedProduct } =
+    useAppContext();
   const [loading, setLoading] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [categoryList, setCategoryList] = useState<categoryList[]>([]);
-  const [storeInfo, setStoreInfo] = useState<storeGet[]>([]);
+
   const [showItem, setShowItem] = useState(false);
   const [cartItem, setCarItem] = useState<cartItems[]>([]);
-  const [FeaturedProduct, setFeaturedProduct] = useState<
-    FeaturedProductForCustomer[]
-  >([]);
-  const [ProductList, setProductList] = useState<FeaturedProductForCustomer[]>(
-    [],
-  );
 
-  const item = () =>
-    void useEffect(() => {
-      const handleScroll = () => {
-        setScrolled(window.scrollY > 50);
-      };
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+    };
 
-      window.addEventListener("scroll", handleScroll);
-      return () => window.removeEventListener("scroll", handleScroll);
-    }, []);
+    window.addEventListener("scroll", handleScroll);
 
-  const getCategory = async () => {
-    try {
-      setLoading(true);
-      const response = await GetCategoryiesCustomerApi();
-      if (response.status === 200 || response.status === 201) {
-        const data = response.data as GetCategoryResponse;
-        setCategoryList(data.categoryList);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-  const getStores = async () => {
-    try {
-      const response = await GetStoreCustomerApi();
-      if (response.status === 200 || response.status === 201) {
-        const data = response.data as CustomerStoreInfoResponse;
-        setStoreInfo(data.storeGet);
-      }
-    } finally {
-    }
-  };
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const getFeaturedProduct = async () => {
     try {
-      const response = await GetCustomerFeaturedProductApi();
-      if (response.status === 200 || response.status === 201) {
-        const data = response.data as ProductApiResponseCustomer;
-        setFeaturedProduct(data.productList);
-      }
     } finally {
     }
   };
-  const getProduct = async () => {
-    try {
-      const response = await GetProductCustomerApi();
-      if (response.status === 200 || response.status === 201) {
-        const data = response.data as ProductApiResponseCustomer;
-        setProductList(data.productList);
-      }
-    } finally {
-    }
-  };
-  useEffect(() => {
-    getStores();
-    getCategory();
-    getFeaturedProduct();
-  }, []);
-  useEffect(() => {
-    if (FeaturedProduct) {
-      getProduct();
-    }
-  }, [FeaturedProduct]);
+
+  const item = () => {};
   return (
     <>
       <Navbar

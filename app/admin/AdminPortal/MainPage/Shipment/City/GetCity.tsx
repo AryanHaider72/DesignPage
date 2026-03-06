@@ -2,15 +2,16 @@ import GetCountry from "@/api/lib/Admin/Country/countryGet";
 import DeleteCityApi from "@/api/lib/Admin/Shipment/City/DeleteCity/DeletCity";
 import GetCityApi from "@/api/lib/Admin/Shipment/City/GetCity/GetCity";
 import GetRegionApi from "@/api/lib/Admin/Shipment/Region/getRegion";
-import {
-  Countryget,
-  CountrygetApiResponse,
-} from "@/api/types/Admin/Country/country";
+
 import {
   citylist,
   responseZoneList,
   zonelist,
 } from "@/api/types/Admin/Shipment/City/City";
+import {
+  Countryget,
+  CountrygetApiResponse,
+} from "@/api/types/Admin/Shipment/Country/Country";
 import {
   regionlist,
   responseRegionList,

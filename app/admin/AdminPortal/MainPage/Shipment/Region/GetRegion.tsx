@@ -1,6 +1,7 @@
 import DeleteRegion from "@/api/lib/Admin/Shipment/Region/DeleteRegion";
 import GetRegionApi from "@/api/lib/Admin/Shipment/Region/getRegion";
-import { Countryget } from "@/api/types/Admin/Country/country";
+import { Countryget } from "@/api/types/Admin/Shipment/Country/Country";
+
 import {
   regionlist,
   responseRegionList,

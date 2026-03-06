@@ -1,56 +1,214 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Footer from "../LandingPage/FooterSection/page";
 import Navbar from "../LandingPage/Navbar/page";
+import { categoryList } from "@/api/types/Customer/LandingPage/Category/GetCategroy";
+import { FeaturedProductForCustomer } from "@/api/types/Customer/LandingPage/Product/Product";
+import { useAppContext } from "@/app/useContext";
+import { CartData } from "@/api/types/CookiesApi/CartItem";
+import GetCountry from "@/api/lib/Admin/Country/countryGet";
+import {
+  Countryget,
+  CountrygetApiResponse,
+} from "@/api/types/Admin/Shipment/Country/Country";
+import axios from "axios";
+import GetPaymentMethodApi from "@/api/lib/Customer/CheckOut/Payment/PaymentGet/PaymentGet";
+import {
+  paymentget,
+  paymentgetApiResponse,
+} from "@/api/types/Customer/CheckOut/Payment/Payment";
+import GetRatesCustomerApi from "@/api/lib/Customer/CheckOut/ShipmentCharges/ShipmentCharges";
+import {
+  informationList,
+  requestAddStoreToGetRate,
+  shiipingInformation,
+} from "@/api/types/Customer/CheckOut/ShipmentCharges/ShipmentCharges";
+
+interface cartItem {
+  attributeID: string;
+  qty: number;
+}
+interface GetProductFromCookies {
+  productID: string;
+  productName: string;
+  discount: number;
+  image: string;
+  attributeID: string;
+  variantValue: string;
+  storeID: string;
+  storeName: string;
+  weight: number;
+  price: number;
+  qty: number;
+}
 
 export default function CheckOut() {
+  const { categoryList, storeInfo, ProductList, FeaturedProduct } =
+    useAppContext();
+  const [cartItem, setCartItem] = useState<cartItem[]>([]);
   const [selected, setSelected] = useState("");
+  const [shippingListInformation, setShippingListInformation] = useState<
+    informationList[]
+  >([]);
+  const [Countries, setCountries] = useState<Countryget[]>([]);
+  const [productItem2, setProductItem2] = useState<GetProductFromCookies[]>([]);
+  const [paymentList2, setPaymentList2] = useState<paymentget[]>([]);
+  const [storePayload, setStorePayload] =
+    useState<requestAddStoreToGetRate | null>(null);
+  const [CityList, setCityList] = useState([]);
   const [selected2, setSelected2] = useState("");
-  const paymentList = [
-    { paymentID: "12", bankName: "COD" },
-    { paymentID: "13", bankName: "Debit / Credit" },
-    { paymentID: "14", bankName: "Bank Account" },
-  ];
   const DelievryStandards = [
     { StandardID: "12", StandardName: "Standard Service" },
     { StandardID: "13", StandardName: "Express Service" },
     { StandardID: "14", StandardName: "Fast Service" },
   ];
-  const items = [
-    {
-      name: "Product1",
-      price: 2000,
-      sku: "14",
-      instock: true,
-      varient: "lg",
-      quantity: 1,
-      image:
-        "https://res.cloudinary.com/daz8ajhg3/image/upload/v1768383056/aihoosp7suvhzxyhgyqy.webp",
-    },
-    {
-      name: "Product2",
-      price: 3000,
-      sku: "15",
-      instock: false,
-      varient: "sm",
-      quantity: 3,
-      image:
-        "https://res.cloudinary.com/daz8ajhg3/image/upload/v1768380152/uhasiygte64batlkoafh.jpg",
-    },
-    {
-      name: "Product3",
-      price: 3000,
-      sku: "16",
-      instock: false,
-      varient: "sm",
-      quantity: 3,
-      image:
-        "https://res.cloudinary.com/daz8ajhg3/image/upload/v1768380240/qrbuoqyzo3lhnxniipty.webp",
-    },
-  ];
+
+  useEffect(() => {
+    const storedItems = localStorage.getItem("checkoutItems");
+    if (storedItems) {
+      try {
+        const parsedItems: cartItem[] = JSON.parse(storedItems);
+        console.log("items List: ", parsedItems);
+
+        const item = filterItems(parsedItems, ProductList);
+        setProductItem2(item);
+      } catch (error) {
+        console.error("Failed to parse checkout items:", error);
+      }
+    }
+  }, [ProductList]);
+
+  const getCountry = async () => {
+    //const token = localStorage.getItem("token");
+    const response = await GetCountry();
+    if (response.status === 200 || response.status == 201) {
+      const data = response.data as CountrygetApiResponse;
+      setCountries(data.countryList);
+    } else {
+      console.log();
+    }
+  };
+  const getPayment = async () => {
+    //const token = localStorage.getItem("token");
+    const response = await GetPaymentMethodApi();
+    if (response.status === 200 || response.status == 201) {
+      const data = response.data as paymentgetApiResponse;
+      setPaymentList2(data.paymentMethod);
+    } else {
+      console.log();
+    }
+  };
+
+  const getCities = async (name: string) => {
+    const response = await axios.post(
+      `https://countriesnow.space/api/v0.1/countries/cities`,
+      {
+        country: name,
+      },
+    );
+    if (response.status === 200) {
+      setCityList(response.data.data);
+    } else {
+      setCityList([]);
+    }
+  };
+
+  const fetchShipmentCharges = async (cityName: string) => {
+    const formData = {
+      storeList: productItem2.map((item) => ({
+        storeID: item.storeID,
+      })),
+    };
+    const response = await GetRatesCustomerApi(cityName, formData);
+    if (response.status === 200 || response.status === 201) {
+      const data = response.data as shiipingInformation;
+      console.log(response.data);
+      setShippingListInformation(data.informationList);
+    } else {
+    }
+  };
+
+  const getTotalShipping = (
+    productItem2: GetProductFromCookies[],
+    shippingRates?: informationList[] | null,
+  ): number => {
+    if (!shippingRates || shippingRates.length === 0) return 0;
+
+    return productItem2.reduce((total, item) => {
+      return total + ShippingCharges(item, shippingRates);
+    }, 0);
+  };
+  const ShippingCharges = (
+    productItem2: GetProductFromCookies,
+    shippingRates: informationList[],
+  ) => {
+    if (!shippingRates || shippingRates.length === 0) {
+      return 0;
+    }
+    const rate = shippingRates.find((r) => r.storeID === productItem2.storeID);
+    if (!rate) return 0;
+
+    const weight = productItem2.weight * productItem2.qty;
+
+    if (weight <= 1) return rate.lessThen1KG;
+    if (weight <= 5) return rate.lessThen5KG;
+    return rate.greaterThen10KG;
+  };
+  useEffect(() => {
+    getCountry();
+    getPayment();
+  }, []);
+  const filterItems = (
+    cartItem: CartData[],
+    productList: FeaturedProductForCustomer[],
+  ) => {
+    const result: any[] = [];
+
+    cartItem.forEach((cartItem) => {
+      productList.forEach((product) => {
+        product.variants.forEach((variant: any) => {
+          variant.variantValues.forEach((value: any) => {
+            if (value.attributeID === cartItem.attributeID) {
+              result.push({
+                productID: product.productID,
+                storeID: product.storeID,
+                discount: product.discount,
+                storeName: product.storeName,
+                productName: product.productName,
+                image: product.images?.[0]?.url,
+                attributeID: value.attributeID,
+                weight: product.weight,
+                variantValue: value.varientValue,
+                price: value.salePrice,
+                qty: cartItem.qty,
+              });
+            }
+          });
+        });
+      });
+    });
+
+    console.log(result);
+    return result;
+  };
+  const subtotal = productItem2.reduce(
+    (total, item) => total + item.price * item.qty,
+    0,
+  );
+  const subDiscount = productItem2.reduce(
+    (total, item) => total + (item.discount * item.price) / 100,
+    0,
+  );
+  const item = () => {};
   return (
     <div className=" flex flex-col min-h-screen ">
-      <Navbar scrolled={true} />
+      <Navbar
+        scrolled={true}
+        categoryList={categoryList}
+        logoUrl={storeInfo[0]?.logoUrl}
+        productList={ProductList}
+        onCommit={item}
+      />
       <div className="mt-35 min-h-screen flex  justify-center mb-10">
         <div className="w-full max-w-6xl mx-auto flex flex-col lg:flex-row gap-10 px-4">
           <div className="w-full">
@@ -89,26 +247,64 @@ export default function CheckOut() {
               <div className="w-full">
                 <h2 className="text-2xl font-bold mb-6">Delivery</h2>
                 <div>
-                  {/* Country */}
-                  <div className="mb-6">
-                    <label
-                      htmlFor="country"
-                      className="block mb-2 text-sm font-medium text-gray-700"
-                    >
-                      Country / Region
-                    </label>
-                    <select
-                      id="country"
-                      className="w-full px-4 py-3.5 text-base text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      defaultValue="Morocco"
-                    >
-                      <option>Morocco</option>
-                      <option>USA</option>
-                      <option>Canada</option>
-                      <option>UK</option>
-                    </select>
-                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                    {/* Country */}
 
+                    <div className="mb-1">
+                      <label
+                        htmlFor="country"
+                        className="block mb-2 text-sm font-medium text-gray-700"
+                      >
+                        Country / Region
+                      </label>
+                      <select
+                        id="country"
+                        className="w-full px-4 py-3.5 text-base text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        onChange={(e) => getCities(e.target.value)}
+                      >
+                        {Countries.length > 0 ? (
+                          <>
+                            {Countries.map((item) => (
+                              <option key={item.countryID}>
+                                {item.countryName}
+                              </option>
+                            ))}
+                          </>
+                        ) : (
+                          <option>No Country Found</option>
+                        )}
+                      </select>
+                    </div>
+                    <div className="mb-1">
+                      <label
+                        htmlFor="country"
+                        className="block mb-2 text-sm font-medium text-gray-700"
+                      >
+                        City
+                      </label>
+                      <select
+                        id="country"
+                        className="w-full px-4 py-3.5 text-base text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        onChange={(e) => fetchShipmentCharges(e.target.value)}
+                      >
+                        {CityList.length > 0 ? (
+                          <>
+                            {CityList.slice()
+                              .sort((a: string, b: string) =>
+                                a.toLowerCase().localeCompare(b.toLowerCase()),
+                              )
+                              .map((item, index) => (
+                                <option key={index} value={item}>
+                                  {item}
+                                </option>
+                              ))}
+                          </>
+                        ) : (
+                          <option>No Cities Found</option>
+                        )}
+                      </select>
+                    </div>
+                  </div>
                   {/* Name fields */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                     <div>
@@ -269,7 +465,7 @@ export default function CheckOut() {
               <div className="w-full mt-5">
                 <h2 className="text-2xl font-bold mb-6">Payment Method</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {paymentList.map((method) => (
+                  {paymentList2.map((method) => (
                     <label
                       key={method.paymentID}
                       className={`flex items-center justify-between border rounded-md p-3 cursor-pointer transition-all duration-200 ${
@@ -352,35 +548,44 @@ export default function CheckOut() {
 
             {/* Product List */}
             <div className="space-y-6">
-              {items.map((item, index) => (
+              {productItem2.map((item, index) => (
                 <div key={index} className="flex justify-between items-start">
                   {/* Left: Image + Info */}
                   <div className="flex gap-4">
                     <div className="relative">
                       <img
-                        src={item.image}
-                        alt={item.name}
+                        src={item.image || "/placeholder.jpg"}
+                        alt={item.productName}
                         className="w-20 h-20 object-cover rounded-md"
                       />
 
                       {/* Quantity badge */}
                       <span className="absolute -top-2 -right-2 bg-black text-white text-xs w-6 h-6 flex items-center justify-center rounded-full">
-                        {item.quantity}
+                        {item.qty}
                       </span>
                     </div>
 
                     <div>
                       <h3 className="text-md font-medium text-gray-800">
-                        {item.name}
+                        {item.productName}
                       </h3>
-                      <p className="text-sm text-gray-500">{item.sku}</p>
+                      <p className="text-sm text-gray-500">
+                        {item.variantValue}
+                      </p>
                     </div>
                   </div>
 
                   {/* Right: Price */}
-                  <p className="text-md font-medium text-gray-800">
-                    Rs {item.price}
-                  </p>
+                  <div className="flex  flex-col justify-between gap-2">
+                    <p className="w-full flex gap-1 justify-between text-md font-medium text-gray-800">
+                      <span className="font-bold">Original Price: </span>
+                      <span> {item.price.toLocaleString()}-/</span>
+                    </p>
+                    <p className="w-full flex justify-between gap-1 text-md font-medium text-gray-800">
+                      <span className="font-bold">Sub-Total: </span>
+                      <span> {(item.qty * item.price).toLocaleString()}-/</span>
+                    </p>
+                  </div>
                 </div>
               ))}
             </div>
@@ -404,11 +609,11 @@ export default function CheckOut() {
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-600">Subtotal</span>
-                <span>Rs 5000</span>
+                <span>Rs {subtotal.toLocaleString()}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Discount</span>
-                <span>Rs 0</span>
+                <span>Rs {subDiscount.toLocaleString()}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Tax</span>
@@ -417,7 +622,10 @@ export default function CheckOut() {
 
               <div className="flex justify-between">
                 <span className="text-gray-600">Shipping</span>
-                <span>Rs 180</span>
+                <span>
+                  Rs {getTotalShipping(productItem2, shippingListInformation)}{" "}
+                  -/
+                </span>
               </div>
             </div>
 
@@ -427,7 +635,14 @@ export default function CheckOut() {
                 <span className="text-lg font-semibold">Total</span>
                 <div className="text-right">
                   <span className="text-xs text-gray-500 block">PKR</span>
-                  <span className="text-xl font-bold">Rs 5180</span>
+                  <span className="text-xl font-bold">
+                    Rs{" "}
+                    {(
+                      subtotal +
+                      subDiscount +
+                      getTotalShipping(productItem2, shippingListInformation)
+                    ).toLocaleString()}
+                  </span>
                 </div>
               </div>
 
