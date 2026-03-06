@@ -4,7 +4,7 @@ import { postRequest } from "@/api/main/main";
 import { RequestModifyZone } from "@/api/types/Admin/Shipment/City/City";
 export default async function ModifyCity(
   data: RequestModifyZone,
-  token?: string
+  token?: string,
 ) {
   try {
     const customHeader: Record<string, string> = {};
@@ -13,14 +13,14 @@ export default async function ModifyCity(
     const response = await postRequest(
       `/api/Shippment/admin/ModifyZoneRegion`,
       data,
-      customHeader
+      customHeader,
     );
 
     if (response.success) {
       return {
         data: response.data,
         status: response.status,
-        message: response.message || "Login Successfull",
+        message: response.message || "Record Modified Successfull",
       };
     }
 

@@ -1,4 +1,5 @@
-import CreateLoginsApi from "@/api/lib/Admin/CreateLogins/CreateLogin";
+"use client";
+import CreateLoginsApi from "@/api/lib/Admin/CreateLogins/CcreateLogin/CreateLogin";
 import GetInitalStoreSalesMan from "@/api/lib/Admin/Stores/GetInitalStore/GetInitalStore";
 import {
   ResponseStoreList,
@@ -26,7 +27,7 @@ export default function AddLoginsOnline({ onShowMessage }: AddUnitProps) {
   const [items, setItems] = useState<itemsList[]>([]);
 
   const getStores = async () => {
-    const token = localStorage.getItem("adminToken");
+    const token = localStorage.getItem("sellerToken");
     const response = await GetInitalStoreSalesMan(String(token));
     const data = response.data as ResponseStoreList;
     if (data.storeList.length > 0) {

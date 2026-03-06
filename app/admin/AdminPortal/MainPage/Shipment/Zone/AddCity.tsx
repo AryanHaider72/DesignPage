@@ -161,7 +161,7 @@ export default function AddCity({
           </div>
           <div>
             <label className="block text-sm font-medium text-neutral-700 mb-1">
-              City Name
+              Zone Name
             </label>
             <input
               type="text"

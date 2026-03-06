@@ -26,7 +26,7 @@ export default function AddLogins({ onShowMessage }: AddUnitProps) {
   const [items, setItems] = useState<itemsList[]>([]);
 
   const getStores = async () => {
-    const token = localStorage.getItem("adminToken");
+    const token = localStorage.getItem("sellerToken");
     const response = await GetInitalStoreSalesMan(String(token));
     const data = response.data as ResponseStoreList;
     if (data.storeList.length > 0) {

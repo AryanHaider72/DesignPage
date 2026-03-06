@@ -1,13 +1,13 @@
 export interface AddDelievryRequrest {
   StandardName: string;
-  NumberOfDays: number;
+  NumberOfDays: string;
   Description: string;
 }
 
 export interface ModifyDelievryRequrest {
   deliveryTypeID: string;
   StandardName: string;
-  NumberOfDays: number;
+  NumberOfDays: string;
   Description: string;
 }
 export interface ResponseDelievryGetData {
@@ -17,6 +17,6 @@ export interface ResponseDelievryGetData {
 export interface DelievryGetData {
   deliveryTypeID: string;
   typeName: string;
-  numberofDays: number;
+  numberofDays: string;
   description: string;
 }

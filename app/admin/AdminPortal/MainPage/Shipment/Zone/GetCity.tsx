@@ -51,7 +51,7 @@ export default function GetCity({ onEdit }: GetTillFormProps) {
   const getCityRecord = async (ID: string) => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("adminToken");
       const response = await GetCityApi(ID, String(token));
       const data = response.data as responseZoneList;
       console.log(response);

@@ -1,19 +1,19 @@
 "use client";
-import MessagePopUp from "@/app/UsefullComponent/MessagePopup/page";
 import { List, Plus } from "lucide-react";
-import { useState } from "react";
-import DeleiveryStandardAddForm from "./DeleiveryStandardAddForm";
-import GetDeliveryStandardGetList from "./GetDeliveryStandardGetList";
-import { DelievryGetData } from "@/api/types/Admin/Shipment/Delievry/Delievry";
+import { useEffect, useState } from "react";
+import GetCity from "./GetCity";
+import MessagePopUp from "@/app/UsefullComponent/MessagePopup/page";
+import AddCity from "./AddCity";
+import { zonelist } from "@/api/types/Admin/Shipment/City/City";
 
-export default function DelieveryStandard() {
+export default function ShipmentZone() {
   const [view, setView] = useState<"list" | "form">("list");
   const [update, setUpdate] = useState(false);
   const [showMessage, setShowMessage] = useState<string | null>(null);
-  const [delieveryGet, setDelieveryGet] = useState<DelievryGetData>();
   const [messageType, setMessageType] = useState<"success" | "error">(
     "success",
   );
+  const [cityList, setCityList] = useState<zonelist>();
   return (
     <>
       {showMessage && (
@@ -30,7 +30,7 @@ export default function DelieveryStandard() {
           <button
             onClick={() => {
               setView("list");
-              setDelieveryGet(undefined);
+              setCityList(undefined);
             }}
             className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition
             ${view === "list" ? "bg-neutral-900 text-white" : "bg-white text-neutral-900 shadow hover:shadow-lg"}`}
@@ -50,32 +50,32 @@ export default function DelieveryStandard() {
         </div>
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-semibold text-neutral-900">
-            Delivery Standard
+            Zone Management
           </h1>
         </div>
+
+        {/* Body */}
         <div className="rounded-3xl bg-white/70 backdrop-blur-xl p-6 shadow-[0_20px_40px_rgba(0,0,0,0.07)] transition-all">
+          {/* List View */}
+          {view === "list" && (
+            <GetCity
+              onEdit={(till, id) => {
+                setCityList(till);
+                setView("form");
+                setUpdate(true);
+              }}
+            />
+          )}
+
+          {/* Form View */}
           {view === "form" && (
-            <DeleiveryStandardAddForm
-              initialData={delieveryGet}
+            <AddCity
+              initialData={cityList}
               Update={update}
               onShowMessage={(msg, type) => {
                 setShowMessage(msg);
                 setMessageType(type);
                 if (type === "success") setView("list");
-              }}
-            />
-          )}
-          {view === "list" && (
-            <GetDeliveryStandardGetList
-              onShowMessage={(msg, type) => {
-                setShowMessage(msg);
-                setMessageType(type);
-                if (type === "success") setView("list");
-              }}
-              onEdit={(data: DelievryGetData) => {
-                setDelieveryGet(data);
-                setUpdate(true);
-                setView("form");
               }}
             />
           )}

@@ -29,6 +29,8 @@ import {
   Building2,
   Motorbike,
   PlaneIcon,
+  BoxIcon,
+  Map,
 } from "lucide-react";
 import { FaCashRegister, FaMoneyBill } from "react-icons/fa";
 import { BsShop } from "react-icons/bs";
@@ -216,8 +218,8 @@ export default function AppSidebar({
               </button>
 
               <div
-                className={`overflow-hidden transition-all duration-300
-              ${activeMenu2 === "users" ? "max-h-40 mt-2" : "max-h-0"}`}
+                className={`overflow-hidden  transition-all duration-300
+              ${activeMenu2 === "users" ? "max-h-60 mt-2" : "max-h-0"}`}
               >
                 <div className="ml-9 space-y-1">
                   <Link
@@ -227,6 +229,15 @@ export default function AppSidebar({
                     <div className="flex items-center gap-3">
                       <Motorbike size={18} />
                       <span className="text-sm font-medium">Delievry</span>
+                    </div>
+                  </Link>
+                  <Link
+                    href="/admin/AdminPortal/MainPage/Shipment/CourierService"
+                    className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
+                  >
+                    <div className="flex items-center gap-3">
+                      <BoxIcon size={18} />
+                      <span className="text-sm font-medium">Courier</span>
                     </div>
                   </Link>
                   <Link
@@ -247,6 +258,15 @@ export default function AppSidebar({
                     <div className="flex items-center gap-3">
                       <Globe2 size={18} />
                       <span className="text-sm font-medium">Region</span>
+                    </div>
+                  </Link>
+                  <Link
+                    href="/admin/AdminPortal/MainPage/Shipment/Zone"
+                    className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Map size={18} />
+                      <span className="text-sm font-medium">Zone</span>
                     </div>
                   </Link>
                   <Link

@@ -1,19 +1,19 @@
 "use client";
-import { List, Plus } from "lucide-react";
-import { useEffect, useState } from "react";
-import GetCity from "./GetCity";
+import { List, PlugZap, Plus } from "lucide-react";
+import { useState } from "react";
+import AddCityForm from "./AddCityForm";
+import { zonelistOrigin } from "@/api/types/Admin/Shipment/OriginCity/City";
+import GetCityList from "./GetCityList";
 import MessagePopUp from "@/app/UsefullComponent/MessagePopup/page";
-import AddCity from "./AddCity";
-import { zonelist } from "@/api/types/Admin/Shipment/City/City";
 
-export default function ShipmentCity() {
+export default function ShippingCity() {
   const [view, setView] = useState<"list" | "form">("list");
   const [update, setUpdate] = useState(false);
   const [showMessage, setShowMessage] = useState<string | null>(null);
   const [messageType, setMessageType] = useState<"success" | "error">(
     "success",
   );
-  const [cityList, setCityList] = useState<zonelist>();
+  const [cityList, setCityList] = useState<zonelistOrigin>();
   return (
     <>
       {showMessage && (
@@ -28,7 +28,10 @@ export default function ShipmentCity() {
         {/* Top Buttons */}
         <div className="w-full bg-gray-50 shadow-sm flex justify-between px-1 py-2 rounded-lg">
           <button
-            onClick={() => setView("list")}
+            onClick={() => {
+              setView("list");
+              setCityList(undefined);
+            }}
             className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition
             ${view === "list" ? "bg-neutral-900 text-white" : "bg-white text-neutral-900 shadow hover:shadow-lg"}`}
           >
@@ -50,29 +53,24 @@ export default function ShipmentCity() {
             City Management
           </h1>
         </div>
-
-        {/* Body */}
         <div className="rounded-3xl bg-white/70 backdrop-blur-xl p-6 shadow-[0_20px_40px_rgba(0,0,0,0.07)] transition-all">
-          {/* List View */}
-          {view === "list" && (
-            <GetCity
-              onEdit={(till, id) => {
-                setCityList(till);
-                setView("form");
-                setUpdate(true);
-              }}
-            />
-          )}
-
-          {/* Form View */}
           {view === "form" && (
-            <AddCity
+            <AddCityForm
               initialData={cityList}
               Update={update}
               onShowMessage={(msg, type) => {
                 setShowMessage(msg);
                 setMessageType(type);
                 if (type === "success") setView("list");
+              }}
+            />
+          )}
+          {view === "list" && (
+            <GetCityList
+              onEdit={(till) => {
+                setCityList(till);
+                setView("form");
+                setUpdate(true);
               }}
             />
           )}

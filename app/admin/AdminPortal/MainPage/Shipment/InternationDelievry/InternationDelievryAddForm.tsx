@@ -1,5 +1,6 @@
 "use client";
 
+import AddINternationShippingCharges from "@/api/lib/Admin/Shipment/Internation/AddInternation/AddInternation";
 import GetINternationShippingCharges from "@/api/lib/Admin/Shipment/Internation/GetInternation/GetInternation";
 import {
   loopList,
@@ -16,6 +17,7 @@ type EditableField =
 
 export default function InternationDelievryAddForm() {
   const [loading, setLoading] = useState(false);
+  const [loading2, setLoading2] = useState(false);
   const [dataList, setDataList] = useState([]);
   const [internationData, setInternationData] = useState<loopList[]>([]);
   const [CombinationList, setCombinationList] = useState<shippingDetail[]>([]);
@@ -23,7 +25,7 @@ export default function InternationDelievryAddForm() {
   const callData = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("sellerToken");
+      const token = localStorage.getItem("adminToken");
       const response = await GetINternationShippingCharges(String(token));
       if (response.status === 200 || response.status === 201) {
         const data = response.data as responseINternationShippingRateCountry;
@@ -34,6 +36,21 @@ export default function InternationDelievryAddForm() {
       setLoading(false);
     }
   };
+  useEffect(() => {
+    if (internationData.length > 0) {
+      const initialData: shippingDetail[] = internationData.map((item) => ({
+        deliveryTypeID: item.deliveryTypeID,
+        CountryFromID: item.countryFromID,
+        CountryDestinationID: item.countryToID,
+        lessThen1KG: item.lessThen1KG,
+        lessThen5KG: item.lessThen5KG,
+        lessThen10KG: item.lessThen10KG,
+        greaterThen10KG: item.greaterThen10KG,
+      }));
+
+      setCombinationList(initialData);
+    }
+  }, [internationData]);
   const handleChange = (index: number, field: EditableField, value: string) => {
     setCombinationList((prev) => {
       const updated = [...prev];
@@ -45,6 +62,40 @@ export default function InternationDelievryAddForm() {
 
       return updated;
     });
+  };
+
+  const addRates = async () => {
+    try {
+      setLoading2(true);
+      const token = localStorage.getItem("adminToken");
+      const formData = {
+        shippingDetail: CombinationList.map((item) => ({
+          deliveryTypeID: item.deliveryTypeID,
+          lessThen1KG: item.lessThen1KG || 0,
+          lessThen5KG: item.lessThen5KG || 0,
+          lessThen10KG: item.lessThen10KG || 0,
+          greaterThen10KG: item.greaterThen10KG || 0,
+          CountryFromID: item.CountryFromID,
+          CountryDestinationID: item.CountryDestinationID,
+        })),
+      };
+
+      const response = await AddINternationShippingCharges(
+        formData,
+        String(token),
+      );
+      if (response.status === 200 || response.status === 201) {
+        // onShowMessage(
+        //   response.message || "Standard Modified successfully",
+        //   "success",
+        // );
+      }
+    } catch (error) {
+      //onShowMessage("Something went wrong", "error");
+      setLoading2(true);
+    } finally {
+      setLoading2(false);
+    }
   };
   useEffect(() => {
     callData();
@@ -172,6 +223,14 @@ export default function InternationDelievryAddForm() {
                   ))}
                 </tbody>
               </table>
+            </div>
+            <div className="flex justify-end">
+              <button
+                onClick={addRates}
+                className="px-6 py-2 rounded-xl bg-neutral-900 text-white font-medium hover:bg-neutral-800 transition shadow-lg"
+              >
+                {loading2 ? "Saving..." : "Save"}
+              </button>
             </div>
           </>
         )}

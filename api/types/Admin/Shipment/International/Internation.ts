@@ -22,4 +22,8 @@ export interface loopList {
   countryToID: string;
   deliveryType: string;
   deliveryTypeID: string;
+  lessThen1KG: number;
+  lessThen5KG: number;
+  lessThen10KG: number;
+  greaterThen10KG: number;
 }

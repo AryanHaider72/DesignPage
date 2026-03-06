@@ -24,10 +24,10 @@ export default function DeleiveryStandardAddForm({
       setLoading(true);
       const formData = {
         StandardName: StandardName,
-        NumberOfDays: Number(NumberOfDays),
+        NumberOfDays: NumberOfDays,
         Description: Description,
       };
-      const token = localStorage.getItem("sellerToken");
+      const token = localStorage.getItem("adminToken");
       const response = await AddDelievryStandard(formData, String(token));
       if (response.status === 200 || response.status === 201) {
         setStandardName("");
@@ -51,10 +51,10 @@ export default function DeleiveryStandardAddForm({
       const formData = {
         deliveryTypeID: ID,
         StandardName: StandardName,
-        NumberOfDays: Number(NumberOfDays),
+        NumberOfDays: NumberOfDays,
         Description: Description,
       };
-      const token = localStorage.getItem("sellerToken");
+      const token = localStorage.getItem("adminToken");
       const response = await ModifyDelievryStandard(formData, String(token));
       if (response.status === 200 || response.status === 201) {
         setStandardName("");

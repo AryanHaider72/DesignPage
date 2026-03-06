@@ -1,5 +1,5 @@
 "use client";
-import { List, Plus } from "lucide-react";
+import { List, Plane, Plus, Truck } from "lucide-react";
 import { useState } from "react";
 import InternationDelievryAddForm from "./InternationDelievryAddForm";
 
@@ -20,8 +20,8 @@ export default function InternationDelievry() {
             className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition
             ${view === "list" ? "bg-neutral-900 text-white" : "bg-white text-neutral-900 shadow hover:shadow-lg"}`}
           >
-            <List size={18} />
-            Show List
+            <Truck size={18} />
+            Local Rates
           </button>
 
           <button
@@ -29,13 +29,13 @@ export default function InternationDelievry() {
             className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition
             ${view === "form" ? "bg-neutral-900 text-white" : "bg-white text-neutral-900 shadow hover:shadow-lg"}`}
           >
-            <Plus size={18} />
-            Add New
+            <Plane size={18} />
+            International Rates
           </button>
         </div>
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-semibold text-neutral-900">
-            Internation Delivery Rates
+            Delivery Rates
           </h1>
         </div>
         <div className="rounded-3xl bg-white/70 backdrop-blur-xl p-6 shadow-[0_20px_40px_rgba(0,0,0,0.07)] transition-all">

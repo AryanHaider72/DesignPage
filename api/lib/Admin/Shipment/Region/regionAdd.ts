@@ -21,7 +21,7 @@ export default async function AddRegionApi(
       return {
         data: response.data,
         status: response.status,
-        message: response.message || "Login Successfull",
+        message: response.message || "Record Added Successfull",
       };
     }
 

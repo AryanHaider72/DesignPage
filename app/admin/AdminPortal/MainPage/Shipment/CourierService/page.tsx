@@ -1,19 +1,19 @@
 "use client";
-import MessagePopUp from "@/app/UsefullComponent/MessagePopup/page";
 import { List, Plus } from "lucide-react";
 import { useState } from "react";
-import DeleiveryStandardAddForm from "./DeleiveryStandardAddForm";
-import GetDeliveryStandardGetList from "./GetDeliveryStandardGetList";
-import { DelievryGetData } from "@/api/types/Admin/Shipment/Delievry/Delievry";
+import CourierServiceAddForm from "./CourierServiceAddForm";
+import MessagePopUp from "@/app/UsefullComponent/MessagePopup/page";
+import { CourierList } from "@/api/types/Admin/Shipment/Couriere/Couriere";
+import CourierServiceGetForm from "./CourierServiceGetForm";
 
-export default function DelieveryStandard() {
+export default function CourierService() {
   const [view, setView] = useState<"list" | "form">("list");
   const [update, setUpdate] = useState(false);
   const [showMessage, setShowMessage] = useState<string | null>(null);
-  const [delieveryGet, setDelieveryGet] = useState<DelievryGetData>();
   const [messageType, setMessageType] = useState<"success" | "error">(
     "success",
   );
+  const [courierData, setCourierData] = useState<CourierList>();
   return (
     <>
       {showMessage && (
@@ -30,7 +30,7 @@ export default function DelieveryStandard() {
           <button
             onClick={() => {
               setView("list");
-              setDelieveryGet(undefined);
+              setCourierData(undefined);
             }}
             className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition
             ${view === "list" ? "bg-neutral-900 text-white" : "bg-white text-neutral-900 shadow hover:shadow-lg"}`}
@@ -50,32 +50,32 @@ export default function DelieveryStandard() {
         </div>
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-semibold text-neutral-900">
-            Delivery Standard
+            Courier Management
           </h1>
         </div>
         <div className="rounded-3xl bg-white/70 backdrop-blur-xl p-6 shadow-[0_20px_40px_rgba(0,0,0,0.07)] transition-all">
+          {view === "list" && (
+            <CourierServiceGetForm
+              onShowMessage={(msg, type) => {
+                setShowMessage(msg);
+                setMessageType(type);
+                if (type === "success") setView("list");
+              }}
+              initialData={(data: CourierList) => {
+                setCourierData(data);
+                setUpdate(true);
+                setView("form");
+              }}
+            />
+          )}
           {view === "form" && (
-            <DeleiveryStandardAddForm
-              initialData={delieveryGet}
+            <CourierServiceAddForm
+              initialData={courierData}
               Update={update}
               onShowMessage={(msg, type) => {
                 setShowMessage(msg);
                 setMessageType(type);
                 if (type === "success") setView("list");
-              }}
-            />
-          )}
-          {view === "list" && (
-            <GetDeliveryStandardGetList
-              onShowMessage={(msg, type) => {
-                setShowMessage(msg);
-                setMessageType(type);
-                if (type === "success") setView("list");
-              }}
-              onEdit={(data: DelievryGetData) => {
-                setDelieveryGet(data);
-                setUpdate(true);
-                setView("form");
               }}
             />
           )}

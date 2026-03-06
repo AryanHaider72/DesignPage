@@ -29,7 +29,7 @@ export default function LoginForm() {
           localStorage.setItem("sellerToken", data?.token);
         }
         if (data.status === "Platform Owner") {
-          localStorage.setItem("sellerToken", data?.token);
+          localStorage.setItem("adminToken", data?.token);
           localStorage.setItem("adminEmail", email);
           window.location.href = "/admin/AdminPortal/MainPage/Dashboard";
         }
