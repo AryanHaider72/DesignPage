@@ -54,6 +54,7 @@ const AppContext = createContext<AppContextType>({
 // Provider component
 export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [categoryList, setCategoryList] = useState<categoryList[]>([]);
+  const [pageNumber, setPageNumber] = useState(1);
   const [storeInfo, setStoreInfo] = useState<storeGet[]>([]);
   const [ProductList, setProductList] = useState<FeaturedProductForCustomer[]>(
     [],
@@ -83,7 +84,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
           const data = responseFetured.data as ProductApiResponseCustomer;
           setFeaturedProduct(data.productList);
         }
-        const response = await GetProductCustomerApi();
+        const response = await GetProductCustomerApi(pageNumber);
         if (response.status === 200 || response.status === 201) {
           const data = response.data as ProductApiResponseCustomer;
           setProductList(data.productList);

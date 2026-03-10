@@ -28,6 +28,10 @@ export default function LoginForm() {
           window.location.href = "/OfflineSeller/MainPage/Dashboard";
           localStorage.setItem("sellerToken", data?.token);
         }
+        if (data.status === "OnlineSeller") {
+          window.location.href = "/OnlineSeller/MainPage/Dashboard";
+          localStorage.setItem("OnlineSellerToken", data?.token);
+        }
         if (data.status === "Platform Owner") {
           localStorage.setItem("adminToken", data?.token);
           localStorage.setItem("adminEmail", email);

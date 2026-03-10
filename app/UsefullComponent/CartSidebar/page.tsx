@@ -5,6 +5,7 @@ import { CartData } from "@/api/types/CookiesApi/CartItem";
 import { categoryList } from "@/api/types/Customer/LandingPage/Category/GetCategroy";
 import { FeaturedProductForCustomer } from "@/api/types/Customer/LandingPage/Product/Product";
 import CheckOut from "@/app/Customer/Checkout/page";
+import { useAppContext } from "@/app/useContext";
 import {
   CreditCard,
   Heart,
@@ -23,7 +24,6 @@ interface CartItemprops {
   categoryList: categoryList[];
   logoUrl: string;
   commitChange: () => void;
-  productList: FeaturedProductForCustomer[];
 }
 interface GetProductFromCookies {
   productID: string;
@@ -39,8 +39,8 @@ export default function CartItems({
   categoryList,
   logoUrl,
   commitChange,
-  productList,
 }: CartItemprops) {
+  const { ProductList } = useAppContext();
   const [NumberofProduct, setNumberofProduct] = useState(1);
   const [cartItem, setCarItem] = useState<cartItems[]>([]);
   const [productItem, setProductItem] = useState<GetProductFromCookies[]>([]);
@@ -65,18 +65,15 @@ export default function CartItems({
 
     setCarItem(cart);
 
-    const items = filterItems(cart, productList);
+    const items = filterItems(cart);
 
     setProductItem(items);
   };
-  const filterItems = (
-    cart: CartData[],
-    productList: FeaturedProductForCustomer[],
-  ) => {
+  const filterItems = (cart: CartData[]) => {
     const result: any[] = [];
 
     cart.forEach((cartItem) => {
-      productList.forEach((product) => {
+      ProductList.forEach((product) => {
         product.variants.forEach((variant: any) => {
           variant.variantValues.forEach((value: any) => {
             if (value.attributeID === cartItem.attributeID) {

@@ -15,6 +15,7 @@ export interface responseINternationShippingRateCountry {
   message: string;
   loopList: loopList[];
 }
+
 export interface loopList {
   countryFrom: string;
   countryFromID: string;

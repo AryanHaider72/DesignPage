@@ -27,7 +27,7 @@ export default function AddLoginsOnline({ onShowMessage }: AddUnitProps) {
   const [items, setItems] = useState<itemsList[]>([]);
 
   const getStores = async () => {
-    const token = localStorage.getItem("sellerToken");
+    const token = localStorage.getItem("adminToken");
     const response = await GetInitalStoreSalesMan(String(token));
     const data = response.data as ResponseStoreList;
     if (data.storeList.length > 0) {
@@ -36,6 +36,7 @@ export default function AddLoginsOnline({ onShowMessage }: AddUnitProps) {
       setStoreList([]);
     }
   };
+
   useEffect(() => {
     getStores();
   }, []);

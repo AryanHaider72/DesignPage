@@ -14,8 +14,12 @@ type EditableField =
   | "lessThen5KG"
   | "lessThen10KG"
   | "greaterThen10KG";
-
-export default function InternationDelievryAddForm() {
+interface AddExpenseProps {
+  onShowMessage: (message: any, type: "success" | "error") => void;
+}
+export default function InternationDelievryAddForm({
+  onShowMessage,
+}: AddExpenseProps) {
   const [loading, setLoading] = useState(false);
   const [loading2, setLoading2] = useState(false);
   const [dataList, setDataList] = useState([]);
@@ -85,13 +89,13 @@ export default function InternationDelievryAddForm() {
         String(token),
       );
       if (response.status === 200 || response.status === 201) {
-        // onShowMessage(
-        //   response.message || "Standard Modified successfully",
-        //   "success",
-        // );
+        onShowMessage(
+          response.message || "Rates Modified Successfully",
+          "success",
+        );
       }
     } catch (error) {
-      //onShowMessage("Something went wrong", "error");
+      onShowMessage("Something went wrong", "error");
       setLoading2(true);
     } finally {
       setLoading2(false);

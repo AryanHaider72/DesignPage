@@ -12,6 +12,7 @@ export interface informationList {
   destinationZoneID: string;
   greaterThen10KG: number;
   lessThen1KG: number;
+  lessThen10KG: number;
   lessThen5KG: number;
   storeID: string;
   storeName: string;

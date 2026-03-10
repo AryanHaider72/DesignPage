@@ -23,6 +23,17 @@ import {
   requestAddStoreToGetRate,
   shiipingInformation,
 } from "@/api/types/Customer/CheckOut/ShipmentCharges/ShipmentCharges";
+import CountryShipmentChargesApi from "@/api/lib/Customer/CheckOut/CountryShipmentCharges/CountryShipmentCharges";
+import GetDelieveryStandardCustomerApi from "@/api/lib/Customer/CheckOut/DelieveryStandardget/DelieveryStandardget";
+import {
+  DelievryGetData,
+  ResponseDelievryGetData,
+} from "@/api/types/Admin/Shipment/Delievry/Delievry";
+import CityShipmentChargesApi from "@/api/lib/Customer/CheckOut/CityShipmentCharges/CityShipmentCharges";
+import AddCustomerOrderApi from "@/api/lib/Customer/OrderManagement/AddOrder/AddOrder";
+import MessagePopUp from "@/app/UsefullComponent/MessagePopup/page";
+import { getServerCart } from "@/api/lib/CookiesApi/GetCart/GetCart";
+import { removeItemFromServerCart } from "@/api/lib/CookiesApi/RemoveCart/RemoveCart";
 
 interface cartItem {
   attributeID: string;
@@ -45,24 +56,39 @@ interface GetProductFromCookies {
 export default function CheckOut() {
   const { categoryList, storeInfo, ProductList, FeaturedProduct } =
     useAppContext();
+  const [loading, setLoading] = useState(false);
+  const [Address, setAddress] = useState("");
+  const [Appartment, setAppartment] = useState("");
+  const [PostalCode, setPostalCode] = useState("");
+  const [PhoneNo, setPhoneNo] = useState("");
+  const [Email, setEmail] = useState("");
+  const [FirstName, setFirstName] = useState("");
+  const [LastName, setLastName] = useState("");
+  const [PaymentID, setPaymentID] = useState("");
   const [cartItem, setCartItem] = useState<cartItem[]>([]);
   const [selected, setSelected] = useState("");
+  const [shippingCost, setShippingCost] = useState(0);
+  const [countryID, setCountryID] = useState("");
+  const [CountryName, setCountryName] = useState("");
+  const [showMessage, setShowMessage] = useState<string | null>(null);
+  const [messageType, setMessageType] = useState<"success" | "error">(
+    "success",
+  );
   const [shippingListInformation, setShippingListInformation] = useState<
     informationList[]
   >([]);
+  const [DelievryTypeID, setDelievryTypeID] = useState("");
+  const [cityName, setCityName] = useState("");
   const [Countries, setCountries] = useState<Countryget[]>([]);
+  const [DelieveryStandard, setDelievryStandard] = useState<DelievryGetData[]>(
+    [],
+  );
   const [productItem2, setProductItem2] = useState<GetProductFromCookies[]>([]);
   const [paymentList2, setPaymentList2] = useState<paymentget[]>([]);
   const [storePayload, setStorePayload] =
     useState<requestAddStoreToGetRate | null>(null);
   const [CityList, setCityList] = useState([]);
   const [selected2, setSelected2] = useState("");
-  const DelievryStandards = [
-    { StandardID: "12", StandardName: "Standard Service" },
-    { StandardID: "13", StandardName: "Express Service" },
-    { StandardID: "14", StandardName: "Fast Service" },
-  ];
-
   useEffect(() => {
     const storedItems = localStorage.getItem("checkoutItems");
     if (storedItems) {
@@ -84,16 +110,34 @@ export default function CheckOut() {
     if (response.status === 200 || response.status == 201) {
       const data = response.data as CountrygetApiResponse;
       setCountries(data.countryList);
+      const filterData = data.countryList.find(
+        (item) => item.countryName === "Pakistan",
+      );
+      setCountryID(filterData?.countryID || "");
+      setCountryName(filterData?.countryName || "");
+      getCities(filterData?.countryName || "");
     } else {
       console.log();
     }
   };
   const getPayment = async () => {
-    //const token = localStorage.getItem("token");
     const response = await GetPaymentMethodApi();
     if (response.status === 200 || response.status == 201) {
       const data = response.data as paymentgetApiResponse;
       setPaymentList2(data.paymentMethod);
+      setPaymentID(data.paymentMethod[0].paymentID);
+      setSelected(data.paymentMethod[0].bankName);
+    } else {
+      console.log();
+    }
+  };
+  const getStandard = async () => {
+    const response = await GetDelieveryStandardCustomerApi();
+    if (response.status === 200 || response.status == 201) {
+      const data = response.data as ResponseDelievryGetData;
+      setDelievryStandard(data.delievryData);
+      setDelievryTypeID(data.delievryData[0].deliveryTypeID);
+      setSelected2(data.delievryData[0].typeName);
     } else {
       console.log();
     }
@@ -113,50 +157,101 @@ export default function CheckOut() {
     }
   };
 
-  const fetchShipmentCharges = async (cityName: string) => {
+  // Update the getCountryShippingrates function
+  const getCountryShippingrates = async (destinationID: string) => {
     const formData = {
       storeList: productItem2.map((item) => ({
         storeID: item.storeID,
       })),
     };
-    const response = await GetRatesCustomerApi(cityName, formData);
+
+    const response = await CountryShipmentChargesApi(
+      destinationID,
+      DelievryTypeID,
+      formData,
+    );
+
     if (response.status === 200 || response.status === 201) {
       const data = response.data as shiipingInformation;
-      console.log(response.data);
-      setShippingListInformation(data.informationList);
-    } else {
+      const rates = data.informationList;
+
+      setShippingListInformation(rates);
+
+      // Calculate and set shipping cost
+      const totalShipping = calculateTotalShipping(rates);
+      setShippingCost(totalShipping);
     }
   };
 
-  const getTotalShipping = (
-    productItem2: GetProductFromCookies[],
-    shippingRates?: informationList[] | null,
-  ): number => {
-    if (!shippingRates || shippingRates.length === 0) return 0;
+  const calculateTotalShipping = (rates: informationList[]): number => {
+    if (!productItem2.length || !rates.length) return 0;
 
     return productItem2.reduce((total, item) => {
-      return total + ShippingCharges(item, shippingRates);
+      const rate = rates[0];
+      if (!rate) return total;
+
+      const totalWeight = item.weight * item.qty;
+
+      if (totalWeight <= 1) return total + rate.lessThen1KG;
+      if (totalWeight <= 5) return total + rate.lessThen5KG;
+      if (totalWeight <= 10) return total + rate.lessThen10KG;
+      return total + rate.greaterThen10KG;
     }, 0);
   };
-  const ShippingCharges = (
-    productItem2: GetProductFromCookies,
-    shippingRates: informationList[],
-  ) => {
-    if (!shippingRates || shippingRates.length === 0) {
-      return 0;
+
+  // Add useEffect to recalculate when rates or products change
+  useEffect(() => {
+    if (shippingListInformation.length > 0 && productItem2.length > 0) {
+      const total = calculateTotalShipping(shippingListInformation);
+      setShippingCost(total);
     }
-    const rate = shippingRates.find((r) => r.storeID === productItem2.storeID);
-    if (!rate) return 0;
+  }, [shippingListInformation, productItem2]);
 
-    const weight = productItem2.weight * productItem2.qty;
+  const getCityShippingrates = async (cityName: string) => {
+    const formData = {
+      storeList: productItem2.map((item) => ({
+        storeID: item.storeID,
+      })),
+    };
 
-    if (weight <= 1) return rate.lessThen1KG;
-    if (weight <= 5) return rate.lessThen5KG;
-    return rate.greaterThen10KG;
+    const response = await CityShipmentChargesApi(
+      cityName,
+      formData,
+      DelievryTypeID,
+    );
+
+    if (response.status === 200 || response.status === 201) {
+      console.log("Full API Response:", response.data);
+      const data = response.data as shiipingInformation;
+      const rates = data.informationList;
+
+      setShippingListInformation(rates);
+
+      // Calculate and set shipping cost
+      const totalShipping = calculateTotalShipping(rates);
+      setShippingCost(totalShipping);
+    }
   };
+  useEffect(() => {
+    if (!countryID) return;
+
+    const selectedCountry = Countries.find((c) => c.countryID === countryID);
+
+    if (!selectedCountry) return;
+
+    if (selectedCountry.countryName === "Pakistan") {
+      if (cityName) {
+        getCityShippingrates(cityName);
+      }
+    } else {
+      getCountryShippingrates(selectedCountry.countryID);
+    }
+  }, [countryID, cityName, productItem2, DelievryTypeID]);
+
   useEffect(() => {
     getCountry();
     getPayment();
+    getStandard();
   }, []);
   const filterItems = (
     cartItem: CartData[],
@@ -199,9 +294,113 @@ export default function CheckOut() {
     (total, item) => total + (item.discount * item.price) / 100,
     0,
   );
+
+  const addOrder = async () => {
+    try {
+      setLoading(true);
+      const shippingAddress = `Country-Name : ${CountryName}
+    City-Name: ${cityName}
+    Street-Address: ${Address}`;
+
+      const payload = {
+        customerName: FirstName + " " + LastName,
+        phoneNo: PhoneNo,
+        shippingAddress: shippingAddress,
+        email: Email,
+        city: cityName,
+        country: CountryName,
+        postalCode: PostalCode,
+
+        orderMainList: [
+          {
+            orderDate: new Date().toISOString().split("T")[0],
+            paymentID: PaymentID,
+            paymentStatus: "unpaid",
+            delievryCharges: shippingCost,
+            shippingAddress: shippingAddress,
+            orderMethod: "Order Now",
+            couponDiscount: subDiscount,
+            totalBill: subtotal - subDiscount + shippingCost,
+            couponNumber: "",
+
+            orderListSub: productItem2.map((item) => {
+              const itemShipping = calculateItemShipping(
+                item,
+                shippingListInformation,
+                shippingListInformation,
+              );
+
+              return {
+                attributeID: item.attributeID,
+                qty: item.qty,
+
+                orignalPrice: item.price,
+
+                salePrice: item.price - (item.price * item.discount) / 100,
+
+                discount: item.discount,
+
+                shippingCharges: itemShipping,
+              };
+            }),
+          },
+        ],
+      };
+
+      const response = await AddCustomerOrderApi(payload);
+      if (response.status === 200 || response.status === 201) {
+        productItem2.map((item) => {
+          return removeItemFromServerCart(item.attributeID);
+        });
+        setMessageType("success");
+        setShowMessage(response.message);
+        window.location.href = "/";
+        localStorage.removeItem("checkoutItems");
+      } else {
+        setMessageType("error");
+        setShowMessage(response.message || "An Error Occurred while Deleting.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+  const calculateItemShipping = (
+    item: GetProductFromCookies,
+    countryRates: informationList[],
+    cityRates: informationList[],
+  ): number => {
+    // Determine which rate list to use
+    const rates = cityRates.length > 0 ? cityRates : countryRates;
+
+    if (!rates.length) return 0;
+
+    // Use the first rate (assuming rates[0] contains the shipping rates)
+    const rate = rates[0];
+
+    // Calculate based on item weight
+    const itemWeight = item.weight * item.qty; // Total weight for this item's quantity
+
+    if (itemWeight <= 1) {
+      return rate.lessThen1KG;
+    } else if (itemWeight <= 5) {
+      return rate.lessThen5KG;
+    } else if (itemWeight <= 10) {
+      return rate.lessThen10KG;
+    } else {
+      return rate.greaterThen10KG;
+    }
+  };
   const item = () => {};
   return (
     <div className=" flex flex-col min-h-screen ">
+      {showMessage && (
+        <MessagePopUp
+          message={showMessage}
+          type={messageType}
+          duration={3000}
+          onClose={() => setShowMessage(null)}
+        />
+      )}
       <Navbar
         scrolled={true}
         categoryList={categoryList}
@@ -225,6 +424,8 @@ export default function CheckOut() {
                   <input
                     type="email"
                     id="email"
+                    value={Email}
+                    onChange={(e) => setEmail(e.target.value)}
                     className="w-full px-4 py-3.5 text-base text-gray-900 placeholder-gray-400 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Enter your email"
                     required
@@ -258,14 +459,31 @@ export default function CheckOut() {
                         Country / Region
                       </label>
                       <select
+                        value={countryID}
                         id="country"
                         className="w-full px-4 py-3.5 text-base text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        onChange={(e) => getCities(e.target.value)}
+                        onChange={(e) => {
+                          const selectedID = e.target.value;
+                          setCountryID(selectedID);
+
+                          const filterData = Countries.find(
+                            (item) => item.countryID === selectedID,
+                          );
+
+                          if (filterData) {
+                            setCountryName(filterData.countryName);
+                            getCities(filterData.countryName);
+                          }
+                        }}
                       >
+                        <option>Select Country</option>
                         {Countries.length > 0 ? (
                           <>
                             {Countries.map((item) => (
-                              <option key={item.countryID}>
+                              <option
+                                key={item.countryID}
+                                value={item.countryID}
+                              >
                                 {item.countryName}
                               </option>
                             ))}
@@ -285,7 +503,7 @@ export default function CheckOut() {
                       <select
                         id="country"
                         className="w-full px-4 py-3.5 text-base text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        onChange={(e) => fetchShipmentCharges(e.target.value)}
+                        onChange={(e) => setCityName(e.target.value)}
                       >
                         {CityList.length > 0 ? (
                           <>
@@ -317,6 +535,8 @@ export default function CheckOut() {
                       <input
                         type="text"
                         id="firstName"
+                        value={FirstName}
+                        onChange={(e) => setFirstName(e.target.value)}
                         className="w-full px-4 py-3.5 text-base text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         placeholder="First name"
                         required
@@ -332,6 +552,8 @@ export default function CheckOut() {
                       <input
                         type="text"
                         id="lastName"
+                        value={LastName}
+                        onChange={(e) => setLastName(e.target.value)}
                         className="w-full px-4 py-3.5 text-base text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         placeholder="Last name"
                         required
@@ -350,6 +572,8 @@ export default function CheckOut() {
                     <input
                       type="text"
                       id="address"
+                      value={Address}
+                      onChange={(e) => setAddress(e.target.value)}
                       className="w-full px-4 py-3.5 text-base text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       placeholder="Street address"
                       required
@@ -366,13 +590,15 @@ export default function CheckOut() {
                     <input
                       type="text"
                       id="apartment"
+                      value={Appartment}
+                      onChange={(e) => setAppartment(e.target.value)}
                       className="w-full px-4 py-3.5 text-base text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       placeholder="Apartment, suite, etc."
                     />
                   </div>
 
                   {/* Postal code and City */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                  <div className="">
                     <div>
                       <label
                         htmlFor="postal"
@@ -383,23 +609,10 @@ export default function CheckOut() {
                       <input
                         type="text"
                         id="postal"
+                        value={PostalCode}
+                        onChange={(e) => setPostalCode(e.target.value)}
                         className="w-full px-4 py-3.5 text-base text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         placeholder="Postal code"
-                      />
-                    </div>
-                    <div>
-                      <label
-                        htmlFor="city"
-                        className="block mb-2 text-sm font-medium text-gray-700"
-                      >
-                        City
-                      </label>
-                      <input
-                        type="text"
-                        id="city"
-                        className="w-full px-4 py-3.5 text-base text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="City"
-                        required
                       />
                     </div>
                   </div>
@@ -415,6 +628,8 @@ export default function CheckOut() {
                     <input
                       type="tel"
                       id="phone"
+                      value={PhoneNo}
+                      onChange={(e) => setPhoneNo(e.target.value)}
                       className="w-full px-4 py-3.5 text-base text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       placeholder="Phone number"
                       required
@@ -425,11 +640,11 @@ export default function CheckOut() {
               <div className="w-full">
                 <h2 className="text-2xl font-bold mb-6">Delievry Statndard</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {DelievryStandards.map((method) => (
+                  {DelieveryStandard.map((method) => (
                     <label
-                      key={method.StandardID}
+                      key={method.deliveryTypeID}
                       className={`flex items-center justify-between border rounded-md p-3 cursor-pointer transition-all duration-200 ${
-                        selected2 === method.StandardName
+                        selected2 === method.typeName
                           ? "border-gray-400 bg-gray-50"
                           : "border-gray-200 hover:border-gray-300"
                       }`}
@@ -438,24 +653,25 @@ export default function CheckOut() {
                         <input
                           type="radio"
                           name="standard"
-                          // value={paymentID}
-                          checked={selected2 === method.StandardName}
+                          value={DelievryTypeID}
+                          checked={selected2 === method.typeName}
                           onClick={() => {
-                            // setIsShow(true);
-                            // fetchData(method.paymentID);
-                            // setPaymentID(method.paymentID);
+                            setDelievryTypeID(method.deliveryTypeID);
                           }}
-                          onChange={() => setSelected2(method.StandardName)}
+                          onChange={() => {
+                            setDelievryTypeID(method.deliveryTypeID);
+                            setSelected2(method.typeName);
+                          }}
                           className="text-gray-500 focus:ring-gray-500"
                         />
                         <span
                           className={`font-medium text-sm ${
-                            selected2 === method.StandardName
+                            selected2 === method.typeName
                               ? "text-gray-600"
                               : "text-gray-700"
                           }`}
                         >
-                          {method.StandardName.toUpperCase()}
+                          {method.typeName.toUpperCase()}
                         </span>
                       </div>
                     </label>
@@ -478,14 +694,15 @@ export default function CheckOut() {
                         <input
                           type="radio"
                           name="payment"
-                          // value={paymentID}
+                          value={PaymentID}
                           checked={selected === method.bankName}
                           onClick={() => {
-                            // setIsShow(true);
-                            // fetchData(method.paymentID);
-                            // setPaymentID(method.paymentID);
+                            setPaymentID(method.paymentID);
                           }}
-                          onChange={() => setSelected(method.bankName)}
+                          onChange={(e) => {
+                            setPaymentID(method.paymentID);
+                            setSelected(method.bankName);
+                          }}
                           className="text-gray-500 focus:ring-gray-500"
                         />
                         <span
@@ -622,10 +839,7 @@ export default function CheckOut() {
 
               <div className="flex justify-between">
                 <span className="text-gray-600">Shipping</span>
-                <span>
-                  Rs {getTotalShipping(productItem2, shippingListInformation)}{" "}
-                  -/
-                </span>
+                <span>Rs {shippingCost.toLocaleString()} -/</span>
               </div>
             </div>
 
@@ -637,11 +851,7 @@ export default function CheckOut() {
                   <span className="text-xs text-gray-500 block">PKR</span>
                   <span className="text-xl font-bold">
                     Rs{" "}
-                    {(
-                      subtotal +
-                      subDiscount +
-                      getTotalShipping(productItem2, shippingListInformation)
-                    ).toLocaleString()}
+                    {(subtotal + subDiscount + shippingCost).toLocaleString()}
                   </span>
                 </div>
               </div>
@@ -649,6 +859,14 @@ export default function CheckOut() {
               <p className="text-xs text-gray-500 mt-2">
                 Including Rs 0 in taxes
               </p>
+            </div>
+            <div className="w-full">
+              <button
+                onClick={addOrder}
+                className="px-2 py-3 w-full bg-black hover:bg-gray-900 text-white rounded-md mt-5 cursor-pointer"
+              >
+                {loading ? "Saving..." : "Save"}
+              </button>
             </div>
           </div>
         </div>

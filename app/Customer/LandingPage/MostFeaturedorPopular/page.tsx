@@ -49,52 +49,7 @@ export default function MostFeaturedorPopular({
       behavior: "smooth",
     });
   };
-  const itemList = [
-    {
-      images:
-        "https://res.cloudinary.com/daz8ajhg3/image/upload/v1768379198/dfyyrgq7hok6qm3q0mxz.webp",
-      productName: "Weist Coat",
-      price: 2500,
-      subList: ["xl", "md", "lg", "sm"],
-      description:
-        "Premium quality fabric designed for everyday comfort and effortless style. Perfect for casual wear or layering year-round.",
-    },
-    {
-      images:
-        "https://res.cloudinary.com/daz8ajhg3/image/upload/v1768378939/p1iyljvgzhdbtpddntt3.webp",
-      productName: "Stitched",
-      price: 5000,
-      subList: ["xl", "md", "lg", "sm"],
-      description:
-        "A modern essential crafted with attention to detail. Designed to elevate your everyday look with comfort and confidence.",
-    },
-    {
-      images:
-        "https://res.cloudinary.com/daz8ajhg3/image/upload/v1768378839/rzsrh8yburloiygdyrgy.jpg",
-      productName: "Unsticted",
-      price: 1500,
-      subList: [],
-      description:
-        "Premium quality fabric designed for everyday comfort and effortless style. Perfect for casual wear or layering year-round.",
-    },
-    {
-      images:
-        "https://res.cloudinary.com/daz8ajhg3/image/upload/v1768380236/xftbs9aqjiskjswfxctv.webp",
-      productName: "Shalwar Kameez",
-      subList: ["xl", "md", "lg", "sm"],
-      price: 10000,
-      description:
-        "A modern essential crafted with attention to detail. Designed to elevate your everyday look with comfort and confidence.",
-    },
-    {
-      images:
-        "https://res.cloudinary.com/daz8ajhg3/image/upload/v1768379317/wi0zw4upirxrzil7j4ak.webp",
-      productName: "Sweaters",
-      price: 10000,
-      description:
-        "A modern essential crafted with attention to detail. Designed to elevate your everyday look with comfort and confidence.",
-    },
-  ];
+
   const updatePrice = (
     productID: string,
     variantID: string,

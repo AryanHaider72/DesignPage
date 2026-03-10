@@ -5,19 +5,27 @@ import {
   categoryList,
   subCategory,
 } from "@/api/types/Customer/LandingPage/Category/GetCategroy";
+import { useAppContext } from "@/app/useContext";
 interface FetauredProductProps {
   categoryList: categoryList[];
 }
 
-export default function FeaturedProducts({
-  categoryList,
-}: FetauredProductProps) {
-  const [value, setValue] = useState(categoryList[0]?.subCategoryName);
+export default function FeaturedProducts({}: FetauredProductProps) {
+  const { categoryList } = useAppContext();
+
+  const [value, setValue] = useState("");
+  const [SubCategoryDetailID, setSubCategoryDetailID] = useState("");
   const [itemData, setItemData] = useState<subCategory[]>([]);
 
   useEffect(() => {
-    fetchData(value);
-  }, [value]);
+    if (categoryList) {
+      setValue(categoryList[0]?.subCategoryName || "");
+      fetchData(categoryList[0]?.subCategoryName || "");
+      setSubCategoryDetailID(
+        categoryList[0]?.subCategory[0].subCategoryDetailID || "",
+      );
+    }
+  }, [categoryList]);
 
   const fetchData = (name: string) => {
     const data = categoryList.find((item) => item.subCategoryName === name);
@@ -72,7 +80,8 @@ export default function FeaturedProducts({
               top-quality materials to elevate your style and everyday life.
             </p>
             <a
-              href={`/Customer/Shop/${value}`}
+              //href={`/Customer/Shop/${value}`}
+              href=""
               className="mt-2 text-gray-800 font-extralight text-2xl hover:underline hover:text-gray-900 "
             >
               Shop Now
@@ -93,8 +102,10 @@ export default function FeaturedProducts({
                     key={index}
                     className="group bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col cursor-pointer transition-shadow duration-300 hover:shadow-lg min-w-[450px] max-w-[350px] flex-shrink-0"
                   >
-                    <a
-                      href={``}
+                    <div
+                      onClick={() =>
+                        setSubCategoryDetailID(item.subCategoryDetailID)
+                      }
                       className="block w-full aspect-square h-[500px] overflow-hidden rounded-t-lg"
                     >
                       <img
@@ -102,7 +113,7 @@ export default function FeaturedProducts({
                         alt={"Placeholder Image"}
                         className="w-full h-full object-cover transition-transform duration-500"
                       />
-                    </a>
+                    </div>
 
                     <div className="p-1 flex flex-col flex-1 justify-center text-center">
                       <h3 className="text-lg  text-gray-900 ">{item.name}</h3>
@@ -131,7 +142,10 @@ export default function FeaturedProducts({
           </div>
         </div>
       </div>
-      <ShopByProductCategory value={value} />
+      <ShopByProductCategory
+        value={value}
+        SubCategoryID={SubCategoryDetailID}
+      />
     </>
   );
 }

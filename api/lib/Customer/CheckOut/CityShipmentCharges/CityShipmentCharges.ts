@@ -1,18 +1,21 @@
 "use server";
 
 import ErrorHandler from "@/api/ErrorHandler/ErrorHandler";
-import { getRequest } from "@/api/main/main";
+import { getRequest, postRequest } from "@/api/main/main";
+import { requestAddStoreToGetRate } from "@/api/types/Customer/CheckOut/ShipmentCharges/ShipmentCharges";
 
-export default async function GetProductCustomerApi(
-  pageNumber: number,
+export default async function CityShipmentChargesApi(
+  cityName: string,
+  data: requestAddStoreToGetRate,
+  deliveryTypeID: string,
   token?: string,
 ) {
   const customHeader: Record<string, string> = {};
   if (token) customHeader.Authorization = `Bearer ${token}`;
 
-  const response = await getRequest(
-    `/api/Product/Customer/GetProduct?pageNumber =${pageNumber}`,
-    null,
+  const response = await postRequest(
+    `/api/Shippment/admin/GetShipmentRates/${cityName}/${deliveryTypeID}`,
+    data,
     customHeader,
   );
 

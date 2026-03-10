@@ -2,6 +2,8 @@
 import { List, Plane, Plus, Truck } from "lucide-react";
 import { useState } from "react";
 import InternationDelievryAddForm from "./InternationDelievryAddForm";
+import LocalRatesForm from "./LocalRatesForm";
+import MessagePopUp from "@/app/UsefullComponent/MessagePopup/page";
 
 export default function InternationDelievry() {
   const [view, setView] = useState<"list" | "form">("list");
@@ -12,6 +14,14 @@ export default function InternationDelievry() {
   );
   return (
     <>
+      {showMessage && (
+        <MessagePopUp
+          message={showMessage}
+          type={messageType}
+          duration={3000}
+          onClose={() => setShowMessage(null)}
+        />
+      )}
       <div className="space-y-6">
         {/* Top Buttons */}
         <div className="w-full bg-gray-50 shadow-sm flex justify-between px-1 py-2 rounded-lg">
@@ -39,7 +49,24 @@ export default function InternationDelievry() {
           </h1>
         </div>
         <div className="rounded-3xl bg-white/70 backdrop-blur-xl p-6 shadow-[0_20px_40px_rgba(0,0,0,0.07)] transition-all">
-          {view === "form" && <InternationDelievryAddForm />}
+          {view === "form" && (
+            <InternationDelievryAddForm
+              onShowMessage={(msg, type) => {
+                setShowMessage(msg);
+                setMessageType(type);
+                if (type === "success") setView("form");
+              }}
+            />
+          )}
+          {view === "list" && (
+            <LocalRatesForm
+              onShowMessage={(msg, type) => {
+                setShowMessage(msg);
+                setMessageType(type);
+                if (type === "success") setView("list");
+              }}
+            />
+          )}
         </div>
       </div>
     </>
