@@ -1,4 +1,5 @@
 "use client";
+import GetInitalStoreSalesManSeller from "@/api/lib/Admin/Stores/GetSellerStores/GetSellerStore";
 import ModifyTillForPos from "@/api/lib/Admin/TillRegister/ModifyTill/ModifyTill";
 import AddTillForPos from "@/api/lib/Admin/TillRegister/TillAdd/TillAdd";
 import ProductSearchParam from "@/api/lib/ProductSearchParam/ProductSearchParam";
@@ -8,6 +9,10 @@ import {
   Variant,
   VariantValue,
 } from "@/api/types/Admin/SearchProduct/SearchProduct";
+import {
+  ResponseStoreList,
+  storeListInital,
+} from "@/api/types/Admin/Store/Store";
 import { TillList } from "@/api/types/Admin/TillRegister/TillRegister";
 import MessagePopUp from "@/app/UsefullComponent/MessagePopup/page";
 import { Plus, Trash } from "lucide-react";
@@ -44,6 +49,8 @@ export default function AddTillForm({
 
   const [showDropdown, setShowDropdown] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [storeID, setStoreID] = useState("");
+  const [storeList, setStoreList] = useState<storeListInital[]>([]);
 
   const [varinetList, setVarinetList] = useState<Variant[]>([]);
   const [SubVarinetList, setSubVarinetList] = useState<VariantValue[]>([]);
@@ -52,10 +59,26 @@ export default function AddTillForm({
   const [qty, setQty] = useState(0);
   const [searchText, setSearchText] = useState("");
   const [Quantitiy, setQuantity] = useState(0);
+
+  const getStores = async () => {
+    const token = localStorage.getItem("sellerToken");
+    const response = await GetInitalStoreSalesManSeller(String(token));
+    const data = response.data as ResponseStoreList;
+    if (data.storeList.length > 0) {
+      setStoreList(data.storeList);
+      setStoreID(data.storeList[0].storeID);
+    } else {
+      setStoreList([]);
+    }
+  };
   const productFetch = async () => {
     try {
-      const token = localStorage.getItem("adminToken");
-      const respone = await ProductSearchParam(String(token), ProductName);
+      const token = localStorage.getItem("sellerToken");
+      const respone = await ProductSearchParam(
+        String(token),
+        ProductName,
+        storeID,
+      );
       const data = respone.data as ProductFetchRepsonse;
       console.log(data.productList);
       setProductList(data.productList);
@@ -141,6 +164,9 @@ export default function AddTillForm({
   };
 
   useEffect(() => {
+    getStores();
+  }, []);
+  useEffect(() => {
     if (!ProductName || ProductName.trim().length === 0) return;
 
     const delayDebounce = setTimeout(() => {
@@ -155,7 +181,7 @@ export default function AddTillForm({
   const addTill = async () => {
     try {
       setIsLoading(true);
-      const token = localStorage.getItem("adminToken");
+      const token = localStorage.getItem("sellerToken");
 
       const formData = {
         tillName: tillName,
@@ -187,7 +213,7 @@ export default function AddTillForm({
   const ModifyTill = async () => {
     try {
       setIsLoading(true);
-      const token = localStorage.getItem("adminToken");
+      const token = localStorage.getItem("sellerToken");
 
       const formData = {
         TillID: TillID,
@@ -235,6 +261,34 @@ export default function AddTillForm({
       <div className="w-full flex flex-col lg:flex-row gap-8">
         {/* FORM */}
         <div className="w-full lg:max-w-md space-y-4">
+          <div className="flex gap-2 ">
+            <div className="w-full  space-y-4">
+              <label className="block text-sm font-medium text-neutral-700 mb-1">
+                Stores
+              </label>
+              <select
+                value={storeID}
+                onChange={(e) => {
+                  setStoreID(e.target.value);
+                  //getOrderForSeller(e.target.value);
+                }}
+                className="w-full px-4 py-3 rounded-lg border border-neutral-200 shadow-sm focus:ring-2 focus:ring-neutral-900 focus:outline-none transition"
+              >
+                {storeList.length === 0 ? (
+                  <option> No Stores Found</option>
+                ) : (
+                  <>
+                    <option>Select Store</option>
+                    {storeList.map((item) => (
+                      <option key={item.storeID} value={item.storeID}>
+                        {item.storeName}
+                      </option>
+                    ))}
+                  </>
+                )}
+              </select>
+            </div>
+          </div>
           <div>
             <label className="block text-sm font-medium text-neutral-700 mb-1">
               Till Name

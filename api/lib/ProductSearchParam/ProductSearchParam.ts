@@ -2,7 +2,11 @@
 import { getRequest } from "@/api/main/main";
 import { ProductFetchRepsonse } from "@/api/types/Admin/SearchProduct/SearchProduct";
 
-export default async function ProductSearchParam(token: string, word: string) {
+export default async function ProductSearchParam(
+  token: string,
+  word: string,
+  storeID: string,
+) {
   const customHeader: Record<string, string> = {};
   if (token) customHeader.Authorization = `Bearer ${token}`;
 
@@ -11,7 +15,7 @@ export default async function ProductSearchParam(token: string, word: string) {
     if (token) customHeader.Authorization = `Bearer ${token}`;
 
     const response = await getRequest(
-      `/api/Product/Seller/SearchGetProduct/${word}`,
+      `/api/Product/Seller/SearchGetProduct/${storeID}/${word}`,
       {},
       customHeader,
     );

@@ -333,13 +333,9 @@ export default function CheckOut() {
               return {
                 attributeID: item.attributeID,
                 qty: item.qty,
-
-                orignalPrice: item.price,
-
+                orignalPrice: item.price * item.qty,
                 salePrice: item.price - (item.price * item.discount) / 100,
-
                 discount: item.discount,
-
                 shippingCharges: itemShipping,
               };
             }),

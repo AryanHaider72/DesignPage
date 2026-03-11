@@ -20,13 +20,14 @@ import {
   Truck,
   Globe2,
   CoinsIcon,
-  Box,
-  PackageSearch,
+  List,
+  Handshake,
+  Package,
 } from "lucide-react";
-import { FaCashRegister, FaMoneyBill } from "react-icons/fa";
+import { FaCashRegister, FaExchangeAlt, FaMoneyBill } from "react-icons/fa";
 import { BsShop } from "react-icons/bs";
 
-export default function OnlineSeller({
+export default function WareHouseSellerMainPageform({
   children,
 }: {
   children: React.ReactNode;
@@ -89,70 +90,31 @@ export default function OnlineSeller({
           {/* Navigation */}
           <nav className="flex-1 overflow-y-auto px-4 py-6 space-y-2">
             <Link
-              href="/OnlineSeller/MainPage/Dashboard"
+              href="/WareHouseSeller/MainPage/Dashboard"
               className="flex items-center gap-3 px-4 py-3 rounded-xl
             text-neutral-700 hover:bg-neutral-100 transition-all"
             >
               <LayoutDashboard size={18} />
               <span className="text-sm font-medium">Dashboard</span>
             </Link>
-            <div>
-              <button
-                onClick={() => {
-                  toggleMenu2("users");
-                  setActiveMenu(null);
-                }}
-                className="w-full flex items-center justify-between
-              px-4 py-3 rounded-xl
-              text-neutral-700 hover:bg-neutral-100 transition-all"
-              >
-                <div className="flex items-center gap-3">
-                  <Box size={18} />
-                  <span className="text-sm font-medium">Order Management</span>
-                </div>
-                {activeMenu2 === "users" ? (
-                  <ChevronDown size={16} />
-                ) : (
-                  <ChevronRight size={16} />
-                )}
-              </button>
 
-              <div
-                className={`overflow-hidden transition-all duration-300
-              ${activeMenu2 === "users" ? "max-h-40 mt-2" : "max-h-0"}`}
-              >
-                <div className="ml-9 space-y-1">
-                  <Link
-                    href="/OnlineSeller/MainPage/OrderManagement/OrderSetting"
-                    className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
-                  >
-                    <div className="flex items-center gap-3">
-                      <PackageSearch size={18} />
-                      <span className="text-sm font-medium">Order Setting</span>
-                    </div>
-                  </Link>
-                  <Link
-                    href="/OnlineSeller/MainPage/OrderManagement/OrderShipment"
-                    className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
-                  >
-                    <div className="flex items-center gap-3">
-                      <Truck size={18} />
-                      <span className="text-sm font-medium">
-                        Order Shippment
-                      </span>
-                    </div>
-                  </Link>
-                </div>
-              </div>
-            </div>
             <Link
-              href="/OnlineSeller/MainPage/CreateLogins"
+              href="/WareHouseSeller/MainPage/OrderManagement"
               className="flex items-center gap-3 px-4 py-3 rounded-xl
             text-neutral-700 hover:bg-neutral-100 transition-all"
             >
-              <Users size={18} />
-              <span className="text-sm font-medium">Create Logins</span>
+              <Package size={18} />
+              <span className="text-sm font-medium">Order Confirmation</span>
             </Link>
+
+            {/* <Link
+              href="/admin/AdminPortal/MainPage/CreateLogin"
+              className="flex items-center gap-3 px-4 py-3 rounded-xl
+            text-neutral-700 hover:bg-neutral-100 transition-all"
+            >
+              <User size={18} />
+              <span className="text-sm font-medium">Create Login</span>
+            </Link> */}
           </nav>
 
           {/* Footer */}
