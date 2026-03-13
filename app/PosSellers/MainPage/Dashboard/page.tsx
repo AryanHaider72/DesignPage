@@ -1,7 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ShoppingCart, Users, Package, DollarSign, X } from "lucide-react";
+import {
+  ShoppingCart,
+  Users,
+  Package,
+  DollarSign,
+  X,
+  Coins,
+  GrapeIcon,
+  BarChart2,
+} from "lucide-react";
 
 import {
   BarChart,
@@ -17,13 +26,19 @@ import {
 import GetInitalStoreSalesMan from "@/api/lib/Admin/Stores/GetInitalStore/GetInitalStore";
 import { StoreApiResponse, storeInital } from "@/api/types/Admin/Store/Store";
 import { useRouter } from "next/navigation";
+import { GrGraphQl } from "react-icons/gr";
+import { BiMoney } from "react-icons/bi";
 
 /* ---------- DATA ---------- */
 
 const stats = [
+  { title: "Cash Recieved", value: "842", icon: BiMoney },
   { title: "Revenue", value: "PKR 12.4M", icon: DollarSign },
-  { title: "Orders", value: "1,284", icon: ShoppingCart },
-  { title: "Customers", value: "842", icon: Users },
+  { title: "Total Sale", value: "1,284", icon: ShoppingCart },
+  { title: "Total Returns", value: "842", icon: Users },
+  { title: "Total Credit", value: "842", icon: Users },
+  { title: "Total Expense", value: "842", icon: Coins },
+  { title: "Profit", value: "842", icon: BarChart2 },
   { title: "Products", value: "312", icon: Package },
 ];
 

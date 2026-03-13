@@ -232,8 +232,8 @@ export default function AddSaleForm({
     //   amountPaid = 0;
     // }
     if (type === "credit") {
-      totalBill = -TotalBill;
-      amountPaid = 0;
+      totalBill = TotalBill;
+      amountPaid = AmountPaid;
     }
     if (type === "Exchange") {
       totalBill = TotalBill - TotalExchnage;
@@ -558,8 +558,7 @@ export default function AddSaleForm({
                   </span>
 
                   {(() => {
-                    const remaining =
-                      TotalBill - Discount - TotalExchnage - AmountPaid;
+                    const remaining = TotalBill - TotalExchnage - AmountPaid;
 
                     let statusText = "";
                     let statusColor = "";

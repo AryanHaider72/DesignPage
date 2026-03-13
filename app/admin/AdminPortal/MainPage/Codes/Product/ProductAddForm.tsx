@@ -18,11 +18,13 @@ import ImageControllerInformartion from "./AddProduct/ImageControllerInformartio
 import BillingInformation from "./AddProduct/BillingInformation/BillingInformation";
 import { SendToCloudinary } from "@/api/lib/OtherController/UploadToCloudinary/UploadToCloudinary";
 import AddProduct from "@/api/lib/Admin/Codes/Product/AddProduct/AddProduct";
+import FeaturedProducts from "@/app/Customer/LandingPage/FeaturedProducts/page";
 
 interface ProductInfo {
   supplierID: string;
   invoiceNo: string;
   purchaseDate: string;
+  featuredProducts: boolean;
   productName: string;
   discount: number;
   threshold: number;
@@ -95,6 +97,7 @@ export default function ProductAddForm({
     invoiceNo: "",
     purchaseDate: "",
     productName: "",
+    featuredProducts: false,
     discount: 0,
     threshold: 0,
     storeSale: "OnlineStore",
@@ -190,6 +193,7 @@ export default function ProductAddForm({
         categoryID: CategoryInfo.categoryID,
         productName: productInfo.productName,
         storeSale: productInfo.storeSale,
+        feturedProduct: productInfo.feturedProduct,
         unitID: CategoryInfo.unitID,
         subCategoryDetailID: CategoryInfo.subCategoryDetailID,
         subCategoryID: CategoryInfo.subCategoryID,
@@ -218,6 +222,7 @@ export default function ProductAddForm({
         setProductInfo({
           supplierID: "",
           invoiceNo: "",
+          featuredProducts: false,
           purchaseDate: "",
           productName: "",
           discount: 0,

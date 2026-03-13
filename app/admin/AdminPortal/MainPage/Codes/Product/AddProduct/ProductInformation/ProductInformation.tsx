@@ -23,6 +23,7 @@ interface ProductInformation {
   invoiceNo: string;
   purchaseDate: string;
   purchaseAdd: boolean;
+  featuredProducts: boolean;
   productName: string;
   discount: number;
   threshold: number;
@@ -125,6 +126,7 @@ export default function ProductInformation({
       productName: ProductName,
       discount: Discount,
       threshold: Threshold,
+      featuredProducts: FeaturedProduct === "Yes" ? true : false,
       storeSale: StoreSale,
       purchaseAdd: PurchaseAdd === "Yes",
       feturedProduct: FeaturedProduct === "Yes",
