@@ -79,7 +79,7 @@ export default function AddReturnItemtoSaleform({
 
     if (!token) return;
 
-    const response = await GetProductBarcode(token, barcode);
+    const response = await GetProductBarcode(token, barcode, TillID);
 
     if (response.status === 200 || response.status === 201) {
       const data = response.data as ProductApiResponseBarcode;

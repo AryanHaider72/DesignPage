@@ -89,7 +89,7 @@ export default function OfflineSellerPosSalePoint({
           {/* Navigation */}
           <nav className="flex-1 overflow-y-auto px-4 py-6 space-y-2">
             <Link
-              href="/PosSellers/PosSalePoint/Dashboard"
+              href="/PosSellers/MainPage/Dashboard"
               className="flex items-center gap-3 px-4 py-3 rounded-xl
             text-neutral-700 hover:bg-neutral-100 transition-all"
             >

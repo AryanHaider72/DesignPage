@@ -558,7 +558,8 @@ export default function AddSaleForm({
                   </span>
 
                   {(() => {
-                    const remaining = TotalBill - TotalExchnage - AmountPaid;
+                    const remaining =
+                      TotalBill - TotalExchnage - AmountPaid - Discount;
 
                     let statusText = "";
                     let statusColor = "";
