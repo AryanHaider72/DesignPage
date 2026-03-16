@@ -352,7 +352,6 @@ export default function CheckOut() {
         setMessageType("success");
         setShowMessage(response.message);
         localStorage.removeItem("checkoutItems");
-        window.location.href = "/";
       } else {
         setMessageType("error");
         setShowMessage(response.message || "An Error Occurred while Deleting.");
