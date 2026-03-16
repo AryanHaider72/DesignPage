@@ -337,12 +337,13 @@ export default function CheckOut() {
                 salePrice: item.price - (item.price * item.discount) / 100,
                 discount: item.discount,
                 shippingCharges: itemShipping,
+                delievryTypeID: DelievryTypeID,
               };
             }),
           },
         ],
       };
-
+      console.log(payload);
       const response = await AddCustomerOrderApi(payload);
       if (response.status === 200 || response.status === 201) {
         productItem2.map((item) => {
@@ -350,8 +351,8 @@ export default function CheckOut() {
         });
         setMessageType("success");
         setShowMessage(response.message);
-        window.location.href = "/";
         localStorage.removeItem("checkoutItems");
+        window.location.href = "/";
       } else {
         setMessageType("error");
         setShowMessage(response.message || "An Error Occurred while Deleting.");

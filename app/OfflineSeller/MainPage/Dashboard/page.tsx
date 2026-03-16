@@ -1,7 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ShoppingCart, Users, Package, DollarSign, X } from "lucide-react";
+import {
+  ShoppingCart,
+  Users,
+  Package,
+  DollarSign,
+  X,
+  Coins,
+} from "lucide-react";
 
 import {
   BarChart,
@@ -17,15 +24,38 @@ import {
 import GetInitalStoreSalesMan from "@/api/lib/Admin/Stores/GetInitalStore/GetInitalStore";
 import { StoreApiResponse, storeInital } from "@/api/types/Admin/Store/Store";
 import { useRouter } from "next/navigation";
+import GetTillForSalesMan from "@/api/lib/OfflineSeller/MainPage/TillsGet/SalesManTill/SelemanGetTill";
+import GetTillForPos from "@/api/lib/Admin/TillRegister/TillGet/TillGet";
+import { RespiosneGet } from "@/api/types/Admin/TillRegister/TillRegister";
+import DashboardOverviewStatsOffline from "@/api/lib/OfflineSeller/MainPage/DashboardStats/DashbaordStats";
+import DashboardOverviewStats from "@/api/lib/PosIntegration/Dashboard/DashboardOverview";
 
 /* ---------- DATA ---------- */
 
-const stats = [
-  { title: "Revenue", value: "PKR 12.4M", icon: DollarSign },
-  { title: "Orders", value: "1,284", icon: ShoppingCart },
-  { title: "Customers", value: "842", icon: Users },
-  { title: "Products", value: "312", icon: Package },
-];
+interface responseStats {
+  message: string;
+  stats: stats[];
+  bargraph: bargraph[];
+  recentSales: RecentSales[];
+}
+interface stats {
+  queryTotalCredit: number;
+  queryTotalExpense: number;
+  queryTotalProduct: number;
+  queryTotalReturn: number;
+  queryTotalSale: number;
+}
+interface bargraph {
+  saleYear: number;
+  saleMonthName: string;
+  totalSale: number;
+  totalReturn: number;
+}
+interface RecentSales {
+  qty: number;
+  rate: number;
+  barcode: number;
+}
 
 const analyticsData = [
   { month: "Jan", revenue: 120000, profit: 32000 },
@@ -40,9 +70,28 @@ const analyticsData = [
 
 export default function OfflineSellerDashboard() {
   const router = useRouter();
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [TillSenderID, setTillSenderID] = useState("");
   const [mounted, setMounted] = useState(false);
+  const [FetchDataBar, setFetchDataBar] = useState<bargraph[]>([]);
+  const [FetchDataRecent, setFetchDataRecent] = useState<RecentSales[]>([]);
+  const [TotalSale, setTotalSale] = useState(0);
+  const [TotalReturn, setTotalReturn] = useState(0);
+  const [TotalExpense, setTotalExpense] = useState(0);
+  const [TotalCredit, setTotalCredit] = useState(0);
+  const [TotalProducts, setTotalProducts] = useState(0);
   const [storeList, setStoreList] = useState<storeInital[]>([]);
+  const [TillList, setTillList] = useState<TillList[]>([]);
   const [ShowStore, setShowStore] = useState(false);
+
+  const stats = [
+    { title: "Total Sale", value: TotalSale, icon: ShoppingCart },
+    { title: "Total Returns", value: TotalReturn, icon: Users },
+    { title: "Total Credit", value: TotalCredit, icon: Users },
+    { title: "Total Expense", value: TotalExpense, icon: Coins },
+    { title: "Products", value: TotalProducts, icon: Package },
+  ];
 
   const storesget = async () => {
     const token = localStorage.getItem("adminToken");
@@ -53,8 +102,82 @@ export default function OfflineSellerDashboard() {
       setStoreList(data.storeList);
     }
   };
+  const getTill = async () => {
+    const token = localStorage.getItem("sellerToken");
+    const response = await GetTillForPos(String(token));
+
+    if (response.status === 200) {
+      const data = response.data as RespiosneGet;
+      console.log(data);
+      if (data?.tillList?.length > 0) {
+        setTillList(data.tillList as unknown as TillList[]);
+        setTillSenderID(data.tillList[0].tillID);
+      } else {
+        setTillList([]);
+      }
+    }
+  };
+
   useEffect(() => {
-    storesget();
+    if (dateFrom && dateTo && TillSenderID) {
+      if (TillSenderID !== "All") {
+        getStats(dateFrom, dateTo, TillSenderID);
+      } else {
+        getStatsForAll(dateFrom, dateTo);
+      }
+    }
+  }, [dateFrom, dateTo, TillSenderID]);
+  const getStats = async (From: string, To: string, ID: string) => {
+    try {
+      const token = localStorage.getItem("posSellerToken");
+      const response = await DashboardOverviewStatsOffline(
+        String(token),
+        From,
+        To,
+        ID,
+      );
+      const data = response.data as responseStats;
+      console.log(data);
+      setFetchDataBar(data.bargraph);
+      setFetchDataRecent(data.recentSales);
+      setTotalProducts(data.stats[0].queryTotalProduct || 0);
+      setTotalReturn(data.stats[0].queryTotalReturn || 0);
+      setTotalExpense(data.stats[0].queryTotalExpense || 0);
+      setTotalCredit(data.stats[0].queryTotalCredit || 0);
+      setTotalSale(data.stats[0].queryTotalSale || 0);
+    } finally {
+    }
+  };
+  const getStatsForAll = async (From: string, To: string) => {
+    try {
+      const token = localStorage.getItem("posSellerToken");
+      const response = await DashboardOverviewStats(String(token), From, To);
+      const data = response.data as responseStats;
+      console.log(data);
+      setFetchDataBar(data.bargraph);
+      setFetchDataRecent(data.recentSales);
+      setTotalProducts(data.stats[0].queryTotalProduct || 0);
+      setTotalReturn(data.stats[0].queryTotalReturn || 0);
+      setTotalExpense(data.stats[0].queryTotalExpense || 0);
+      setTotalCredit(data.stats[0].queryTotalCredit || 0);
+      setTotalSale(data.stats[0].queryTotalSale || 0);
+    } finally {
+    }
+  };
+
+  useEffect(() => {
+    const today = new Date();
+    const dateTo = today.toISOString().split("T")[0];
+
+    const pastDate = new Date();
+    pastDate.setDate(today.getDate() - 30);
+    const dateFrom = pastDate.toISOString().split("T")[0];
+
+    setDateTo(dateTo);
+    setDateFrom(dateFrom);
+  }, []);
+  useEffect(() => {
+    getTill();
   }, []);
   useEffect(() => setMounted(true), [mounted]);
 
@@ -138,7 +261,58 @@ export default function OfflineSellerDashboard() {
           + Add Stores
         </button> */}
       </div>
+      <div className="w-full flex gap-5">
+        {/* Date From */}
+        <div className="w-full ">
+          <label className="block text-sm font-medium text-neutral-700 mb-1">
+            Till
+          </label>
+          <select
+            value={TillSenderID}
+            onChange={(e) => {
+              setTillSenderID(e.target.value);
+            }}
+            className="w-full px-4 py-4 rounded-lg border border-neutral-200 shadow-sm focus:ring-2 focus:ring-neutral-900 focus:outline-none transition"
+          >
+            {TillList.length === 0 ? (
+              <option> No Till Found</option>
+            ) : (
+              <>
+                <option value="All">All</option>
+                {TillList.map((item) => (
+                  <option key={item.tillID} value={item.tillID}>
+                    {item.tillName}
+                  </option>
+                ))}
+              </>
+            )}
+          </select>
+        </div>
+        <div className="w-full">
+          <label className="block text-gray-700 font-medium mb-1">
+            Date From
+          </label>
+          <input
+            value={dateFrom}
+            onChange={(e) => setDateFrom(e.target.value)}
+            type="date"
+            className="w-full p-3 border text-gray-800 border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400 outline-none"
+          />
+        </div>
 
+        {/* Current Date */}
+        <div className="w-full">
+          <label className="block text-gray-700 font-medium mb-1">
+            Current Date
+          </label>
+          <input
+            value={dateTo}
+            onChange={(e) => setDateTo(e.target.value)}
+            type="date"
+            className="w-full p-3 border text-gray-800 border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400 outline-none"
+          />
+        </div>
+      </div>
       {/* KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((item, i) => (
@@ -170,21 +344,38 @@ shadow-[0_20px_40px_rgba(0,0,0,0.07)]"
         >
           <h3 className="text-lg font-semibold mb-4">Monthly Revenue</h3>
 
-          {mounted && (
+          {mounted && FetchDataBar.length > 0 ? (
             <div className="h-[320px]">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={analyticsData}>
+                <BarChart
+                  data={FetchDataBar}
+                  margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
+                >
                   <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                  <XAxis dataKey="month" />
+                  <XAxis dataKey="saleMonthName" />
                   <YAxis />
-                  <Tooltip />
+                  <Tooltip
+                    formatter={(value?: number, name?: string) => [
+                      `PKR ${value?.toLocaleString() || 0}`,
+                      name === "totalSale"
+                        ? "Total Sale"
+                        : name === "totalReturn"
+                          ? "Total Return"
+                          : "",
+                    ]}
+                  />
                   <Bar
-                    dataKey="revenue"
+                    dataKey="totalSale"
                     fill="#111827"
                     radius={[10, 10, 0, 0]}
+                    name="Total Sale"
                   />
                 </BarChart>
               </ResponsiveContainer>
+            </div>
+          ) : (
+            <div className="flex items-center justify-center h-[320px] text-gray-400">
+              No data available for this period.
             </div>
           )}
         </div>
@@ -199,15 +390,31 @@ shadow-[0_20px_40px_rgba(0,0,0,0.07)]"
           {mounted && (
             <div className="h-[320px]">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={analyticsData}>
+                <LineChart data={FetchDataBar}>
                   <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                  <XAxis dataKey="month" />
+                  <XAxis dataKey="saleMonthName" />
                   <YAxis />
-                  <Tooltip />
+                  <Tooltip
+                    formatter={(value?: number, name?: string) => [
+                      `PKR ${value?.toLocaleString() || 0}`,
+                      name === "totalSale"
+                        ? "Total Sale"
+                        : name === "totalReturn"
+                          ? "Total Return"
+                          : "",
+                    ]}
+                  />
                   <Line
                     type="monotone"
-                    dataKey="profit"
-                    stroke="#16a34a"
+                    dataKey="totalSale"
+                    stroke="#111827"
+                    strokeWidth={3}
+                    dot={{ r: 4 }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="totalReturn"
+                    stroke="#f59e0b"
                     strokeWidth={3}
                     dot={{ r: 4 }}
                   />
@@ -227,22 +434,56 @@ shadow-[0_20px_40px_rgba(0,0,0,0.07)]"
         >
           <h3 className="text-lg font-semibold mb-6">Recent Orders</h3>
 
-          <div className="space-y-4 text-sm">
-            {["#ORD-2411", "#ORD-2412", "#ORD-2413", "#ORD-2414"].map(
-              (order) => (
-                <div
-                  key={order}
-                  className="flex items-center justify-between p-4
-                  rounded-xl hover:bg-neutral-100/60 transition"
-                >
-                  <span className="font-medium">{order}</span>
-                  <span className="text-amber-600 bg-amber-100/60 px-3 py-1 rounded-full text-xs">
-                    Pending
-                  </span>
-                  <span className="font-semibold">PKR 24,000</span>
-                </div>
-              ),
-            )}
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Barcode
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Quantity
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Rate (PKR)
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {FetchDataRecent.map((order, index) => (
+                  <tr key={index} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {order.barcode}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                      {order.qty}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                      PKR {order.rate}
+                    </td>
+                  </tr>
+                ))}
+                {FetchDataRecent.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={3}
+                      className="px-6 py-4 text-center text-sm text-gray-500"
+                    >
+                      No recent orders found.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
 

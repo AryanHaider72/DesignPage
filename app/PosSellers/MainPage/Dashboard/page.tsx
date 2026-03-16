@@ -30,6 +30,10 @@ import { useRouter } from "next/navigation";
 import { GrGraphQl } from "react-icons/gr";
 import { BiMoney } from "react-icons/bi";
 import DashboardOverviewStats from "@/api/lib/PosIntegration/Dashboard/DashboardOverview";
+import GetTillForPos from "@/api/lib/Admin/TillRegister/TillGet/TillGet";
+import { RespiosneGet } from "@/api/types/Admin/TillRegister/TillRegister";
+import DashboardOverviewStatsOffline from "@/api/lib/OfflineSeller/MainPage/DashboardStats/DashbaordStats";
+import GetTillForSalesMan from "@/api/lib/OfflineSeller/MainPage/TillsGet/SalesManTill/SelemanGetTill";
 
 /* ---------- DATA ---------- */
 
@@ -66,14 +70,16 @@ export default function OfflineSellerDashboard() {
   const [storeList, setStoreList] = useState<storeInital[]>([]);
   const [FetchDataBar, setFetchDataBar] = useState<bargraph[]>([]);
   const [FetchDataRecent, setFetchDataRecent] = useState<RecentSales[]>([]);
-  const [ShowStore, setShowStore] = useState(false);
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
+  const [TillSenderID, setTillSenderID] = useState("");
+  const [TillList, setTillList] = useState<TillList[]>([]);
   const [TotalSale, setTotalSale] = useState(0);
   const [TotalReturn, setTotalReturn] = useState(0);
   const [TotalExpense, setTotalExpense] = useState(0);
   const [TotalCredit, setTotalCredit] = useState(0);
   const [TotalProducts, setTotalProducts] = useState(0);
+  const [ShowStore, setShowStore] = useState(false);
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
 
   const stats = [
     { title: "Total Sale", value: TotalSale, icon: ShoppingCart },
@@ -90,24 +96,36 @@ export default function OfflineSellerDashboard() {
     { month: "May", revenue: 380000, profit: 112000 },
     { month: "Jun", revenue: 450000, profit: 148000 },
   ];
-  const storesget = async () => {
-    const token = localStorage.getItem("adminToken");
-    const response = await GetInitalStoreSalesMan(String(token));
-    if (response.status === 200 || response.status === 201) {
-      const data = response.data as StoreApiResponse;
-      console.log(data);
-      setStoreList(data.storeList);
+  useEffect(() => {
+    getTill();
+  }, []);
+
+  const getTill = async () => {
+    const token = localStorage.getItem("posSellerToken");
+    const response = await GetTillForSalesMan(String(token));
+
+    if (response.status === 200) {
+      const data = response.data as RespiosneGetTills;
+      if (data?.tillList?.length > 0) {
+        console.log(data);
+        setTillList(data.tillList as unknown as TillList[]);
+        setTillSenderID(data.tillList[0].tillID);
+      } else {
+        setTillList([]);
+      }
     }
   };
-  useEffect(() => {
-    storesget();
-  }, []);
   useEffect(() => setMounted(true), [mounted]);
 
-  const getStats = async (From: string, To: string) => {
+  const getStats = async (From: string, To: string, ID: string) => {
     try {
       const token = localStorage.getItem("posSellerToken");
-      const response = await DashboardOverviewStats(String(token), From, To);
+      const response = await DashboardOverviewStatsOffline(
+        String(token),
+        From,
+        To,
+        ID,
+      );
       const data = response.data as responseStats;
       console.log(data);
       setFetchDataBar(data.bargraph);
@@ -123,9 +141,9 @@ export default function OfflineSellerDashboard() {
 
   useEffect(() => {
     if (dateFrom && dateTo) {
-      getStats(dateFrom, dateTo);
+      getStats(dateFrom, dateTo, TillSenderID);
     }
-  }, [dateFrom, dateTo]);
+  }, [dateFrom, dateTo, TillSenderID]);
   useEffect(() => {
     const today = new Date();
     const dateTo = today.toISOString().split("T")[0];

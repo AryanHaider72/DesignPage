@@ -36,9 +36,9 @@ export default function AddTillTransferForm({ onShowMessage }: AddReturnForm) {
   const [StockQuantity, setStockQuantity] = useState(0);
   const [quantity, setquantity] = useState(0);
   const [varinetName, setVarinetName] = useState("");
-  const [TillSenderID, setTillSenderID] = useState("");
   const [ProductName, setProductName] = useState("");
   const [TillRecieverID, setTillRecieverID] = useState("");
+  const [TillSenderID, setTillSenderID] = useState("");
   const [TillList, setTillList] = useState<TillList[]>([]);
   const [TillList2, setTillList2] = useState<TillList[]>([]);
   const [productList2, setProductList2] = useState<Product[]>([]);

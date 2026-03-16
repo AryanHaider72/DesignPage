@@ -26,4 +26,5 @@ export interface orderListSub {
   salePrice: number;
   discount: number;
   shippingCharges: number;
+  delievryTypeID: string;
 }

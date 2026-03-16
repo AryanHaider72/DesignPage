@@ -55,6 +55,7 @@ type BarcodeResposne = {
 };
 export default function PosSaleModule() {
   //const [ExpenseList, setExpenseList] = useState<ExpenseData>();
+  const [resetNow, setresetNow] = useState(true);
   const [showReturnList, setShowReturnList] = useState(false);
   const [showVareintList, setShowVareintList] = useState(false);
   const [showMessage, setShowMessage] = useState<string | null>(null);
@@ -138,12 +139,23 @@ export default function PosSaleModule() {
         discount: 0,
       };
       addOrIncreaseQty(mappedData);
+      setresetNow(true);
+      setbarcode("");
     } else {
       alert("Item Does not Exist in your Till.");
+      setresetNow(true);
       setbarcode("");
     }
   };
+  useEffect(() => {
+    if (resetNow) {
+      const timer = setTimeout(() => {
+        setresetNow(false);
+      }, 100);
 
+      return () => clearTimeout(timer);
+    }
+  }, [resetNow]);
   const addOrIncreaseQty = (item2: newItem) => {
     setNewItem((prev) => {
       const existingIndex = prev.findIndex(
@@ -257,6 +269,7 @@ export default function PosSaleModule() {
               returnItemData={newItem}
               onToggleProductID={setProductID}
               productData={setProductList2}
+              resetValue={resetNow}
               onToggleVarientLIstShow={setShowVareintList}
               onToggleAttribuetID={setAttributeID}
               onQtyChange={(attributeID, qty) => {

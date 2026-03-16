@@ -30,7 +30,7 @@ export default function ShowProductSoldListCall({ SaleItems }: GetData) {
           <tbody>
             <>
               {SaleItems.map((item) => (
-                <>
+                <div key={item.saleID}>
                   {item.itemList.map((item2) => (
                     <tr key={item2.attributeID} className="border-t">
                       <td className="px-4 py-2 text-left">
@@ -42,7 +42,7 @@ export default function ShowProductSoldListCall({ SaleItems }: GetData) {
                       <td className="px-4 py-2 text-center">{item2.price}</td>
                     </tr>
                   ))}
-                </>
+                </div>
               ))}
             </>
           </tbody>

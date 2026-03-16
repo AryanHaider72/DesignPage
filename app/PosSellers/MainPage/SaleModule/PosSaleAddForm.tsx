@@ -38,6 +38,7 @@ interface ShowSaleForm {
   onOriginalChange: (attributeID: string, original: number) => void;
   BarcodeValue: (value: string) => void;
   TillIDPass: (value: string) => void;
+  resetValue: boolean;
   resetReturnItemList: (value: boolean) => void;
 }
 
@@ -51,6 +52,7 @@ export default function PosSaleAddForm({
   onQtyChange,
   onOriginalChange,
   BarcodeValue,
+  resetValue,
   TillIDPass,
   resetReturnItemList,
 }: ShowSaleForm) {
@@ -72,6 +74,11 @@ export default function PosSaleAddForm({
   const [productList2, setProductList2] = useState<Product[]>([]);
   const [TillList, setTillList] = useState<TillList[]>([]);
 
+  useEffect(() => {
+    if (resetValue) {
+      setBarcode("");
+    }
+  }, [resetValue]);
   const resetForm = () => {
     setBarcode("");
     setDiscount(0);
@@ -538,7 +545,7 @@ export default function PosSaleAddForm({
                                 type="number"
                                 className="w-[8ch] text-center border rounded-md px-1 py-1"
                                 value={item.qty}
-                                min={1}
+                                min={item.stockQty}
                                 onChange={(e) => {
                                   const value = Number(e.target.value) || 1;
                                   onQtyChange(item.attributeID, value);
