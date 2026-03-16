@@ -22,9 +22,11 @@ import {
   CoinsIcon,
   List,
   Handshake,
+  AlignStartVertical,
 } from "lucide-react";
 import { FaCashRegister, FaExchangeAlt, FaMoneyBill } from "react-icons/fa";
 import { BsShop } from "react-icons/bs";
+import { BiVerticalBottom } from "react-icons/bi";
 
 export default function OfflineSellerPosSalePoint({
   children,
@@ -146,6 +148,14 @@ export default function OfflineSellerPosSalePoint({
                 </div>
               </div>
             </div>
+            <Link
+              href="/PosSellers/MainPage/Ledger"
+              className="flex items-center gap-3 px-4 py-3 rounded-xl
+            text-neutral-700 hover:bg-neutral-100 transition-all"
+            >
+              <AlignStartVertical size={18} />
+              <span className="text-sm font-medium">Customer Ledger</span>
+            </Link>
             <Link
               href="/PosSellers/MainPage/TillTransfer"
               className="flex items-center gap-3 px-4 py-3 rounded-xl
