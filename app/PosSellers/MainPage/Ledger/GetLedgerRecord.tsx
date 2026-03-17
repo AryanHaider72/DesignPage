@@ -13,6 +13,8 @@ import DeleteComponent from "@/app/UsefullComponent/DeleteComponent/page";
 import Spinner from "@/app/UsefullComponent/Spinner/page";
 import { Pencil, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 interface AddExpenseProps {
   onShowMessage: (message: any, type: "success" | "error") => void;
 }
@@ -30,6 +32,64 @@ export default function GetLedegrRecordForCustomer({
   const [customerList, setCustomerList] = useState<CustomerData[]>([]);
   const [LedgerList, setLedgerList] = useState<CustomerLedgerGet[]>([]);
 
+  const exportPDF = () => {
+    const doc = new jsPDF();
+
+    // Remaining Balance
+    const remainingBalance =
+      LedgerList.find((item) => item.entryType === "Remaning Amount")
+        ?.creditAmount || 0;
+
+    // Title
+    doc.setFontSize(16);
+    doc.text("Customer Ledger", 105, 15, { align: "center" });
+
+    // Date Range
+    doc.setFontSize(10);
+    doc.text(`Date From: ${DateFrom}`, 14, 25);
+    doc.text(`Date To: ${DateTo}`, 14, 30);
+
+    // Remaining Balance (Top Right)
+    doc.text(
+      `Remaining Balance: ${remainingBalance.toLocaleString()}`,
+      196,
+      25,
+      { align: "right" },
+    );
+
+    // Prepare Table Data
+    const tableData = filterRecord.map((item, index) => {
+      const prevBalance =
+        index === 0
+          ? 0
+          : filterRecord
+              .slice(0, index)
+              .reduce((sum, r) => sum + (r.creditAmount - r.debitAmount), 0);
+
+      const balance = prevBalance + (item.creditAmount - item.debitAmount);
+
+      return [
+        index + 1,
+        item.postingDate
+          ? new Date(item.postingDate).toLocaleDateString()
+          : "-",
+        item.entryType,
+        item.debitAmount?.toLocaleString(),
+        item.creditAmount?.toLocaleString(),
+        balance.toLocaleString(),
+      ];
+    });
+
+    // Table
+    autoTable(doc, {
+      startY: 35,
+      head: [["#", "Posting Date", "Entry Type", "Debit", "Credit", "Balance"]],
+      body: tableData,
+    });
+
+    // Save PDF
+    doc.save(`Customer_Ledger_${CustomerName}.pdf`);
+  };
   const CustomerGet = async () => {
     const token = localStorage.getItem("posSellerToken");
     const response = await GetCustomer(String(token));
@@ -184,6 +244,14 @@ export default function GetLedegrRecordForCustomer({
             />
           </div>
         </div>
+      </div>
+      <div className="w-full flex justify-end">
+        <button
+          onClick={exportPDF}
+          className="mt-10 px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800"
+        >
+          Export PDF
+        </button>
       </div>
       {isLoading ? (
         <div className="flex justify-center py-10">

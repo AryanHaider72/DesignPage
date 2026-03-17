@@ -3,6 +3,7 @@ import {
   ReturnSale,
   ReturnSaleItem,
 } from "@/api/types/Posintegration/ReturnItem/ReturnItem";
+import { Sale, SaleItem } from "@/api/types/Posintegration/Salespanel";
 import React, { useEffect, useRef, useState } from "react";
 
 interface Product {
@@ -13,24 +14,24 @@ interface Product {
 }
 
 interface getExportData {
-  getData: ReturnSale[];
+  getData: Sale[];
   printRef?: any;
 }
 export default function ThermalPreviewModel({
   getData,
   printRef,
 }: getExportData) {
-  const [list, setList] = useState<ReturnSaleItem[]>([]);
+  const [list, setList] = useState<SaleItem[]>([]);
 
   const calculateSubtotal = () => {
-    return getData[0].subList.reduce(
+    return getData[0].itemList.reduce(
       (sum, product) => sum + product.price * product.qty,
       0,
     );
   };
   useEffect(() => {
     const data = getData[0];
-    setList(data.subList);
+    setList(data.itemList);
   }, [getData]);
   const subtotal = calculateSubtotal();
   const tax = subtotal * 0.08;
@@ -95,7 +96,7 @@ export default function ThermalPreviewModel({
         {/* Products List */}
         <div className="space-y-1 mb-3">
           <div className="text-[9px]">
-            {getData[0].subList.map((item, index) => (
+            {getData[0].itemList.map((item, index) => (
               <div key={index} className="flex flex-col justify-between">
                 <div className="flex justify-between">
                   <span className="w-[45%]">{item.productName}</span>
@@ -142,12 +143,12 @@ export default function ThermalPreviewModel({
 
         {/* Payment Info */}
         <div className="text-[8px] text-gray-600 mb-3 border-t border-gray-300 pt-2">
-          <div className="flex justify-between">
+          {/* <div className="flex justify-between">
             <span>Payment: CASH</span>
             <span className="text-green-600">
-              {list[0]?.staus}- {getData[0]?.returnType}
+              {list[0]?.}- {getData[0]?.returnType}
             </span>
-          </div>
+          </div> */}
           <div className="flex justify-between mt-0.5">
             <span>Amount Paid: {total.toFixed(2)}</span>
             <span>Change: 0.00</span>

@@ -6,12 +6,15 @@ export interface responseGetSale {
 export interface Sale {
   saleID: string;
   invoiceNo: number;
-  customer: string;
+  customerName: string;
   saleDate: string;
   totalBill: number;
   amountPaid: number;
   adjustment: number;
   remarks: string;
+  email: string;
+  address: string;
+  phoneNo: string;
   itemList: SaleItem[];
 }
 export interface SaleItem {
@@ -22,6 +25,10 @@ export interface SaleItem {
   qty: number;
   price: number;
   remarks: string;
+  storeName: string;
+  email: string;
+  address: string;
+  phone: string;
 }
 
 export interface requestAddSale {

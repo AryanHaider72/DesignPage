@@ -15,6 +15,7 @@ import GetProductBarcode from "@/api/lib/PosIntegration/ProductSalesMan/SearchBy
 import PosSaleGetForm from "./PosSaleGetForm";
 import { Sale } from "@/api/types/Posintegration/Salespanel";
 import ShowProductSoldListCall from "./ShowProductSoldList/ShowProductSoldList";
+import ReceiptPrintModal from "./ReciptPrintModel/ReciptPrintModel";
 
 interface newItem {
   attributeID: string;
@@ -61,8 +62,10 @@ export default function PosSaleModule() {
   const [showMessage, setShowMessage] = useState<string | null>(null);
   const [Update, setUpdate] = useState(false);
   const [newItem, setNewItem] = useState<newItem[]>([]);
+  const [ShowInvoiceData, setShowInvoiceData] = useState(false);
   const [productID, setProductID] = useState("");
   const [productList2, setProductList2] = useState<Product[]>([]);
+  const [SaleList, setSaleList] = useState<Sale>();
   const [VarintListInPopUp, setVarintListInPopUp] = useState<Variant[]>([]);
   const [AttributeID, setAttributeID] = useState("");
   const [ID, setID] = useState("");
@@ -221,6 +224,23 @@ export default function PosSaleModule() {
             Sale Management
           </h1>
         </div>
+        {ShowInvoiceData && (
+          <div className="fixed inset-0 w-full  h-screen flex items-center justify-center bg-black/50 backdrop-blur-sm z-100">
+            <div className="bg-white  rounded-2xl shadow-lg p-6 w-full max-w-3xl ">
+              <div className="flex w-full justify-end">
+                <button
+                  onClick={() => {
+                    setShowInvoiceData(false);
+                  }}
+                  className="text-right text-gray-600 hover:text-red-500"
+                >
+                  <X />
+                </button>
+              </div>
+              <ReceiptPrintModal getData={SaleList ? [SaleList] : []} />
+            </div>
+          </div>
+        )}
         {showReturnList && (
           <div className="fixed inset-0 w-full  h-screen flex items-center justify-center bg-black/50 backdrop-blur-sm z-100">
             <div className="bg-white  rounded-2xl shadow-lg p-6 w-full max-w-4xl ">
@@ -295,6 +315,8 @@ export default function PosSaleModule() {
           )}
           {view === "list" && (
             <PosSaleGetForm
+              showInvocie={setShowInvoiceData}
+              reciptData={setSaleList}
               onListGet={setSaleList2}
               onShowItemList={setShowProductSoldList}
               onShowMessage={(msg, type) => {

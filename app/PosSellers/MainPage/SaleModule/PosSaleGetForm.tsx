@@ -7,11 +7,15 @@ import Spinner from "@/app/UsefullComponent/Spinner/page";
 import { List, Pencil, Receipt, Trash, X } from "lucide-react";
 import { useEffect, useState } from "react";
 interface SaleGetFromProps {
+  showInvocie: (data: boolean) => void;
+  reciptData: (data: Sale) => void;
   onListGet: (sale: Sale) => void;
   onShowItemList: (value: boolean) => void;
   onShowMessage: (message: any, type: "success" | "error") => void;
 }
 export default function PosSaleGetForm({
+  showInvocie,
+  reciptData,
   onListGet,
   onShowItemList,
   onShowMessage,
@@ -64,6 +68,14 @@ export default function PosSaleGetForm({
       }
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const FetchDataFor = (ID: string) => {
+    const data = SaleList.find((item) => item.saleID === ID);
+    if (data) {
+      reciptData(data);
+      showInvocie(true);
     }
   };
   useEffect(() => {
@@ -143,10 +155,9 @@ export default function PosSaleGetForm({
                       <Pencil />
                     </button> */}
                     <button
-                      // onClick={() => {
-                      //   setDelete(true);
-                      //   setID(item.expenseID);
-                      // }}
+                      onClick={() => {
+                        FetchDataFor(item.saleID);
+                      }}
                       title="Receipt"
                       className="flex items-center gap-1 px-2 py-1 text-sm font-medium text-green-600 border border-green-600 rounded hover:bg-green-50 transition"
                     >

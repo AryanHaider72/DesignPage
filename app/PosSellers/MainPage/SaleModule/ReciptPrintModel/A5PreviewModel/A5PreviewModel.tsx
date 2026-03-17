@@ -3,6 +3,7 @@ import {
   ReturnSale,
   ReturnSaleItem,
 } from "@/api/types/Posintegration/ReturnItem/ReturnItem";
+import { Sale, SaleItem } from "@/api/types/Posintegration/Salespanel";
 import React, { useEffect, useState } from "react";
 
 interface Product {
@@ -12,14 +13,14 @@ interface Product {
   quantity: number;
 }
 interface getExportData {
-  getData: ReturnSale[];
+  getData: Sale[];
   printRef?: any;
 }
 export default function A5PreviewModel({ getData, printRef }: getExportData) {
-  const [list, setList] = useState<ReturnSaleItem[]>([]);
+  const [list, setList] = useState<SaleItem[]>([]);
   useEffect(() => {
     const data = getData[0];
-    setList(data.subList);
+    setList(data.itemList);
   }, [getData]);
   const products: Product[] = [
     { id: 1, name: "Fresh Milk 1L", price: 3.99, quantity: 2 },

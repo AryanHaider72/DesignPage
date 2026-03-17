@@ -3,6 +3,7 @@ import {
   ReturnSale,
   ReturnSaleItem,
 } from "@/api/types/Posintegration/ReturnItem/ReturnItem";
+import { Sale, SaleItem } from "@/api/types/Posintegration/Salespanel";
 import React, { useEffect, useState } from "react";
 
 interface Product {
@@ -12,14 +13,14 @@ interface Product {
   quantity: number;
 }
 interface getExportData {
-  getData: ReturnSale[];
+  getData: Sale[];
   printRef?: any;
 }
 export default function A4PreviewModel({ getData, printRef }: getExportData) {
-  const [list, setList] = useState<ReturnSaleItem[]>([]);
+  const [list, setList] = useState<SaleItem[]>([]);
   useEffect(() => {
     const data = getData[0];
-    setList(data.subList);
+    setList(data.itemList);
   }, [getData]);
 
   const calculateSubtotal = () => {
@@ -173,12 +174,12 @@ export default function A4PreviewModel({ getData, printRef }: getExportData) {
             <div className="bg-gray-50 p-4 rounded-lg">
               <h3 className="text-sm font-semibold mb-3">Summary</h3>
               <div className="space-y-2 text-xs">
-                <div className="flex justify-between">
+                {/* <div className="flex justify-between">
                   <span className="text-gray-600">Paymnet:</span>
                   <span className="text-green-600">
                     {list[0]?.staus}- {getData[0]?.returnType}
                   </span>
-                </div>
+                </div> */}
                 <div className="flex justify-between">
                   <span className="text-gray-600">Subtotal:</span>
                   <span className="font-medium">{subtotal.toFixed(2)}</span>

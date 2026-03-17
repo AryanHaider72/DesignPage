@@ -27,19 +27,26 @@ export interface ReturnSaleItem {
   barcode: string;
   price: number;
   staus: string;
+  storeName: string;
+  email: string;
+  address: string;
+  phone: string;
 }
 
 // Main sale return record
 export interface ReturnSale {
   saleID: string;
   invoiceNo: number;
-  customer: string;
+  customerName: string;
   saleDate: string;
   totalBill: number;
   amountPaid: number;
   adjustments: number;
   returnType: string;
   remarks: string;
+  email: string;
+  address: string;
+  phoneNo: string;
   subList: ReturnSaleItem[];
 }
 

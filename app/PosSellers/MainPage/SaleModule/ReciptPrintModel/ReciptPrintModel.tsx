@@ -8,9 +8,10 @@ import { useEffect, useRef, useState } from "react";
 import A4PreviewModel from "./A4PreviewModel/A4PreviewModel";
 import A5PreviewModel from "./A5PreviewModel/A5PreviewModel";
 import ThermalPreviewModel from "./ThermalDesginPreview/ThermalDesginPreview";
+import { Sale } from "@/api/types/Posintegration/Salespanel";
 
 interface getExportData {
-  getData: ReturnSale[];
+  getData: Sale[];
 }
 
 export default function ReceiptPrintModal({ getData }: getExportData) {
@@ -42,20 +43,15 @@ export default function ReceiptPrintModal({ getData }: getExportData) {
         elements.forEach((el: any) => {
           const style = window.getComputedStyle(el);
 
-          // ✅ Fix text color
           if (style.color.includes("oklch") || style.color.includes("lab")) {
             el.style.color = "#000000";
           }
-
-          // ✅ Fix background
           if (
             style.backgroundColor.includes("oklch") ||
             style.backgroundColor.includes("lab")
           ) {
             el.style.backgroundColor = "#ffffff";
           }
-
-          // ✅ Fix borders
           if (
             style.borderColor.includes("oklch") ||
             style.borderColor.includes("lab")
