@@ -3,7 +3,7 @@ import { List, Plane, Plus, Truck } from "lucide-react";
 import { useState } from "react";
 import InternationDelievryAddForm from "./InternationDelievryAddForm";
 import LocalRatesForm from "./LocalRatesForm";
-import MessagePopUp from "@/app/UsefullComponent/MessagePopup/page";
+import MessagePopUp from "@/app/Component/UsefullComponent/MessagePopup/page";
 
 export default function InternationDelievry() {
   const [view, setView] = useState<"list" | "form">("list");

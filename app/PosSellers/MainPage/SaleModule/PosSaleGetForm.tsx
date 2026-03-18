@@ -2,8 +2,8 @@
 import DeleteSalePos from "@/api/lib/PosIntegration/SalesPanel/DeleteSale/DeleteSale";
 import GetSalePos from "@/api/lib/PosIntegration/SalesPanel/SaleGet/SaleGet";
 import { responseGetSale, Sale } from "@/api/types/Posintegration/Salespanel";
-import DeleteComponent from "@/app/UsefullComponent/DeleteComponent/page";
-import Spinner from "@/app/UsefullComponent/Spinner/page";
+import DeleteComponent from "@/app/Component/UsefullComponent/DeleteComponent/page";
+import Spinner from "@/app/Component/UsefullComponent/Spinner/page";
 import { List, Pencil, Receipt, Trash, X } from "lucide-react";
 import { useEffect, useState } from "react";
 interface SaleGetFromProps {

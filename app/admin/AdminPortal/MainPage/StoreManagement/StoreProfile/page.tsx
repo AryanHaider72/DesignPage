@@ -3,7 +3,7 @@ import { List, Plus } from "lucide-react";
 import { useState } from "react";
 import HeaderImageProfile from "./HeaderImageProfile";
 import ImagesProfile from "./ImagesProfile";
-import MessagePopUp from "@/app/UsefullComponent/MessagePopup/page";
+import MessagePopUp from "@/app/Component/UsefullComponent/MessagePopup/page";
 import { StoreHomeGet } from "@/api/types/Admin/Store/StoreHomepageSetting/StoreHomepageSetting";
 
 export default function StoreProfile() {

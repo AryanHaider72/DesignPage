@@ -1,3 +1,4 @@
+"use client";
 import GetCategoryMainApi from "@/api/lib/Admin/Codes/Category/GetCategoryMain/GetCategoryMain";
 import GetCategoruSubApi from "@/api/lib/Admin/Codes/Category/SubCategory/GetSubCategory/GetSubCategory";
 import GetSubCategoryMoreApi from "@/api/lib/Admin/Codes/Category/SubCatgeroyMore/GetSubCategoryMore/GetSubCategoryMore";
@@ -86,45 +87,45 @@ export default function ModifyBasicInfo({
   const [currentStep, setCurrentStep] = useState(1);
   const [CountryID, setCountryID] = useState("");
   const [CountryName, setCountryName] = useState("");
-  const [ProductName, setProductName] = useState(values.productName);
-  const [SupplierID, setSupplierID] = useState(values.supplierID);
-  const [Description, setDescription] = useState(values.description);
-  const [Threshold, setThreshold] = useState(values.threshold);
-  const [Discount, setDiscount] = useState(values.discount);
+  const [ProductName, setProductName] = useState(values?.productName);
+  const [SupplierID, setSupplierID] = useState(values?.supplierID);
+  const [Description, setDescription] = useState(values?.description);
+  const [Threshold, setThreshold] = useState(values?.threshold);
+  const [Discount, setDiscount] = useState(values?.discount);
 
-  const [StoreSale, setStoreSale] = useState(values.storeSale);
+  const [StoreSale, setStoreSale] = useState(values?.storeSale);
   const [PurchaseAdd, setPurchaseAdd] = useState("");
   const [FeaturedProduct, setFeaturedProduct] = useState(
-    values.feturedProduct ? "Yes" : "No",
+    values?.feturedProduct ? "Yes" : "No",
   );
   const [CountryRestrict, setCountryRestrict] = useState(
-    values.showinAllCountry
+    values?.showinAllCountry
       ? "ShowInAllCountry"
-      : values.notShowinCountry
+      : values?.notShowinCountry
         ? "notShowInCountry"
         : "ShowInSomeCountry",
   );
   const [SupplierList, setSupplierList] = useState<SupplierData[]>([]);
   const [listofCountry, setListofCountry] = useState<Countryget[]>([]);
   const [ListingCountries, setListingCountries] = useState<ListingCountries[]>(
-    values.countryList.map((item) => ({
-      countryID: item.countryID || "",
-      countryName: item.countryName || "",
+    values?.countryList.map((item) => ({
+      countryID: item?.countryID || "",
+      countryName: item?.countryName || "",
     })),
   );
-  const [Length, setLength] = useState(values.depth);
-  const [Weight, setWeight] = useState(values.weight);
-  const [Width, setWidth] = useState(values.width);
-  const [Height, setHeight] = useState(values.height);
-  const [CategoryMainID, setCategoryMainID] = useState(values.categoryID);
+  const [Length, setLength] = useState(values?.depth);
+  const [Weight, setWeight] = useState(values?.weight);
+  const [Width, setWidth] = useState(values?.width);
+  const [Height, setHeight] = useState(values?.height);
+  const [CategoryMainID, setCategoryMainID] = useState(values?.categoryID);
   const [subCategoryMainID, setSubCategoryMainID] = useState(
-    values.subCategoryID,
+    values?.subCategoryID,
   );
   const [FurtherCategoryMainID, setFurtherCategoryMainID] = useState(
-    values.subCategoryDetailID,
+    values?.subCategoryDetailID,
   );
-  const [StoreID, setStoreID] = useState(values.storeID);
-  const [UnitID, setUnitID] = useState(values.unitID);
+  const [StoreID, setStoreID] = useState(values?.storeID);
+  const [UnitID, setUnitID] = useState(values?.unitID);
 
   const [UnitList, setUnitList] = useState<UnitList[]>([]);
   const [catgeoryMainList, setCatgeoryMainList] = useState<CategoryMain[]>([]);
@@ -267,7 +268,7 @@ export default function ModifyBasicInfo({
         height: Height,
         depth: Length,
         weight: Weight,
-        listCountry: ListingCountries.map((item) => ({
+        listCountry: ListingCountries?.map((item) => ({
           countryID: item.countryID,
         })),
       };
@@ -588,7 +589,7 @@ export default function ModifyBasicInfo({
                     <Plus />
                   </button>
                 </div>
-                {ListingCountries.map((item, index) => (
+                {ListingCountries?.map((item, index) => (
                   <div
                     key={index}
                     className="inline-flex mx-2  mt-1 items-center gap-2 bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium border border-green-300 shadow-sm"
@@ -685,7 +686,7 @@ export default function ModifyBasicInfo({
                     className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition appearance-none cursor-pointer"
                   >
                     <option>Select Store</option>
-                    {storeList.map((cat) => (
+                    {storeList?.map((cat) => (
                       <option key={cat.storeID} value={cat.storeID}>
                         {cat.storeName}
                       </option>
@@ -707,7 +708,7 @@ export default function ModifyBasicInfo({
                     className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition appearance-none cursor-pointer"
                   >
                     <option>Select Category</option>
-                    {catgeoryMainList.map((cat) => (
+                    {catgeoryMainList?.map((cat) => (
                       <option key={cat.categoryID} value={cat.categoryID}>
                         {cat.categoryName}
                       </option>
@@ -736,7 +737,7 @@ export default function ModifyBasicInfo({
                     className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition appearance-none cursor-pointer"
                   >
                     <option>Select Sub-Category</option>
-                    {catgeorySubList.map((cat) => (
+                    {catgeorySubList?.map((cat) => (
                       <option key={cat.subCategoryID} value={cat.subCategoryID}>
                         {cat.subCategoryName}
                       </option>
@@ -758,7 +759,7 @@ export default function ModifyBasicInfo({
                     className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition appearance-none cursor-pointer"
                   >
                     <option>Select Further Category</option>
-                    {FurtherCategorySubList.map((cat) => (
+                    {FurtherCategorySubList?.map((cat) => (
                       <option
                         key={cat.subCategoryDetailID}
                         value={cat.subCategoryDetailID}
@@ -782,7 +783,7 @@ export default function ModifyBasicInfo({
                     className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition appearance-none cursor-pointer"
                   >
                     <option>Select Unit</option>
-                    {UnitList.map((cat) => (
+                    {UnitList?.map((cat) => (
                       <option key={cat.unitID} value={cat.unitID}>
                         {cat.unitName}
                       </option>

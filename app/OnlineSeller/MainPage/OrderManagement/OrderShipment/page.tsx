@@ -6,7 +6,7 @@ import {
   CourierList,
   ResponseCouriereGetData,
 } from "@/api/types/Admin/Shipment/Couriere/Couriere";
-import Spinner from "@/app/UsefullComponent/Spinner/page";
+import Spinner from "@/app/Component/UsefullComponent/Spinner/page";
 import { CheckCheck, Eye, X } from "lucide-react";
 import { useEffect, useState } from "react";
 

@@ -7,7 +7,7 @@ import {
   shippingDetailZone,
 } from "@/api/types/Admin/Shipment/local/local";
 
-import Spinner from "@/app/UsefullComponent/Spinner/page";
+import Spinner from "@/app/Component/UsefullComponent/Spinner/page";
 import { useEffect, useState } from "react";
 type EditableField =
   | "lessThen1KG"

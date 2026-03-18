@@ -12,7 +12,7 @@ import {
   storesMainListSeller,
   storesSubListCustomer,
 } from "@/api/types/OnlineSeller/OnlineSeller";
-import Spinner from "@/app/UsefullComponent/Spinner/page";
+import Spinner from "@/app/Component/UsefullComponent/Spinner/page";
 import {
   CheckCheck,
   Clock,

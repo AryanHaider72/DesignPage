@@ -10,8 +10,8 @@ import {
   ResponseStoreList,
   storeListInital,
 } from "@/api/types/Admin/Store/Store";
-import DeleteComponent from "@/app/UsefullComponent/DeleteComponent/page";
-import Spinner from "@/app/UsefullComponent/Spinner/page";
+import DeleteComponent from "@/app/Component/UsefullComponent/DeleteComponent/page";
+import Spinner from "@/app/Component/UsefullComponent/Spinner/page";
 import { Camera, Pencil, Trash } from "lucide-react";
 import { useEffect, useState, useRef, useCallback } from "react";
 import ModifyBasicInfo from "./GetProduct/ModifyBasicInfo/page";

@@ -3,7 +3,7 @@ import { SendToCloudinary } from "@/api/lib/OtherController/UploadToCloudinary/U
 import { SendToCloudinaryVideo } from "@/api/lib/OtherController/UploadVideoToCloudinary/UploadVideoToCloudinary";
 import WareHouseSellerOrderGet from "@/api/lib/WareHouseSeller/OrderGet/OrderGet";
 import WareHouseSellerOrderConfirmation from "@/api/lib/WareHouseSeller/OrderModify/OrderModify";
-import MessagePopUp from "@/app/UsefullComponent/MessagePopup/page";
+import MessagePopUp from "@/app/Component/UsefullComponent/MessagePopup/page";
 import { useState, useRef, useEffect } from "react";
 interface ResponseOrder {
   message: string;
@@ -162,7 +162,7 @@ export default function OrderManagementAddForm() {
       }
     };
   }, []);
-
+  const name = packedVideo?.name ?? "";
   return (
     <>
       {showMessage && (
@@ -263,10 +263,9 @@ export default function OrderManagementAddForm() {
                 >
                   ×
                 </button>
+
                 <span className="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">
-                  {packedVideo?.name?.length > 15
-                    ? packedVideo?.name.substring(0, 12) + "..."
-                    : packedVideo?.name}
+                  {name.length > 15 ? name.substring(0, 12) + "..." : name}
                 </span>
                 <span className="absolute bottom-2 right-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">
                   {packedVideo?.size &&

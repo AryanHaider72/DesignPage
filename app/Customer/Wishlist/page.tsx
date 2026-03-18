@@ -33,7 +33,13 @@ export default function LoginPage() {
   ];
   return (
     <>
-      <Navbar scrolled={true} />
+      <Navbar
+        scrolled={true}
+        categoryList={[]}
+        logoUrl=""
+        productList={[]}
+        onCommit={() => {}}
+      />
       {/* MAIN CONTENT */}
       <div className="flex flex-col items-center w-full min-h-[calc(100vh-200px)] px-4 py-10">
         <h1 className="text-3xl font-bold text-gray-800 ">

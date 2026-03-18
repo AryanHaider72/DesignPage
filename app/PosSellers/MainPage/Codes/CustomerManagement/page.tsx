@@ -2,7 +2,7 @@
 import { List, Plus } from "lucide-react";
 import { useState } from "react";
 import AddCustomer from "./AddCustomer";
-import MessagePopUp from "@/app/UsefullComponent/MessagePopup/page";
+import MessagePopUp from "@/app/Component/UsefullComponent/MessagePopup/page";
 import { CustomerData } from "@/api/types/Posintegration/Customer";
 import GetCustomerData from "./GetCustomer";
 

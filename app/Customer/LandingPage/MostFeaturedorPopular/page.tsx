@@ -6,34 +6,50 @@ import { CartData } from "@/api/types/CookiesApi/CartItem";
 import { FeaturedProductForCustomer } from "@/api/types/Customer/LandingPage/Product/Product";
 import { ChevronLeft, ChevronRight, Heart } from "lucide-react";
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
+
 interface feturedProductProps {
   onCommitChnage: () => void;
-  FeaturedProduct: FeaturedProductForCustomer[];
+  FeaturedProduct?: FeaturedProductForCustomer[]; // Make it optional with ?
 }
+
 export default function MostFeaturedorPopular({
   onCommitChnage,
-  FeaturedProduct,
+  FeaturedProduct = [], // Provide default empty array
 }: feturedProductProps) {
   const list = ["Featured", "Most Popular"];
-  const [value, setValue] = useState(list[0]); // first item active by default
+  const [value, setValue] = useState(list[0]);
   const [value2, setValue2] = useState(0);
   const [selectedAttributes, setSelectedAttributes] = useState<
     Record<string, string>
   >({});
   const [productPrices, setProductPrices] = useState<Record<string, number>>(
-    () => {
-      const initialPrices: Record<string, number> = {};
-      FeaturedProduct.forEach((product) => {
-        const firstVariant = product.variants[0];
-        const firstAttribute = firstVariant?.variantValues[0];
-        if (firstAttribute) {
-          initialPrices[product.productID] = firstAttribute.salePrice;
-        }
-      });
-      return initialPrices;
-    },
+    {},
   );
+
+  // Use useEffect to safely initialize prices when FeaturedProduct is available
+  useEffect(() => {
+    if (
+      !FeaturedProduct ||
+      !Array.isArray(FeaturedProduct) ||
+      FeaturedProduct.length === 0
+    ) {
+      return;
+    }
+
+    const initialPrices: Record<string, number> = {};
+    FeaturedProduct.forEach((product) => {
+      const firstVariant = product.variants?.[0];
+      const firstAttribute = firstVariant?.variantValues?.[0];
+
+      if (firstAttribute) {
+        initialPrices[product.productID] = firstAttribute.salePrice;
+      }
+    });
+
+    setProductPrices(initialPrices);
+  }, [FeaturedProduct]); // Re-run when FeaturedProduct changes
+
   const carouselRef = useRef<HTMLDivElement>(null);
 
   const scrollLeft = () => {
@@ -55,6 +71,8 @@ export default function MostFeaturedorPopular({
     variantID: string,
     attributeID: string,
   ) => {
+    if (!FeaturedProduct) return;
+
     const product = FeaturedProduct.find(
       (item) => item.productID === productID,
     );
@@ -90,15 +108,23 @@ export default function MostFeaturedorPopular({
       qty: 1,
     };
     const currentCart = await getServerCart();
-
     const updatedCart = [...currentCart, newItem];
     await addToServerCart(updatedCart);
     onCommitChnage();
   };
 
+  // Don't render anything if no products are available
+  if (
+    !FeaturedProduct ||
+    !Array.isArray(FeaturedProduct) ||
+    FeaturedProduct.length === 0
+  ) {
+    return null; // or a loading skeleton, or an empty state message
+  }
+
   return (
     <>
-      <div className=" mt-10 mb-10 flex w-full flex-col gap-8 md:flex-row md:items-start md:justify-around md:gap-16">
+      <div className="mt-10 mb-10 flex w-full flex-col gap-8 md:flex-row md:items-start md:justify-around md:gap-16">
         {/* LEFT: Heading */}
         <div className="flex flex-col items-start max-w-md">
           <h1 className="text-4xl font-bold tracking-wide">DISCOVER LATEST</h1>
@@ -162,8 +188,8 @@ export default function MostFeaturedorPopular({
               {/* Image */}
               <div className="relative h-[500px] overflow-hidden">
                 <img
-                  src={item?.images[0]?.url || "/placeholder.jpg"}
-                  alt={item.productName}
+                  src={item?.images?.[0]?.url || "/placeholder.jpg"}
+                  alt={item.productName || "Product image"}
                   className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
 
@@ -173,7 +199,7 @@ export default function MostFeaturedorPopular({
                     className="absolute w-full bottom-0 left-1/2 transform -translate-x-1/2
                        w-4/5 bg-white bg-opacity-90 opacity-0 group-hover:opacity-80
                        flex flex-col items-center justify-center gap-2
-                       p-3  transition-opacity duration-300"
+                       p-3 transition-opacity duration-300"
                   >
                     {/* Sizes */}
                     <div className="flex gap-2">
@@ -193,11 +219,11 @@ export default function MostFeaturedorPopular({
                               ${
                                 selectedAttributes[item.productID] ===
                                 item2.attributeID
-                                  ? "text-black font-bold "
+                                  ? "text-black font-bold"
                                   : "text-gray-500 hover:text-gray-800"
                               }`}
                             >
-                              {item2.varientValue.toUpperCase()}
+                              {item2.varientValue?.toUpperCase() || ""}
                             </span>
                           ))}
                         </div>
@@ -208,13 +234,14 @@ export default function MostFeaturedorPopular({
                     <div className="flex gap-20">
                       <button
                         onClick={() => {
-                          addToCart(String(selectedAttributes[item.productID]));
+                          const attrId = selectedAttributes[item.productID];
+                          if (attrId) addToCart(attrId);
                         }}
-                        className="mt-2 ml-10 px-4 py-1  text-[18px] text-gray-700 text-sm font-semibold rounded hover:text-black transition-colors duration-200"
+                        className="mt-2 ml-10 px-4 py-1 text-[18px] text-gray-700 text-sm font-semibold rounded hover:text-black transition-colors duration-200"
                       >
                         ADD TO BAG
                       </button>
-                      <button className="mt-2 px-4 py-1  text-[30px] text-black text-sm font-semibold rounded hover:text-red-500 transition-colors duration-200">
+                      <button className="mt-2 px-4 py-1 text-[30px] text-black text-sm font-semibold rounded hover:text-red-500 transition-colors duration-200">
                         <Heart />
                       </button>
                     </div>
@@ -234,8 +261,8 @@ export default function MostFeaturedorPopular({
 
                 <span className="mt-2 text-lg font-semibold text-gray-900">
                   {productPrices[item.productID]?.toLocaleString() ||
-                    item?.variants[0]?.variantValues[0].salePrice.toLocaleString()}
-                  -/
+                    item?.variants?.[0]?.variantValues?.[0]?.salePrice?.toLocaleString()}
+                  /-
                 </span>
               </div>
             </div>

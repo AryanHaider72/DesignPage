@@ -2,7 +2,7 @@
 import { List, Plus } from "lucide-react";
 import { useState } from "react";
 import ExpenseAddForm from "./AddExpense";
-import MessagePopUp from "@/app/UsefullComponent/MessagePopup/page";
+import MessagePopUp from "@/app/Component/UsefullComponent/MessagePopup/page";
 import GetExpenseList from "./GetExpense";
 import { ExpenseData } from "@/api/types/Posintegration/Expense";
 

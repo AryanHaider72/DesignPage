@@ -2,7 +2,7 @@
 import { List, Plus } from "lucide-react";
 import { useState } from "react";
 import AddLoginsOnline from "./AddLogin";
-import MessagePopUp from "@/app/UsefullComponent/MessagePopup/page";
+import MessagePopUp from "@/app/Component/UsefullComponent/MessagePopup/page";
 
 export default function OnlineStoreLogin() {
   const [view, setView] = useState<"list" | "form">("list");

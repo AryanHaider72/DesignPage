@@ -1,5 +1,5 @@
 "use client";
-import MessagePopUp from "@/app/UsefullComponent/MessagePopup/page";
+import MessagePopUp from "@/app/Component/UsefullComponent/MessagePopup/page";
 import { List, Plus, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import PosSaleAddForm from "./PosSaleAddForm";

@@ -80,7 +80,13 @@ export default function ProductViewManagePage() {
     <>
       <div className="flex flex-col gap-15">
         <div>
-          <Navbar scrolled={true} />
+          <Navbar
+            scrolled={true}
+            categoryList={[]}
+            logoUrl=""
+            productList={[]}
+            onCommit={() => {}}
+          />
         </div>
         <div className="mt-10 flex flex-col items-center w-full min-h-[calc(100vh-200px)]  px-4 py-10">
           <h1

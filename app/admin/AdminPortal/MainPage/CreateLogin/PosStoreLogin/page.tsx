@@ -2,7 +2,7 @@
 import { List, Plus } from "lucide-react";
 import { useState } from "react";
 import AddLogins from "./AddLogin";
-import MessagePopUp from "@/app/UsefullComponent/MessagePopup/page";
+import MessagePopUp from "@/app/Component/UsefullComponent/MessagePopup/page";
 import GetLoginForm from "./getLogin";
 
 export default function PostStoreLogin() {

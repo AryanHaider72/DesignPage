@@ -2,7 +2,7 @@
 import { List, Plus } from "lucide-react";
 import { useState } from "react";
 import CourierServiceAddForm from "./CourierServiceAddForm";
-import MessagePopUp from "@/app/UsefullComponent/MessagePopup/page";
+import MessagePopUp from "@/app/Component/UsefullComponent/MessagePopup/page";
 import { CourierList } from "@/api/types/Admin/Shipment/Couriere/Couriere";
 import CourierServiceGetForm from "./CourierServiceGetForm";
 

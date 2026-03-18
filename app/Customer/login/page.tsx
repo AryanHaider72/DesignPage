@@ -22,7 +22,13 @@ export default function CustomerLogin() {
   return (
     <>
       <div>
-        <Navbar scrolled={true} />
+        <Navbar
+          scrolled={true}
+          categoryList={[]}
+          logoUrl=""
+          productList={[]}
+          onCommit={() => {}}
+        />
       </div>
       <div className="mt-30 flex flex-col min-h-screen items-center bg-white p-4">
         <h1 className="text-3xl font-bold mt-10 text-center">Login / SignUp</h1>

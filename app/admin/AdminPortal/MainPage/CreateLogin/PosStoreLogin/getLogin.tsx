@@ -1,8 +1,8 @@
 import SellerDelete from "@/api/lib/Admin/CreateLogins/DeleteSeller/DeleteSeller";
 import SellerLoginGet from "@/api/lib/Admin/CreateLogins/getLogins/getlogin";
 import SellerRevoke from "@/api/lib/Admin/CreateLogins/RevokeSeller/RevokeSeller";
-import DeleteComponent from "@/app/UsefullComponent/DeleteComponent/page";
-import Spinner from "@/app/UsefullComponent/Spinner/page";
+import DeleteComponent from "@/app/Component/UsefullComponent/DeleteComponent/page";
+import Spinner from "@/app/Component/UsefullComponent/Spinner/page";
 import { RefreshCcw, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
 

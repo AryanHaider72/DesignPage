@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Navbar from "../../LandingPage/Navbar/page";
 import Footer from "../../LandingPage/FooterSection/page";
 import { ChevronDown, FilterIcon, Heart, X } from "lucide-react";
-import FilterComponent from "@/app/UsefullComponent/FilterComponent/page";
+import FilterComponent from "@/app/Component/UsefullComponent/FilterComponent/page";
 import Link from "next/link";
 
 export default function ShopItems() {
@@ -91,7 +91,13 @@ export default function ShopItems() {
     <>
       <div className="flex flex-col justify-between gap-15">
         <div>
-          <Navbar scrolled={true} />
+          <Navbar
+            scrolled={true}
+            categoryList={[]}
+            logoUrl=""
+            productList={[]}
+            onCommit={() => {}}
+          />
         </div>
         <div>
           <div

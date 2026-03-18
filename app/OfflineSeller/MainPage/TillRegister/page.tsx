@@ -3,8 +3,8 @@ import { List, Plus } from "lucide-react";
 import { useState } from "react";
 import AddTillForm from "./AddForm";
 import GetTillForm from "./GetData";
-import MessagePopUp from "@/app/UsefullComponent/MessagePopup/page";
-import DeleteComponent from "@/app/UsefullComponent/DeleteComponent/page";
+import MessagePopUp from "@/app/Component/UsefullComponent/MessagePopup/page";
+import DeleteComponent from "@/app/Component/UsefullComponent/DeleteComponent/page";
 import { TillList } from "@/api/types/Admin/TillRegister/TillRegister";
 import GetCountry from "@/api/lib/Admin/Country/countryGet";
 export default function TillRegister() {

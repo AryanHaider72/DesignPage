@@ -14,7 +14,7 @@ import {
   storeListInital,
 } from "@/api/types/Admin/Store/Store";
 import { TillList } from "@/api/types/Admin/TillRegister/TillRegister";
-import MessagePopUp from "@/app/UsefullComponent/MessagePopup/page";
+import MessagePopUp from "@/app/Component/UsefullComponent/MessagePopup/page";
 import { Plus, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
 

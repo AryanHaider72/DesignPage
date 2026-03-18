@@ -5,8 +5,8 @@ import {
   DelievryGetData,
   ResponseDelievryGetData,
 } from "@/api/types/Admin/Shipment/Delievry/Delievry";
-import DeleteComponent from "@/app/UsefullComponent/DeleteComponent/page";
-import Spinner from "@/app/UsefullComponent/Spinner/page";
+import DeleteComponent from "@/app/Component/UsefullComponent/DeleteComponent/page";
+import Spinner from "@/app/Component/UsefullComponent/Spinner/page";
 import { Pencil, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
 interface AddExpenseProps {

@@ -2,7 +2,7 @@
 import { List, Plus } from "lucide-react";
 import { useState } from "react";
 import AddLoginsOffline from "./AddLoginForm";
-import MessagePopUp from "@/app/UsefullComponent/MessagePopup/page";
+import MessagePopUp from "@/app/Component/UsefullComponent/MessagePopup/page";
 
 export default function CreateLogins() {
   const [showMessage, setShowMessage] = useState<string | null>(null);

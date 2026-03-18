@@ -39,10 +39,12 @@ export default function ShowVarientItems({
   onAddVarientItem,
 }: ShowSaleForm) {
   const handleAddtoList = (varientID: string, attributeID: string) => {
-    const data = VarintListInPopUp.find((item) => item.varientID === varientID);
+    const data = VarintListInPopUp?.find(
+      (item) => item?.varientID === varientID,
+    );
     if (!data) return;
 
-    const attribute = data.varientSubList.find(
+    const attribute = data?.varientSubList.find(
       (item) => item.attributeID === attributeID,
     );
     if (!attribute) return;
@@ -75,7 +77,7 @@ export default function ShowVarientItems({
         </button>
       </div>
       <div className="w-full overflow-x-auto mt-2">
-        {VarintListInPopUp.map((item, index) => (
+        {VarintListInPopUp?.map((item, index) => (
           <div key={item.varientID}>
             <h1 className="text-lg font-bold">{item.variantName}</h1>
             <table className="w-full border border-gray-200 rounded-lg">
@@ -99,7 +101,7 @@ export default function ShowVarientItems({
                 </tr>
               </thead>
               <tbody>
-                {item.varientSubList.map((item2) => (
+                {item.varientSubList?.map((item2) => (
                   <tr key={item2.attributeID} className="border-t">
                     <td className="px-4 py-2 text-left">{item2.barcode}</td>
                     <td className="px-4 py-2 text-center">

@@ -2,7 +2,7 @@
 import { List, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import GetCity from "./GetCity";
-import MessagePopUp from "@/app/UsefullComponent/MessagePopup/page";
+import MessagePopUp from "@/app/Component/UsefullComponent/MessagePopup/page";
 import AddCity from "./AddCity";
 import { zonelist } from "@/api/types/Admin/Shipment/City/City";
 

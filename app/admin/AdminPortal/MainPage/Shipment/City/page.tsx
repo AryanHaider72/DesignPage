@@ -4,7 +4,7 @@ import { useState } from "react";
 import AddCityForm from "./AddCityForm";
 import { zonelistOrigin } from "@/api/types/Admin/Shipment/OriginCity/City";
 import GetCityList from "./GetCityList";
-import MessagePopUp from "@/app/UsefullComponent/MessagePopup/page";
+import MessagePopUp from "@/app/Component/UsefullComponent/MessagePopup/page";
 
 export default function ShippingCity() {
   const [view, setView] = useState<"list" | "form">("list");

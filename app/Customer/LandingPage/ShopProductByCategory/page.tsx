@@ -1,10 +1,10 @@
+"use client";
 import { addToServerCart } from "@/api/lib/CookiesApi/AddCart/AddCart";
 import { getServerCart } from "@/api/lib/CookiesApi/GetCart/GetCart";
 import { CartData } from "@/api/types/CookiesApi/CartItem";
 import { FeaturedProductForCustomer } from "@/api/types/Customer/LandingPage/Product/Product";
 import { useAppContext } from "@/app/useContext";
 import { ChevronLeft, ChevronRight, Heart } from "lucide-react";
-import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 export default function ShopByProductCategory({
   value,

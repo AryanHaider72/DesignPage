@@ -31,7 +31,7 @@ import {
 } from "@/api/types/Admin/Shipment/Delievry/Delievry";
 import CityShipmentChargesApi from "@/api/lib/Customer/CheckOut/CityShipmentCharges/CityShipmentCharges";
 import AddCustomerOrderApi from "@/api/lib/Customer/OrderManagement/AddOrder/AddOrder";
-import MessagePopUp from "@/app/UsefullComponent/MessagePopup/page";
+import MessagePopUp from "@/app/Component/UsefullComponent/MessagePopup/page";
 import { getServerCart } from "@/api/lib/CookiesApi/GetCart/GetCart";
 import { removeItemFromServerCart } from "@/api/lib/CookiesApi/RemoveCart/RemoveCart";
 

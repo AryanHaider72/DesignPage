@@ -5,8 +5,8 @@ import {
   GetReturnResponse,
   ReturnSale,
 } from "@/api/types/Posintegration/ReturnItem/ReturnItem";
-import DeleteComponent from "@/app/UsefullComponent/DeleteComponent/page";
-import Spinner from "@/app/UsefullComponent/Spinner/page";
+import DeleteComponent from "@/app/Component/UsefullComponent/DeleteComponent/page";
+import Spinner from "@/app/Component/UsefullComponent/Spinner/page";
 import { List, Receipt, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
 

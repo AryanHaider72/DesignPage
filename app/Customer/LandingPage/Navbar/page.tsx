@@ -3,8 +3,8 @@ import { getServerCart } from "@/api/lib/CookiesApi/GetCart/GetCart";
 import { categoryList } from "@/api/types/Customer/LandingPage/Category/GetCategroy";
 import { FeaturedProductForCustomer } from "@/api/types/Customer/LandingPage/Product/Product";
 import { useAppContext } from "@/app/useContext";
-import CartItems from "@/app/UsefullComponent/CartSidebar/page";
-import SearchSidebarCompnent from "@/app/UsefullComponent/SearchComponent/page";
+import CartItems from "@/app/Component/UsefullComponent/CartSidebar/page";
+import SearchSidebarCompnent from "@/app/Component/UsefullComponent/SearchComponent/page";
 import { Heart, Search, ShoppingCart, User } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -213,7 +213,7 @@ export default function Navbar({
                 cartData();
                 onCommit();
               }}
-              productList={productList}
+              // productList={productList}
               categoryList={categoryList}
             />
           </div>

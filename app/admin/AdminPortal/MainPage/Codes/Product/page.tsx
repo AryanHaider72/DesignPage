@@ -2,7 +2,7 @@
 import { List, Plus } from "lucide-react";
 import { useState } from "react";
 import ProductAddForm from "./ProductAddForm";
-import MessagePopUp from "@/app/UsefullComponent/MessagePopup/page";
+import MessagePopUp from "@/app/Component/UsefullComponent/MessagePopup/page";
 import GetProductsFunctionForm from "./GetProductForm";
 import ModifyBasicInfo from "./GetProduct/ModifyBasicInfo/page";
 import ModifyVarientForm from "./GetProduct/ModifyVarient/ModifyVarient";

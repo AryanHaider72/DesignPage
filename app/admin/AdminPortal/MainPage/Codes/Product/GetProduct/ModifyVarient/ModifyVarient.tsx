@@ -1,6 +1,6 @@
 "use client";
 import ModifyProductVarinetAttribute from "@/api/lib/Admin/Codes/Product/ModifyProduct/ModifyVarient/ModifyVarient";
-import Spinner from "@/app/UsefullComponent/Spinner/page";
+import Spinner from "@/app/Component/UsefullComponent/Spinner/page";
 
 import { Download, Pencil, X, Save } from "lucide-react";
 import { useState } from "react";

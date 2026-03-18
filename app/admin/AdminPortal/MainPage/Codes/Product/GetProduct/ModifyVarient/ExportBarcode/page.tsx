@@ -57,9 +57,9 @@ export default function BarcodeExport({ data, onClose }: BarcodeExportProps) {
     ctx.font = "bold 16px Arial, Helvetica, sans-serif";
 
     // Create full product text
-    let productText = data.productName;
-    if (data.variantName && data.varientValue) {
-      productText = `${data.productName} - ${data.variantName}: ${data.varientValue}`;
+    let productText = data?.productName;
+    if (data?.variantName && data?.varientValue) {
+      productText = `${data?.productName} - ${data?.variantName}: ${data?.varientValue}`;
     }
 
     // If text is too long, truncate with ellipsis
@@ -81,7 +81,7 @@ export default function BarcodeExport({ data, onClose }: BarcodeExportProps) {
     console.log("Drawing product name:", productText); // Debug log
 
     // ========== BARCODE (Middle) ==========
-    const digits = data.barcode.replace(/\D/g, "").split("");
+    const digits = data?.barcode.replace(/\D/g, "").split("");
 
     // Only draw barcode if we have digits
     if (digits.length > 0) {
@@ -91,7 +91,7 @@ export default function BarcodeExport({ data, onClose }: BarcodeExportProps) {
 
       // Calculate total width needed
       let totalWidth = 0;
-      const widths = digits.map((digit) => 3 + (parseInt(digit) % 4));
+      const widths = digits?.map((digit) => 3 + (parseInt(digit) % 4));
       totalWidth = widths.reduce((acc, w) => acc + w + 1, 0);
 
       // Scale to fit in available space
@@ -111,12 +111,12 @@ export default function BarcodeExport({ data, onClose }: BarcodeExportProps) {
     // ========== BARCODE NUMBER (Below barcode) ==========
     ctx.fillStyle = "#333333";
     ctx.font = 'bold 12px "Courier New", monospace';
-    ctx.fillText(data.barcode, canvas.width / 2, 225);
+    ctx.fillText(data?.barcode, canvas.width / 2, 225);
 
     // ========== PRICE (Bottom) ==========
     ctx.fillStyle = "#000000";
     ctx.font = "bold 20px Arial, Helvetica, sans-serif";
-    ctx.fillText(formatPrice(data.salePrice), canvas.width / 2, 275);
+    ctx.fillText(formatPrice(data?.salePrice), canvas.width / 2, 275);
 
     // Draw a small separator line above price
     ctx.strokeStyle = "#999999";
@@ -159,9 +159,9 @@ export default function BarcodeExport({ data, onClose }: BarcodeExportProps) {
       pdf.addImage(imgData, "PNG", 0, 0, 2, 1, undefined, "FAST");
 
       // Save PDF
-      pdf.save(`${data.productName}-barcode-${data.barcode}.pdf`);
+      pdf.save(`${data?.productName}-barcode-${data?.barcode}.pdf`);
 
-      console.log("PDF exported with product name:", data.productName); // Debug log
+      console.log("PDF exported with product name:", data?.productName); // Debug log
     } catch (error) {
       console.error("Error exporting PDF:", error);
     }
@@ -196,11 +196,11 @@ export default function BarcodeExport({ data, onClose }: BarcodeExportProps) {
             {/* Product Info Preview - Text version for verification */}
             <div className="mb-4 text-sm text-center border-b border-gray-200 pb-3">
               <div className="font-bold text-gray-900 text-base">
-                {data.productName}
+                {data?.productName}
               </div>
-              {data.variantName && (
+              {data?.variantName && (
                 <div className="text-gray-600 mt-1">
-                  {data.variantName}: {data.varientValue}
+                  {data?.variantName}: {data?.varientValue}
                 </div>
               )}
             </div>
@@ -259,19 +259,19 @@ export default function BarcodeExport({ data, onClose }: BarcodeExportProps) {
             <div>
               <span className="text-gray-500">Product:</span>
               <span className="ml-2 font-medium text-gray-900 truncate block">
-                {data.productName}
+                {data?.productName}
               </span>
             </div>
             <div>
               <span className="text-gray-500">Barcode:</span>
               <span className="ml-2 font-mono text-gray-900">
-                {data.barcode}
+                {data?.barcode}
               </span>
             </div>
             <div>
               <span className="text-gray-500">Price:</span>
               <span className="ml-2 font-medium text-gray-900">
-                Rs. {data.salePrice}
+                Rs. {data?.salePrice}
               </span>
             </div>
           </div>

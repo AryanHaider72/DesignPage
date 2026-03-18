@@ -1,3 +1,4 @@
+"use client";
 import { getServerCart } from "@/api/lib/CookiesApi/GetCart/GetCart";
 import { modifyCartServer } from "@/api/lib/CookiesApi/ModifyCart/ModifCart";
 import { removeItemFromServerCart } from "@/api/lib/CookiesApi/RemoveCart/RemoveCart";

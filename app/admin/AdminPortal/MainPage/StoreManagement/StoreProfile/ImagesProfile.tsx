@@ -10,8 +10,8 @@ import {
   StoreHomeGet,
   StoreHomeSettingGetApiResponse,
 } from "@/api/types/Admin/Store/StoreHomepageSetting/StoreHomepageSetting";
-import DeleteComponent from "@/app/UsefullComponent/DeleteComponent/page";
-import Spinner from "@/app/UsefullComponent/Spinner/page";
+import DeleteComponent from "@/app/Component/UsefullComponent/DeleteComponent/page";
+import Spinner from "@/app/Component/UsefullComponent/Spinner/page";
 import { Ellipsis, Pencil, Trash } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 type ImageItem = {

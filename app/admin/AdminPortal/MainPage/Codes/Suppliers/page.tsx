@@ -2,7 +2,7 @@
 import { List, Plus } from "lucide-react";
 import { useState } from "react";
 import AddSupplierForm from "./AddFormSupplier";
-import MessagePopUp from "@/app/UsefullComponent/MessagePopup/page";
+import MessagePopUp from "@/app/Component/UsefullComponent/MessagePopup/page";
 import { SupplierData } from "@/api/types/Admin/Codes/Supplier/Supplier";
 import GetSupplierForm from "./GetSupplierFrom";
 export default function SupplierMain() {

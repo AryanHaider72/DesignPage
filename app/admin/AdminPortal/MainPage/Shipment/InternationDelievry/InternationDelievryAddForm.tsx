@@ -7,7 +7,7 @@ import {
   responseINternationShippingRateCountry,
   shippingDetail,
 } from "@/api/types/Admin/Shipment/International/Internation";
-import Spinner from "@/app/UsefullComponent/Spinner/page";
+import Spinner from "@/app/Component/UsefullComponent/Spinner/page";
 import { useEffect, useState } from "react";
 type EditableField =
   | "lessThen1KG"

@@ -2,14 +2,15 @@
 import { List, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import AddRegion from "./AddRegion";
-import MessagePopUp from "@/app/UsefullComponent/MessagePopup/page";
-import {
-  Countryget,
-  CountrygetApiResponse,
-} from "@/api/types/Admin/Country/country";
+import MessagePopUp from "@/app/Component/UsefullComponent/MessagePopup/page";
+
 import GetCountry from "@/api/lib/Admin/Country/countryGet";
 import GetRegion from "./GetRegion";
 import { regionlist } from "@/api/types/Admin/Shipment/Region/Region";
+import {
+  Countryget,
+  CountrygetApiResponse,
+} from "@/api/types/Admin/Shipment/Country/Country";
 
 export default function ShipmentRegion() {
   const [view, setView] = useState<"list" | "form">("list");

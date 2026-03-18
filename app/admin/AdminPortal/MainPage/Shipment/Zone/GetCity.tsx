@@ -16,7 +16,7 @@ import {
   regionlist,
   responseRegionList,
 } from "@/api/types/Admin/Shipment/Region/Region";
-import DeleteComponent from "@/app/UsefullComponent/DeleteComponent/page";
+import DeleteComponent from "@/app/Component/UsefullComponent/DeleteComponent/page";
 import { Pencil, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
 interface GetTillFormProps {

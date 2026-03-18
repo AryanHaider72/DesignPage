@@ -5,7 +5,7 @@ import {
   ImageGetApiResponse,
   ImageListID,
 } from "@/api/types/Admin/Codes/Product/ModifyImages";
-import Spinner from "@/app/UsefullComponent/Spinner/page";
+import Spinner from "@/app/Component/UsefullComponent/Spinner/page";
 import { Trash } from "lucide-react";
 import { useEffect, useState } from "react";
 interface GetImagesPropsID {

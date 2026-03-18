@@ -5,7 +5,7 @@ import {
   ResponseStoreList,
   storeListInital,
 } from "@/api/types/Admin/Store/Store";
-import Spinner from "@/app/UsefullComponent/Spinner/page";
+import Spinner from "@/app/Component/UsefullComponent/Spinner/page";
 import { Check, DotSquare, Ellipsis, Pencil, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
 

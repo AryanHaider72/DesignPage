@@ -3,7 +3,7 @@ import { List, Plus, X } from "lucide-react";
 import { useState } from "react";
 import GetIMagesFormForMain from "./GetImages";
 import AddImagesForm from "./AddIMages";
-import MessagePopUp from "@/app/UsefullComponent/MessagePopup/page";
+import MessagePopUp from "@/app/Component/UsefullComponent/MessagePopup/page";
 interface PassModifyBasicInfo {
   values: string;
   isOpen: (isOpen: string) => void;
