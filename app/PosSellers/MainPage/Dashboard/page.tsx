@@ -128,13 +128,13 @@ export default function OfflineSellerDashboard() {
       );
       const data = response.data as responseStats;
       console.log(data);
-      setFetchDataBar(data.bargraph);
-      setFetchDataRecent(data.recentSales);
-      setTotalProducts(data.stats[0].queryTotalProduct || 0);
-      setTotalReturn(data.stats[0].queryTotalReturn || 0);
-      setTotalExpense(data.stats[0].queryTotalExpense || 0);
-      setTotalCredit(data.stats[0].queryTotalCredit || 0);
-      setTotalSale(data.stats[0].queryTotalSale || 0);
+      setFetchDataBar(data?.bargraph);
+      setFetchDataRecent(data?.recentSales);
+      setTotalProducts(data?.stats[0].queryTotalProduct || 0);
+      setTotalReturn(data?.stats[0].queryTotalReturn || 0);
+      setTotalExpense(data?.stats[0].queryTotalExpense || 0);
+      setTotalCredit(data?.stats[0].queryTotalCredit || 0);
+      setTotalSale(data?.stats[0].queryTotalSale || 0);
     } finally {
     }
   };
@@ -290,7 +290,7 @@ export default function OfflineSellerDashboard() {
         <div className="rounded-3xl bg-white/70 backdrop-blur-xl p-7 shadow-[0_20px_40px_rgba(0,0,0,0.07)]">
           <h3 className="text-lg font-semibold mb-4">Monthly Revenue</h3>
 
-          {mounted && FetchDataBar.length > 0 ? (
+          {mounted && FetchDataBar?.length > 0 ? (
             <div className="h-[320px]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
@@ -402,7 +402,7 @@ export default function OfflineSellerDashboard() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {FetchDataRecent.map((order, index) => (
+                {FetchDataRecent?.map((order, index) => (
                   <tr key={index} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                       {order.barcode}
@@ -415,7 +415,7 @@ export default function OfflineSellerDashboard() {
                     </td>
                   </tr>
                 ))}
-                {FetchDataRecent.length === 0 && (
+                {FetchDataRecent?.length === 0 && (
                   <tr>
                     <td
                       colSpan={3}

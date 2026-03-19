@@ -4,7 +4,7 @@ import Spinner from "@/app/Component/UsefullComponent/Spinner/page";
 
 import { Download, Pencil, X, Save } from "lucide-react";
 import { useState } from "react";
-import BarcodeExport from "./ExportBarcode/page";
+import BarcodeExportClient from "./ExportBarcode/ExportBarcodeClinet";
 
 interface PassModifyBasicInfo {
   isOpen: (isOpen: string) => void;
@@ -327,7 +327,7 @@ export default function ModifyVarientForm({
 
       {/* Barcode Export Modal */}
       {selectedBarcode && (
-        <BarcodeExport
+        <BarcodeExportClient
           data={selectedBarcode}
           onClose={() => setSelectedBarcode(null)}
         />

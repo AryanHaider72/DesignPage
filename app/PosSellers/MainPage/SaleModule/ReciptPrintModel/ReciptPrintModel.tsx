@@ -2,13 +2,17 @@
 
 import { ReturnSale } from "@/api/types/Posintegration/ReturnItem/ReturnItem";
 import { Check, Download } from "lucide-react";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
 import { useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import A4PreviewModel from "./A4PreviewModel/A4PreviewModel";
 import A5PreviewModel from "./A5PreviewModel/A5PreviewModel";
 import ThermalPreviewModel from "./ThermalDesginPreview/ThermalDesginPreview";
 import { Sale } from "@/api/types/Posintegration/Salespanel";
+
+// Dynamically import the PDF handlers with SSR disabled
+const PDFExportHandlers = dynamic(() => import("./PDFExportHandlers"), {
+  ssr: false,
+});
 
 interface getExportData {
   getData: Sale[];
@@ -20,6 +24,8 @@ export default function ReceiptPrintModal({ getData }: getExportData) {
   const a5Ref = useRef<HTMLDivElement>(null);
   const [returnType, setReturnType] = useState("");
   const [showPreview, setShowPreview] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const [showExportHandlers, setShowExportHandlers] = useState(false);
 
   useEffect(() => {
     console.log(getData);
@@ -30,194 +36,14 @@ export default function ReceiptPrintModal({ getData }: getExportData) {
     setShowPreview(true);
   };
 
-  const handleExport = async () => {
-    if (!thermalRef.current) return;
-
-    const canvas = await html2canvas(thermalRef.current, {
-      scale: 3,
-      backgroundColor: "#ffffff",
-
-      onclone: (clonedDoc) => {
-        const elements = clonedDoc.querySelectorAll("*");
-
-        elements.forEach((el: any) => {
-          const style = window.getComputedStyle(el);
-
-          if (style.color.includes("oklch") || style.color.includes("lab")) {
-            el.style.color = "#000000";
-          }
-          if (
-            style.backgroundColor.includes("oklch") ||
-            style.backgroundColor.includes("lab")
-          ) {
-            el.style.backgroundColor = "#ffffff";
-          }
-          if (
-            style.borderColor.includes("oklch") ||
-            style.borderColor.includes("lab")
-          ) {
-            el.style.borderColor = "#cccccc";
-          }
-        });
-      },
-    });
-
-    const imgData = canvas.toDataURL("image/png");
-
-    const pdf = new jsPDF({
-      orientation: "portrait",
-      unit: "mm",
-      format: [80, 200],
-    });
-
-    const imgWidth = 80;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-    //pdf.internal.pageSize.setHeight(imgHeight);
-
-    pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
-
-    pdf.save(`Receipt_${getData[0]?.invoiceNo}.pdf`);
+  const handleExportClick = () => {
+    setIsExporting(true);
+    setShowExportHandlers(true);
   };
-  const handleExportA4 = async () => {
-    if (!a4Ref.current) return;
 
-    const el = a4Ref.current;
-
-    // 1️⃣ Temporarily remove preview scale
-    const prevTransform = el.style.transform;
-    el.style.transform = "scale(1)";
-    el.style.transformOrigin = "top left"; // ensure proper layout
-
-    // 2️⃣ Use html2canvas to capture
-    const canvas = await html2canvas(el, {
-      scale: 3, // higher scale = sharper PDF text
-      backgroundColor: "#ffffff",
-      useCORS: true, // in case of external images
-      onclone: (clonedDoc) => {
-        const elements = clonedDoc.querySelectorAll("*");
-
-        elements.forEach((el: any) => {
-          const style = window.getComputedStyle(el);
-
-          // ✅ Fix text color
-          if (style.color.includes("oklch") || style.color.includes("lab")) {
-            el.style.color = "#000000";
-          }
-
-          // ✅ Fix background
-          if (
-            style.backgroundColor.includes("oklch") ||
-            style.backgroundColor.includes("lab")
-          ) {
-            el.style.backgroundColor = "#ffffff";
-          }
-
-          // ✅ Fix borders
-          if (
-            style.borderColor.includes("oklch") ||
-            style.borderColor.includes("lab")
-          ) {
-            el.style.borderColor = "#cccccc";
-          }
-        });
-      },
-    });
-
-    // 3️⃣ Restore preview scale
-    el.style.transform = prevTransform;
-
-    // 4️⃣ Convert canvas to image
-    const imgData = canvas.toDataURL("image/png");
-
-    // 5️⃣ Create jsPDF A4 document
-    const pdf = new jsPDF({
-      orientation: "portrait",
-      unit: "mm",
-      format: "a4",
-    });
-
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-
-    // 6️⃣ Fit image proportionally
-    const imgWidth = pageWidth;
-    const imgHeight = (canvas.height * pageWidth) / canvas.width;
-
-    pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
-
-    // 7️⃣ Save PDF
-    pdf.save(`Receipt_A4_${getData[0]?.invoiceNo}.pdf`);
-  };
-  const handleExportA5 = async () => {
-    if (!a5Ref.current) return;
-
-    const el = a5Ref.current;
-
-    // 1️⃣ Temporarily remove preview scale
-    const prevTransform = el.style.transform;
-    el.style.transform = "scale(1)";
-    el.style.transformOrigin = "top left"; // ensure proper layout
-
-    // 2️⃣ Use html2canvas to capture
-    const canvas = await html2canvas(el, {
-      scale: 3, // higher scale = sharper PDF text
-      backgroundColor: "#ffffff",
-      useCORS: true, // in case of external images
-      onclone: (clonedDoc) => {
-        const elements = clonedDoc.querySelectorAll("*");
-
-        elements.forEach((el: any) => {
-          const style = window.getComputedStyle(el);
-
-          // ✅ Fix text color
-          if (style.color.includes("oklch") || style.color.includes("lab")) {
-            el.style.color = "#000000";
-          }
-
-          // ✅ Fix background
-          if (
-            style.backgroundColor.includes("oklch") ||
-            style.backgroundColor.includes("lab")
-          ) {
-            el.style.backgroundColor = "#ffffff";
-          }
-
-          // ✅ Fix borders
-          if (
-            style.borderColor.includes("oklch") ||
-            style.borderColor.includes("lab")
-          ) {
-            el.style.borderColor = "#cccccc";
-          }
-        });
-      },
-    });
-
-    // 3️⃣ Restore preview scale
-    el.style.transform = prevTransform;
-
-    // 4️⃣ Convert canvas to image
-    const imgData = canvas.toDataURL("image/png");
-
-    // 5️⃣ Create jsPDF A4 document
-    const pdf = new jsPDF({
-      orientation: "portrait",
-      unit: "mm",
-      format: "a5",
-    });
-
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-
-    // 6️⃣ Fit image proportionally
-    const imgWidth = pageWidth;
-    const imgHeight = (canvas.height * pageWidth) / canvas.width;
-
-    pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
-
-    // 7️⃣ Save PDF
-    pdf.save(`Receipt_A5_${getData[0]?.invoiceNo}.pdf`);
+  const handleExportComplete = () => {
+    setIsExporting(false);
+    setShowExportHandlers(false);
   };
 
   const getPreviewComponent = () => {
@@ -242,9 +68,9 @@ export default function ReceiptPrintModal({ getData }: getExportData) {
   const getScaleFactor = () => {
     switch (returnType) {
       case "Thermal Print":
-        return "transform scale-[1]"; // Thermal is already small
+        return "transform scale-[1]";
       case "A4 Print":
-        return "transform scale-[1]"; // Reduced scale to fit better
+        return "transform scale-[1]";
       case "A5 Print":
         return "transform scale-[1]";
       default:
@@ -374,26 +200,45 @@ export default function ReceiptPrintModal({ getData }: getExportData) {
           <button
             className={`flex justify-center items-center gap-2 px-4 py-2 text-sm rounded-md shadow-md text-white transition-all duration-200 ml-auto
               ${
-                returnType === "Thermal Print"
-                  ? "bg-yellow-600 hover:bg-yellow-700"
-                  : returnType === "A4 Print"
-                    ? "bg-green-600 hover:bg-green-700"
-                    : returnType === "A5 Print"
-                      ? "bg-purple-600 hover:bg-purple-700"
-                      : "bg-gray-400 cursor-not-allowed"
+                isExporting
+                  ? "bg-gray-400 cursor-wait"
+                  : returnType === "Thermal Print"
+                    ? "bg-yellow-600 hover:bg-yellow-700"
+                    : returnType === "A4 Print"
+                      ? "bg-green-600 hover:bg-green-700"
+                      : returnType === "A5 Print"
+                        ? "bg-purple-600 hover:bg-purple-700"
+                        : "bg-gray-400 cursor-not-allowed"
               }`}
             title="Export"
-            disabled={!returnType}
-            onClick={() => {
-              if (returnType === "Thermal Print") handleExport();
-              else if (returnType === "A4 Print") handleExportA4();
-              else if (returnType === "A5 Print") handleExportA5();
-            }}
+            disabled={!returnType || isExporting}
+            onClick={handleExportClick}
           >
-            <Download size={15} />
-            <span>Export {returnType || "PDF"}</span>
+            {isExporting ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <span>Generating...</span>
+              </>
+            ) : (
+              <>
+                <Download size={15} />
+                <span>Export {returnType || "PDF"}</span>
+              </>
+            )}
           </button>
         </div>
+
+        {/* Hidden PDF Export Handlers */}
+        {showExportHandlers && (
+          <PDFExportHandlers
+            getData={getData}
+            thermalRef={thermalRef}
+            a4Ref={a4Ref}
+            a5Ref={a5Ref}
+            returnType={returnType}
+            onExportComplete={handleExportComplete}
+          />
+        )}
 
         {/* Quick Tips */}
         {returnType === "Thermal Print" && (

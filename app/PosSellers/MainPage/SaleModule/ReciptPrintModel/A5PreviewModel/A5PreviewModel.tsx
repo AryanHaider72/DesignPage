@@ -22,14 +22,6 @@ export default function A5PreviewModel({ getData, printRef }: getExportData) {
     const data = getData[0];
     setList(data.itemList);
   }, [getData]);
-  const products: Product[] = [
-    { id: 1, name: "Fresh Milk 1L", price: 3.99, quantity: 2 },
-    { id: 2, name: "Bread Whole Wheat", price: 2.49, quantity: 1 },
-    { id: 3, name: "Eggs Grade A", price: 4.99, quantity: 1 },
-    { id: 4, name: "Organic Apples", price: 5.99, quantity: 3 },
-    { id: 5, name: "Chicken Breast", price: 7.99, quantity: 2 },
-    { id: 6, name: "Orange Juice", price: 4.49, quantity: 1 },
-  ];
 
   const calculateSubtotal = () => {
     return list?.reduce((sum, product) => sum + product.price * product.qty, 0);
@@ -124,10 +116,10 @@ export default function A5PreviewModel({ getData, printRef }: getExportData) {
                     {product.qty}
                   </td>
                   <td className="py-1.5 px-3  border-r border-gray-300 text-right">
-                    {product.price.toFixed(2)}
+                    {product.price.toLocaleString()}
                   </td>
                   <td className="py-1.5 px-3  border-r border-gray-300 text-right font-medium">
-                    {(product.price * product.qty).toFixed(2)}
+                    {(product.price * product.qty).toLocaleString()}
                   </td>
                 </tr>
               ))}
@@ -139,16 +131,55 @@ export default function A5PreviewModel({ getData, printRef }: getExportData) {
         <div className="border-t border-gray-200 pt-3">
           <div className="flex justify-between text-xs mb-1">
             <span className="text-gray-600">Subtotal:</span>
-            <span className="font-medium">{subtotal.toFixed(2)}</span>
+            <span className="font-medium">{subtotal.toLocaleString()}</span>
           </div>
           <div className="flex justify-between text-xs mb-1">
-            <span className="text-gray-600">Tax (8%):</span>
-            <span>{tax.toFixed(2)}</span>
+            <span className="text-gray-600">Discount:</span>
+            <span className="text-gray-600">
+              {getData[0].adjustment.toLocaleString()}
+            </span>
+          </div>
+          <div className="flex justify-between text-xs mb-1">
+            <span className="text-gray-600">Amount Paid:</span>
+            <span className="text-gray-600">
+              {getData[0].amountPaid.toLocaleString()}
+            </span>
+          </div>
+          <div className="flex justify-between text-xs mb-1">
+            <span className="text-gray-600">GST (0%):</span>
+            <span className="text-gray-600">{0.0}</span>
           </div>
           <div className="border-t border-gray-200 my-2"></div>
           <div className="flex justify-between font-bold text-purple-700">
-            <span>TOTAL:</span>
-            <span>{grandTotal.toFixed(2)}</span>
+            <span>TOTAL Bill:</span>
+            <span>{grandTotal.toLocaleString()}</span>
+          </div>
+          <div className="flex justify-between font-bold text-purple-700">
+            <span>Balance: </span>
+            {getData[0].totalBill -
+              getData[0].amountPaid -
+              getData[0].adjustment >
+            0 ? (
+              <span>
+                Due:{" "}
+                {(
+                  getData[0].totalBill -
+                  getData[0].amountPaid -
+                  getData[0].adjustment
+                ).toLocaleString()}
+              </span>
+            ) : (
+              <span>
+                Change:{" "}
+                {
+                  -(
+                    getData[0].totalBill -
+                    getData[0].amountPaid -
+                    getData[0].adjustment
+                  ).toLocaleString()
+                }
+              </span>
+            )}
           </div>
         </div>
 

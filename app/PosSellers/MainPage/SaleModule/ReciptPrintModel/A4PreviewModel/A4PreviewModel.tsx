@@ -149,10 +149,10 @@ export default function A4PreviewModel({ getData, printRef }: getExportData) {
                     {product.qty}
                   </td>
                   <td className="py-1.5 px-3  border-r border-gray-300 text-right">
-                    {product.price.toFixed(2)}
+                    {product.price.toLocaleString()}
                   </td>
                   <td className="py-1.5 px-3  border-r border-gray-300 text-right font-medium">
-                    {(product.price * product.qty).toFixed(2)}
+                    {(product.price * product.qty).toLocaleString()}
                   </td>
                 </tr>
               ))}
@@ -182,22 +182,57 @@ export default function A4PreviewModel({ getData, printRef }: getExportData) {
                 </div> */}
                 <div className="flex justify-between">
                   <span className="text-gray-600">Subtotal:</span>
-                  <span className="font-medium">{subtotal.toFixed(2)}</span>
+                  <span className="font-medium">
+                    {subtotal.toLocaleString()}
+                  </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Tax (8%):</span>
-                  <span className="font-medium">{0.0}</span>
-                </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between text-xs mb-1">
                   <span className="text-gray-600">Discount:</span>
-                  <span className="font-medium text-green-600">
-                    {discount.toFixed(2)}
+                  <span className="text-gray-600">
+                    {getData[0].adjustment.toLocaleString()}
+                  </span>
+                </div>
+                <div className="flex justify-between text-xs mb-1">
+                  <span className="text-gray-600">Amount Paid:</span>
+                  <span className="text-gray-600">
+                    {getData[0].amountPaid.toLocaleString()}
                   </span>
                 </div>
                 <div className="border-t border-gray-300 my-2"></div>
                 <div className="flex justify-between font-bold">
                   <span>Grand Total:</span>
-                  <span className="text-blue-600">{grandTotal.toFixed(2)}</span>
+                  <span className="text-blue-600">
+                    {grandTotal.toLocaleString()}
+                  </span>
+                </div>
+                <div className="flex justify-between font-bold">
+                  <span>Balance:</span>
+                  <span className="text-blue-600">
+                    {getData[0].totalBill -
+                      getData[0].amountPaid -
+                      getData[0].adjustment >
+                    0 ? (
+                      <span>
+                        Due:{" "}
+                        {(
+                          getData[0].totalBill -
+                          getData[0].amountPaid -
+                          getData[0].adjustment
+                        ).toLocaleString()}
+                      </span>
+                    ) : (
+                      <span>
+                        Change:{" "}
+                        {
+                          -(
+                            getData[0].totalBill -
+                            getData[0].amountPaid -
+                            getData[0].adjustment
+                          ).toLocaleString()
+                        }
+                      </span>
+                    )}
+                  </span>
                 </div>
               </div>
             </div>

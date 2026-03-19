@@ -11,13 +11,20 @@ import {
 } from "@/api/types/Posintegration/Ledger/Ledger";
 import DeleteComponent from "@/app/Component/UsefullComponent/DeleteComponent/page";
 import Spinner from "@/app/Component/UsefullComponent/Spinner/page";
-import { Pencil, Trash } from "lucide-react";
+import { Pencil, Trash, Download } from "lucide-react";
 import { useEffect, useState } from "react";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
+import dynamic from "next/dynamic";
+
+// Dynamically import the PDF export handler with SSR disabled
+const PDFExportHandler = dynamic(() => import("./PDFExportHandler"), {
+  ssr: false,
+  loading: () => null,
+});
+
 interface AddExpenseProps {
   onShowMessage: (message: any, type: "success" | "error") => void;
 }
+
 export default function GetLedegrRecordForCustomer({
   onShowMessage,
 }: AddExpenseProps) {
@@ -31,65 +38,9 @@ export default function GetLedegrRecordForCustomer({
   const [DateTo, setDateTo] = useState("");
   const [customerList, setCustomerList] = useState<CustomerData[]>([]);
   const [LedgerList, setLedgerList] = useState<CustomerLedgerGet[]>([]);
+  const [isExporting, setIsExporting] = useState(false);
+  const [showExportHandler, setShowExportHandler] = useState(false);
 
-  const exportPDF = () => {
-    const doc = new jsPDF();
-
-    // Remaining Balance
-    const remainingBalance =
-      LedgerList.find((item) => item.entryType === "Remaning Amount")
-        ?.creditAmount || 0;
-
-    // Title
-    doc.setFontSize(16);
-    doc.text("Customer Ledger", 105, 15, { align: "center" });
-
-    // Date Range
-    doc.setFontSize(10);
-    doc.text(`Date From: ${DateFrom}`, 14, 25);
-    doc.text(`Date To: ${DateTo}`, 14, 30);
-
-    // Remaining Balance (Top Right)
-    doc.text(
-      `Remaining Balance: ${remainingBalance.toLocaleString()}`,
-      196,
-      25,
-      { align: "right" },
-    );
-
-    // Prepare Table Data
-    const tableData = filterRecord.map((item, index) => {
-      const prevBalance =
-        index === 0
-          ? 0
-          : filterRecord
-              .slice(0, index)
-              .reduce((sum, r) => sum + (r.creditAmount - r.debitAmount), 0);
-
-      const balance = prevBalance + (item.creditAmount - item.debitAmount);
-
-      return [
-        index + 1,
-        item.postingDate
-          ? new Date(item.postingDate).toLocaleDateString()
-          : "-",
-        item.entryType,
-        item.debitAmount?.toLocaleString(),
-        item.creditAmount?.toLocaleString(),
-        balance.toLocaleString(),
-      ];
-    });
-
-    // Table
-    autoTable(doc, {
-      startY: 35,
-      head: [["#", "Posting Date", "Entry Type", "Debit", "Credit", "Balance"]],
-      body: tableData,
-    });
-
-    // Save PDF
-    doc.save(`Customer_Ledger_${CustomerName}.pdf`);
-  };
   const CustomerGet = async () => {
     const token = localStorage.getItem("posSellerToken");
     const response = await GetCustomer(String(token));
@@ -146,6 +97,17 @@ export default function GetLedegrRecordForCustomer({
       setIsLoading(false);
     }
   };
+
+  const handleExportClick = () => {
+    setIsExporting(true);
+    setShowExportHandler(true);
+  };
+
+  const handleExportComplete = () => {
+    setIsExporting(false);
+    setShowExportHandler(false);
+  };
+
   useEffect(() => {
     CustomerLedger(CustomerID);
   }, [DateFrom, DateTo, CustomerID]);
@@ -162,9 +124,11 @@ export default function GetLedegrRecordForCustomer({
     setDateFrom(dateFrom);
     CustomerGet();
   }, []);
+
   const filterRecord = LedgerList.filter(
     (item) => item.entryType !== "Remaning Amount",
   );
+
   return (
     <>
       {Delete && (
@@ -176,6 +140,18 @@ export default function GetLedegrRecordForCustomer({
           onConfirm={() => ExpenseDelete(ID)}
         />
       )}
+
+      {/* Hidden PDF Export Handler */}
+      {showExportHandler && (
+        <PDFExportHandler
+          ledgerList={LedgerList}
+          customerName={CustomerName}
+          dateFrom={DateFrom}
+          dateTo={DateTo}
+          onExportComplete={handleExportComplete}
+        />
+      )}
+
       <div>
         <div className="relative ">
           <label className="block text-sm font-medium text-neutral-700 mb-1">
@@ -245,14 +221,31 @@ export default function GetLedegrRecordForCustomer({
           </div>
         </div>
       </div>
+
       <div className="w-full flex justify-end">
         <button
-          onClick={exportPDF}
-          className="mt-10 px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800"
+          onClick={handleExportClick}
+          disabled={isExporting || !CustomerID}
+          className={`mt-10 px-4 py-2 rounded-md flex items-center gap-2 ${
+            isExporting || !CustomerID
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-black hover:bg-gray-800 text-white"
+          }`}
         >
-          Export PDF
+          {isExporting ? (
+            <>
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              <span>Generating PDF...</span>
+            </>
+          ) : (
+            <>
+              <Download size={16} />
+              <span>Export PDF</span>
+            </>
+          )}
         </button>
       </div>
+
       {isLoading ? (
         <div className="flex justify-center py-10">
           <Spinner />
@@ -335,10 +328,6 @@ export default function GetLedegrRecordForCustomer({
                         <td className="px-4 py-3">
                           {item.entryType === "Ledger" && (
                             <div className="flex justify-center gap-2">
-                              {/* <button className="flex items-center px-2 py-2 text-blue-600 border border-blue-600 rounded hover:bg-blue-50">
-                                <Pencil size={20} />
-                              </button> */}
-
                               <button
                                 onClick={() => {
                                   setDelete(true);

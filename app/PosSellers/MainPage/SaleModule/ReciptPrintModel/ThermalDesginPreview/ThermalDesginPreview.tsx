@@ -72,12 +72,12 @@ export default function ThermalPreviewModel({
         </div>
 
         {/* Receipt Info */}
-        <div className="border-b border-gray-300 pb-2 mb-2 text-[9px]">
+        <div className="border-b border-gray-300 mb-2 text-[9px]">
           <div className="flex justify-between">
             <span>Receipt: {getData[0].invoiceNo}</span>
             <span>{getData[0].saleDate.split("T")[0]}</span>
           </div>
-          <div className="flex justify-between mt-1">
+          <div className="flex justify-between mt-1 mb-2">
             <span>Customer: {getData[0].customerName}</span>
             {/* <span>{new Date().toLocaleTimeString()}</span> */}
           </div>
@@ -99,23 +99,26 @@ export default function ThermalPreviewModel({
             {getData[0].itemList.map((item, index) => (
               <div key={index} className="flex flex-col justify-between">
                 <div className="flex justify-between">
-                  <span className="w-[45%]">{item.productName}</span>
+                  <span className="w-[45%]  text-[8px]">
+                    {item.productName}{" "}
+                    <span className="text-[8px]">({item.varinet})</span>
+                  </span>
                   <span className="w-[15%] text-right">{item.qty}</span>
                   <span className="w-[20%] text-right">
-                    {item.price.toFixed(2)}
+                    {item.price.toLocaleString()}
                   </span>
                   <span className="w-[20%] text-right font-bold">
-                    {(item.price * item.qty).toFixed(2)}
+                    {(item.price * item.qty).toLocaleString()}
                   </span>
                 </div>
-                {item.varinet && (
+                {/* {item.varinet && (
                   <div className="flex justify-between text-[8px] text-gray-500 mt-0.5">
                     <span className="w-[45%] pl-2">└─ {item.varinet}</span>
                     <span className="w-[15%]"></span>
                     <span className="w-[20%]"></span>
                     <span className="w-[20%]"></span>
                   </div>
-                )}
+                )} */}
               </div>
             ))}
           </div>
@@ -128,16 +131,20 @@ export default function ThermalPreviewModel({
         <div className="space-y-1 text-[10px] mb-3">
           <div className="flex justify-between">
             <span>Subtotal:</span>
-            <span>{subtotal.toFixed(2)}</span>
+            <span>{subtotal.toLocaleString()}</span>
           </div>
           <div className="flex justify-between">
-            <span>Tax (8%):</span>
+            <span>Discount:</span>
+            <span>{getData[0].adjustment.toLocaleString()}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>GST (0%):</span>
             <span>{0.0}</span>
           </div>
           <div className="border-t border-dashed border-gray-400 my-1"></div>
           <div className="flex justify-between font-bold text-sm">
             <span>TOTAL</span>
-            <span>{total.toFixed(2)}</span>
+            <span>{total.toLocaleString()}</span>
           </div>
         </div>
 
@@ -150,8 +157,31 @@ export default function ThermalPreviewModel({
             </span>
           </div> */}
           <div className="flex justify-between mt-0.5">
-            <span>Amount Paid: {total.toFixed(2)}</span>
-            <span>Change: 0.00</span>
+            <span>Amount Paid: {getData[0]?.amountPaid.toLocaleString()}</span>
+            {getData[0].totalBill -
+              getData[0].amountPaid -
+              getData[0].adjustment >
+            0 ? (
+              <span>
+                Due:{" "}
+                {(
+                  getData[0].totalBill -
+                  getData[0].amountPaid -
+                  getData[0].adjustment
+                ).toLocaleString()}
+              </span>
+            ) : (
+              <span>
+                Change:{" "}
+                {
+                  -(
+                    getData[0].totalBill -
+                    getData[0].amountPaid -
+                    getData[0].adjustment
+                  ).toLocaleString()
+                }
+              </span>
+            )}
           </div>
         </div>
 
