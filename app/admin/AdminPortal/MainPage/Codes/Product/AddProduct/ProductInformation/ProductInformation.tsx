@@ -10,6 +10,7 @@ import {
   CountrygetApiResponse,
 } from "@/api/types/Admin/Shipment/Country/Country";
 import { Plus, X } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { itemAxisPredicate } from "recharts/types/state/selectors/axisSelectors";
 
@@ -24,6 +25,7 @@ interface ProductInformation {
   purchaseDate: string;
   purchaseAdd: boolean;
   featuredProducts: boolean;
+  isStock: string;
   productName: string;
   discount: number;
   threshold: number;
@@ -43,6 +45,8 @@ export default function ProductInformation({
   values,
   onEdit,
 }: ProductINformationPassProps) {
+  const [Status, setStatus] = useState("InStock");
+  const router = useRouter();
   const [CountryID, setCountryID] = useState("");
   const [CountryName, setCountryName] = useState("");
   const [ProductName, setProductName] = useState(values.productName);
@@ -81,6 +85,8 @@ export default function ProductInformation({
       if (!SupplierID) {
         setSupplierID(data.supplierList[0].supplierID);
       }
+    } else if (response.status === 401) {
+      router.push("/admin/login");
     } else {
       setSupplierList([]);
     }
@@ -91,6 +97,8 @@ export default function ProductInformation({
     if (response.status === 201 || response.status === 200) {
       const data = response.data as CountrygetApiResponse;
       setListofCountry(data.countryList);
+    } else if (response.status === 401) {
+      router.push("/admin/login");
     }
   };
 
@@ -125,6 +133,7 @@ export default function ProductInformation({
       purchaseDate: new Date().toISOString().split("T")[0],
       productName: ProductName,
       discount: Discount,
+      isStock: Status,
       threshold: Threshold,
       featuredProducts: FeaturedProduct === "Yes" ? true : false,
       storeSale: StoreSale,
@@ -304,6 +313,21 @@ export default function ProductInformation({
             className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition resize-none"
             placeholder="Enter Product Name"
           />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-600 mb-1.5">
+            Status
+          </label>
+          <select
+            value={Status}
+            onChange={(e) => {
+              setStatus(e.target.value);
+            }}
+            className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition appearance-none cursor-pointer"
+          >
+            <option value="InStock">In Stock</option>
+            <option value="OutOffStock">Out Off Stock</option>
+          </select>
         </div>
         <div className="flex gap-2">
           <div className="w-full">

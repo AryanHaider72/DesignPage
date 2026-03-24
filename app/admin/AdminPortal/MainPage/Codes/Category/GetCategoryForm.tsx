@@ -17,6 +17,7 @@ import {
 import DeleteComponent from "@/app/Component/UsefullComponent/DeleteComponent/page";
 import Spinner from "@/app/Component/UsefullComponent/Spinner/page";
 import { Pencil, Trash } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 interface AddExpenseProps {
   onEdit: (Datalist: CategorySub, StoreID: string) => void;
@@ -26,6 +27,7 @@ export default function GetCategoryForm({
   onEdit,
   onShowMessage,
 }: AddExpenseProps) {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [StoreID, setStoreID] = useState("");
   const [storeList, setStoreList] = useState<storeListInital[]>([]);
@@ -51,16 +53,20 @@ export default function GetCategoryForm({
   const getStores = async () => {
     const token = localStorage.getItem("adminToken");
     const response = await GetInitalStoreSalesMan(String(token));
-    const data = response.data as ResponseStoreList;
-    if (data.storeList.length > 0) {
-      setStoreList(data.storeList);
-      const storeID = data.storeList[0].storeID;
-      console.log(storeID);
-      setStoreID(storeID);
+    if (response.status === 200) {
+      const data = response.data as ResponseStoreList;
+      if (data.storeList.length > 0) {
+        setStoreList(data.storeList);
+        const storeID = data.storeList[0].storeID;
+        console.log(storeID);
+        setStoreID(storeID);
 
-      getCategroyMain(storeID);
-    } else {
-      setStoreList([]);
+        getCategroyMain(storeID);
+      } else {
+        setStoreList([]);
+      }
+    } else if (response.status === 401) {
+      router.push("/admin/login");
     }
   };
 
@@ -76,6 +82,8 @@ export default function GetCategoryForm({
       if (response.status === 200 || response.status === 201) {
         const data = response.data as CategorySubApiResponse;
         setCatgeorySubList(data.categoryList);
+      } else if (response.status === 401) {
+        router.push("/admin/login");
       } else {
         setCatgeorySubList([]);
       }
@@ -100,6 +108,8 @@ export default function GetCategoryForm({
         );
         setCatgeorySubList(data);
         setDelete(false);
+      } else if (response.status === 401) {
+        router.push("/admin/login");
       } else {
         setDelete(false);
         onShowMessage(

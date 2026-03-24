@@ -13,6 +13,7 @@ import {
   responseRegionList,
 } from "@/api/types/Admin/Shipment/Region/Region";
 import { Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 interface AddTillFormProps {
   //countryList: Countryget[];
@@ -27,6 +28,7 @@ export default function AddCity({
   Update,
   initialData,
 }: AddTillFormProps) {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [ZoneName, setZoneName] = useState("");
   const [Countries, setCountries] = useState<Countryget[]>([]);
@@ -43,14 +45,20 @@ export default function AddCity({
     if (response.status === 201 || response.status === 200) {
       const data = response.data as CountrygetApiResponse;
       setCountries(data.countryList);
+    } else if (response.status === 401) {
+      router.push("/admin/login");
     }
   };
   const getRegion = async (ID: string) => {
     const token = localStorage.getItem("adminToken");
     const response = await GetRegionApi(ID, String(token));
-    const data = response.data as responseRegionList;
-    setRegionList(data.regionlist);
-    console.log(data.regionlist);
+    if (response.status === 200 || response.status === 201) {
+      const data = response.data as responseRegionList;
+      setRegionList(data.regionlist);
+      console.log(data.regionlist);
+    } else if (response.status === 401) {
+      router.push("/admin/login");
+    }
   };
   const addZone = async () => {
     try {
@@ -65,6 +73,8 @@ export default function AddCity({
       if (response.status === 200 || response.status === 201) {
         setZoneName("");
         onShowMessage(response.message || "Zone Added successfully", "success");
+      } else if (response.status === 401) {
+        router.push("/admin/login");
       }
     } catch (error) {
       onShowMessage("Something went wrong", "error");
@@ -91,6 +101,8 @@ export default function AddCity({
           response.message || "Zone Modified successfully",
           "success",
         );
+      } else if (response.status === 401) {
+        router.push("/admin/login");
       }
     } catch (error) {
       onShowMessage("Something went wrong", "error");

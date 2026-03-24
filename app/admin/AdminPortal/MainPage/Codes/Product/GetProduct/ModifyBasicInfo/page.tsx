@@ -113,6 +113,7 @@ export default function ModifyBasicInfo({
       countryName: item?.countryName || "",
     })),
   );
+  const [Status, setStatus] = useState("InStock");
   const [Length, setLength] = useState(values?.depth);
   const [Weight, setWeight] = useState(values?.weight);
   const [Width, setWidth] = useState(values?.width);
@@ -251,6 +252,7 @@ export default function ModifyBasicInfo({
         productID: values.productID,
         storeID: StoreID,
         categoryID: CategoryMainID,
+        isStock: Status,
         productName: ProductName,
         subCategoryDetailID: FurtherCategoryMainID,
         subCategoryID: subCategoryMainID,
@@ -504,7 +506,21 @@ export default function ModifyBasicInfo({
                 />
               </div>
             </div>
-
+            <div>
+              <label className="block text-sm font-medium text-gray-600 mb-1.5">
+                Status
+              </label>
+              <select
+                value={Status}
+                onChange={(e) => {
+                  setStatus(e.target.value);
+                }}
+                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition appearance-none cursor-pointer"
+              >
+                <option value="InStock">In Stock</option>
+                <option value="OutOffStock">Out Off Stock</option>
+              </select>
+            </div>
             <div className="mt-2 rounded-xl max-w-md">
               <label className="block text-sm font-medium text-gray-600 mb-1.5">
                 Show in Country

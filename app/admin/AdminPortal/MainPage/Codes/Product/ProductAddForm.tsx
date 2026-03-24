@@ -19,6 +19,7 @@ import BillingInformation from "./AddProduct/BillingInformation/BillingInformati
 import { SendToCloudinary } from "@/api/lib/OtherController/UploadToCloudinary/UploadToCloudinary";
 import AddProduct from "@/api/lib/Admin/Codes/Product/AddProduct/AddProduct";
 import FeaturedProducts from "@/app/Customer/LandingPage/FeaturedProducts/page";
+import { useRouter } from "next/navigation";
 
 interface ProductInfo {
   supplierID: string;
@@ -27,6 +28,7 @@ interface ProductInfo {
   featuredProducts: boolean;
   productName: string;
   discount: number;
+  isStock: string;
   threshold: number;
   storeSale: string;
   purchaseAdd: boolean;
@@ -100,6 +102,7 @@ export default function ProductAddForm({
     featuredProducts: false,
     discount: 0,
     threshold: 0,
+    isStock: "",
     storeSale: "OnlineStore",
     showinAllCountry: true,
     feturedProduct: false,
@@ -120,6 +123,7 @@ export default function ProductAddForm({
     subCategoryDetailID: "",
     subCategoryID: "",
   });
+  const router = useRouter();
   const [BillingDetail, setBillingDetail] = useState<BillingInfomration>();
   const [Varientnfo, setVarientnfo] = useState<listVarient[]>([]);
   const [images, setImages] = useState<Imagettype[]>([]);
@@ -198,6 +202,7 @@ export default function ProductAddForm({
         subCategoryDetailID: CategoryInfo.subCategoryDetailID,
         subCategoryID: CategoryInfo.subCategoryID,
         discount: productInfo.discount,
+        isStock: productInfo.isStock,
         currentStock: 0,
         threshold: productInfo.threshold,
         percentage: 0,
@@ -226,6 +231,7 @@ export default function ProductAddForm({
           purchaseDate: "",
           productName: "",
           discount: 0,
+          isStock: "",
           threshold: 0,
           storeSale: "OnlineStore",
           showinAllCountry: true,
@@ -247,6 +253,8 @@ export default function ProductAddForm({
           response.message || "Sub-Category Modifed successfully",
           "success",
         );
+      } else if (response.status === 401) {
+        router.push("admin/login");
       } else {
         onShowMessage(response.message, "error");
       }

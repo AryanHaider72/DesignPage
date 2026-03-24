@@ -7,6 +7,7 @@ import {
   DelievryGetData,
   ResponseDelievryGetData,
 } from "@/api/types/Admin/Shipment/Delievry/Delievry";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface AddTillFormProps {
@@ -21,6 +22,7 @@ export default function CourierServiceAddForm({
   onShowMessage,
   initialData,
 }: AddTillFormProps) {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [ServiceName, setServiceName] = useState("");
   const [Description, setDescription] = useState("");
@@ -34,8 +36,12 @@ export default function CourierServiceAddForm({
   const getDelieveryStandard = async () => {
     const token = localStorage.getItem("adminToken");
     const response = await GetDelieveryStandardApi(String(token));
-    const data = response.data as ResponseDelievryGetData;
-    setDelieveryGet(data.delievryData);
+    if (response.status === 200 || response.status === 201) {
+      const data = response.data as ResponseDelievryGetData;
+      setDelieveryGet(data.delievryData);
+    } else if (response.status === 401) {
+      router.push("/admin/login");
+    }
   };
   const addservice = async () => {
     try {
@@ -60,6 +66,8 @@ export default function CourierServiceAddForm({
           response.message || "Service Added successfully",
           "success",
         );
+      } else if (response.status === 401) {
+        router.push("/admin/login");
       }
     } catch (error) {
       onShowMessage("Something went wrong", "error");
@@ -92,6 +100,8 @@ export default function CourierServiceAddForm({
           response.message || "Service Modified successfully",
           "success",
         );
+      } else if (response.status === 401) {
+        router.push("/admin/login");
       }
     } catch (error) {
       onShowMessage("Something went wrong", "error");

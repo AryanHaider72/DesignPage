@@ -27,12 +27,15 @@ import {
 import { FaCashRegister, FaExchangeAlt, FaMoneyBill } from "react-icons/fa";
 import { BsShop } from "react-icons/bs";
 import { BiVerticalBottom } from "react-icons/bi";
+import { MiddleWareRequestCheck } from "@/api/lib/OtherController/MiddleWare/MiddleWare";
+import { useRouter } from "next/navigation";
 
 export default function OfflineSellerPosSalePoint({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string | null>("");
 
@@ -44,7 +47,14 @@ export default function OfflineSellerPosSalePoint({
   const toggleMenu2 = (menu: string) => {
     setActiveMenu2(activeMenu2 === menu ? null : menu);
   };
-
+  const requesting = async (currentPath: string) => {
+    const repsonse = await MiddleWareRequestCheck("TillSeller", currentPath);
+    if (!repsonse.isValid) {
+      router.push("/posSellers/login");
+    } else {
+      return;
+    }
+  };
   return (
     <div className="flex min-h-screen bg-neutral-100">
       {/* Mobile Toggle */}
@@ -92,6 +102,7 @@ export default function OfflineSellerPosSalePoint({
           <nav className="flex-1 overflow-y-auto px-4 py-6 space-y-2">
             <Link
               href="/PosSellers/MainPage/Dashboard"
+              onClick={() => requesting("/PosSellers/MainPage/Dashboard")}
               className="flex items-center gap-3 px-4 py-3 rounded-xl
             text-neutral-700 hover:bg-neutral-100 transition-all"
             >
@@ -127,6 +138,11 @@ export default function OfflineSellerPosSalePoint({
                 <div className="ml-9 space-y-1">
                   <Link
                     href="/PosSellers/MainPage/Codes/CustomerManagement"
+                    onClick={() =>
+                      requesting(
+                        "/PosSellers/MainPage/Codes/CustomerManagement",
+                      )
+                    }
                     className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
                   >
                     <div className="flex items-center gap-3">
@@ -138,6 +154,9 @@ export default function OfflineSellerPosSalePoint({
                 <div className="ml-9 space-y-1">
                   <Link
                     href="/PosSellers/MainPage/Codes/ExpenseManagement"
+                    onClick={() =>
+                      requesting("/PosSellers/MainPage/Codes/ExpenseManagement")
+                    }
                     className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
                   >
                     <div className="flex items-center gap-3">
@@ -158,6 +177,7 @@ export default function OfflineSellerPosSalePoint({
             </Link>
             <Link
               href="/PosSellers/MainPage/TillTransfer"
+              onClick={() => requesting("/PosSellers/MainPage/TillTransfer")}
               className="flex items-center gap-3 px-4 py-3 rounded-xl
             text-neutral-700 hover:bg-neutral-100 transition-all"
             >
@@ -166,6 +186,7 @@ export default function OfflineSellerPosSalePoint({
             </Link>
             <Link
               href="/PosSellers/MainPage/SaleModule"
+              onClick={() => requesting("/PosSellers/MainPage/SaleModule")}
               className="flex items-center gap-3 px-4 py-3 rounded-xl
             text-neutral-700 hover:bg-neutral-100 transition-all"
             >
@@ -174,6 +195,7 @@ export default function OfflineSellerPosSalePoint({
             </Link>
             <Link
               href="/PosSellers/MainPage/SaleReturn"
+              onClick={() => requesting("/PosSellers/MainPage/SaleReturn")}
               className="flex items-center gap-3 px-4 py-3 rounded-xl
             text-neutral-700 hover:bg-neutral-100 transition-all"
             >

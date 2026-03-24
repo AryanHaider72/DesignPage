@@ -8,6 +8,7 @@ import SearchSidebarCompnent from "@/app/Component/UsefullComponent/SearchCompon
 import { Heart, Search, ShoppingCart, User } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { getServerWishlist } from "@/api/lib/CookiesApi/WishList/GetWishList/GetWishList";
 
 interface cartItems {
   attributeID: string;
@@ -29,6 +30,7 @@ export default function Navbar({
   onCommit,
 }: NavbarProps) {
   const [cartItem, setCarItem] = useState<cartItems[]>([]);
+  const [wishList, setWishList] = useState<cartItems[]>([]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [cartShow, setCartShow] = useState(false);
   const [SearchShow, setSearchShow] = useState(false);
@@ -39,8 +41,13 @@ export default function Navbar({
     const cart = await getServerCart();
     setCarItem(cart);
   };
+  const wishListData = async () => {
+    const cart = await getServerWishlist();
+    setWishList(cart);
+  };
   useEffect(() => {
     cartData();
+    wishListData();
   }, [onCommit]);
   useEffect(() => {
     if (cartShow) {
@@ -150,7 +157,7 @@ export default function Navbar({
             >
               <Heart size={20} />
               <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white">
-                2
+                {wishList.length}
               </span>
             </Link>
 

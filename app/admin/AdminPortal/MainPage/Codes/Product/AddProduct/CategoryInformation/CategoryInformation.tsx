@@ -18,6 +18,7 @@ import {
   ResponseStoreList,
   storeListInital,
 } from "@/api/types/Admin/Store/Store";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface UnitList {
@@ -55,6 +56,7 @@ export default function CategoryInformation({
   values,
   onEdit,
 }: CategoryInformationProps) {
+  const router = useRouter();
   const [Length, setLength] = useState(Number(values.length));
   const [Weight, setWeight] = useState(Number(values.weight));
   const [Width, setWidth] = useState(Number(values.depth));
@@ -96,6 +98,8 @@ export default function CategoryInformation({
         // If props already have storeID, call category API for it
         getCategroyMain(values.storeID);
       }
+    } else if (response.status === 401) {
+      router.push("/admin/login");
     } else {
       setStoreList([]);
     }
@@ -115,6 +119,8 @@ export default function CategoryInformation({
       setCategoryMainID(selectedCategoryID);
 
       getSubCategroy(selectedCategoryID, storeID);
+    } else if (response.status === 401) {
+      router.push("/admin/login");
     }
   };
   const getSubCategroy = async (ID: string, storeID: string) => {
@@ -131,6 +137,8 @@ export default function CategoryInformation({
         setSubCategoryMainID(selectedSubID);
         getFurtherSubCategroy(selectedSubID, storeID, ID);
       }
+    } else if (response.status === 401) {
+      router.push("/admin/login");
     } else {
       setCatgeorySubList([]);
     }
@@ -154,6 +162,8 @@ export default function CategoryInformation({
         setFurtherCategoryMainID(initialFurtherID);
         handleUnitList(initialFurtherID, data.categoryList);
       }
+    } else if (response.status === 401) {
+      router.push("/admin/login");
     }
   };
 

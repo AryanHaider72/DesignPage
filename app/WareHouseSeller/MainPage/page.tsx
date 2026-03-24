@@ -26,12 +26,15 @@ import {
 } from "lucide-react";
 import { FaCashRegister, FaExchangeAlt, FaMoneyBill } from "react-icons/fa";
 import { BsShop } from "react-icons/bs";
+import { MiddleWareRequestCheck } from "@/api/lib/OtherController/MiddleWare/MiddleWare";
+import { useRouter } from "next/navigation";
 
 export default function WareHouseSellerMainPageform({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string | null>("");
 
@@ -43,7 +46,17 @@ export default function WareHouseSellerMainPageform({
   const toggleMenu2 = (menu: string) => {
     setActiveMenu2(activeMenu2 === menu ? null : menu);
   };
-
+  const requesting = async (currentPath: string) => {
+    const repsonse = await MiddleWareRequestCheck(
+      "WareHouseSeller",
+      currentPath,
+    );
+    if (!repsonse.isValid) {
+      router.push("/WareHouseSeller/login");
+    } else {
+      return;
+    }
+  };
   return (
     <div className="flex min-h-screen bg-neutral-100">
       {/* Mobile Toggle */}
@@ -91,6 +104,7 @@ export default function WareHouseSellerMainPageform({
           <nav className="flex-1 overflow-y-auto px-4 py-6 space-y-2">
             <Link
               href="/WareHouseSeller/MainPage/Dashboard"
+              onClick={() => requesting("/WareHouseSeller/MainPage/Dashboard")}
               className="flex items-center gap-3 px-4 py-3 rounded-xl
             text-neutral-700 hover:bg-neutral-100 transition-all"
             >
@@ -100,6 +114,9 @@ export default function WareHouseSellerMainPageform({
 
             <Link
               href="/WareHouseSeller/MainPage/OrderManagement"
+              onClick={() =>
+                requesting("/WareHouseSeller/MainPage/OrderManagement")
+              }
               className="flex items-center gap-3 px-4 py-3 rounded-xl
             text-neutral-700 hover:bg-neutral-100 transition-all"
             >

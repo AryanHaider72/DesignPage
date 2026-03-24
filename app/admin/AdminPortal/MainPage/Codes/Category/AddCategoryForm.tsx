@@ -12,6 +12,7 @@ import {
   ResponseStoreList,
   storeListInital,
 } from "@/api/types/Admin/Store/Store";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface AddUnitProps {
@@ -26,6 +27,7 @@ export default function AddCategoryForm({
   initialData,
   storeID,
 }: AddUnitProps) {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [StoreID, setStoreID] = useState("");
   const [catgeoryMainList, setCatgeoryMainList] = useState<CategoryMain[]>([]);
@@ -51,15 +53,19 @@ export default function AddCategoryForm({
     const token = localStorage.getItem("adminToken");
     const response = await GetInitalStoreSalesMan(String(token));
     const data = response.data as ResponseStoreList;
-    if (data.storeList.length > 0) {
-      setStoreList(data.storeList);
-      if (storeID) {
-        setStoreID(storeID);
+    if (response.status === 200) {
+      if (data.storeList.length > 0) {
+        setStoreList(data.storeList);
+        if (storeID) {
+          setStoreID(storeID);
+        } else {
+          setStoreID(data.storeList[0].storeID);
+        }
       } else {
-        setStoreID(data.storeList[0].storeID);
+        setStoreList([]);
       }
-    } else {
-      setStoreList([]);
+    } else if (response.status === 401) {
+      router.push("/admin/login");
     }
   };
 
@@ -81,6 +87,8 @@ export default function AddCategoryForm({
           response.message || "Sub-Category Added successfully",
           "success",
         );
+      } else if (response.status === 401) {
+        router.push("/admin/login");
       } else {
         onShowMessage(response.message, "error");
       }
@@ -108,6 +116,8 @@ export default function AddCategoryForm({
           response.message || "Sub-Category Modifed successfully",
           "success",
         );
+      } else if (response.status === 401) {
+        router.push("/admin/login");
       } else {
         onShowMessage(response.message, "error");
       }

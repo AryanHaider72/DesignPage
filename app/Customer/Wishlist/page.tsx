@@ -1,44 +1,104 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Trash2, ShoppingCart } from "lucide-react";
 
 import Footer from "../LandingPage/FooterSection/page";
 import Navbar from "../LandingPage/Navbar/page";
-
-export default function LoginPage() {
+import { useAppContext } from "@/app/useContext";
+import { getServerWishlist } from "@/api/lib/CookiesApi/WishList/GetWishList/GetWishList";
+import { CartData } from "@/api/types/CookiesApi/CartItem";
+import { removeItemFromServerWishList } from "@/api/lib/CookiesApi/WishList/RemoveItem/RemoveItem";
+import { getServerCart } from "@/api/lib/CookiesApi/GetCart/GetCart";
+import { addToServerCart } from "@/api/lib/CookiesApi/AddCart/AddCart";
+interface cartItems {
+  attributeID: string;
+  qty: number;
+}
+interface GetProductFromCookies {
+  productID: string;
+  productName: string;
+  image: string;
+  attributeID: string;
+  variantValue: string;
+  price: number;
+  qty: number;
+}
+interface wishListprops {
+  commitChange: () => void;
+}
+export default function LoginPage({ commitChange }: wishListprops) {
+  const { ProductList, categoryList, storeInfo } = useAppContext();
   const [showPassword, setShowPassword] = useState(false);
+  const [cartItem, setCarItem] = useState<cartItems[]>([]);
+  const [productItem, setProductItem] = useState<GetProductFromCookies[]>([]);
   const [isLogin, setIsLogin] = useState(true);
   const [activePage, setActivePage] = useState("login");
 
-  const wishlist = [
-    {
-      id: 1,
-      name: "Chic Mini Dress",
-      image:
-        "https://res.cloudinary.com/daz8ajhg3/image/upload/v1768383056/aihoosp7suvhzxyhgyqy.webp",
-      price: 9000,
-      originalPrice: 10000,
-      availability: "In Stock",
-    },
-    {
-      id: 2,
-      name: "Stripped Bodycon Dress",
-      image:
-        "https://res.cloudinary.com/daz8ajhg3/image/upload/v1768380152/uhasiygte64batlkoafh.jpg",
-      price: 8000,
-      originalPrice: 12000,
-      availability: "In Stock",
-    },
-  ];
+  const cartData = async () => {
+    const cart = await getServerWishlist();
+
+    setCarItem(cart);
+
+    const items = filterItems(cart);
+
+    setProductItem(items);
+  };
+  const filterItems = (cart: CartData[]) => {
+    const result: any[] = [];
+
+    cart.forEach((cartItem) => {
+      ProductList.forEach((product) => {
+        product.variants.forEach((variant: any) => {
+          variant.variantValues.forEach((value: any) => {
+            if (value.attributeID === cartItem.attributeID) {
+              result.push({
+                productID: product.productID,
+                productName: product.productName,
+                image: product.images?.[0]?.url,
+                attributeID: value.attributeID,
+                variantValue: value.varientValue,
+                price: value.salePrice,
+                qty: cartItem.qty,
+              });
+            }
+          });
+        });
+      });
+    });
+
+    return result;
+  };
+  const deleteProduct = async (attribuetID: string) => {
+    //const token = localStorage.getItem("token1");
+    await removeItemFromServerWishList(attribuetID);
+    setProductItem(
+      productItem.filter((item) => item.attributeID !== attribuetID),
+    );
+    cartData();
+    commitChange();
+  };
+  const addToCart = async (ID: string) => {
+    const newItem: CartData = {
+      attributeID: ID,
+      qty: 1,
+    };
+    const currentCart = await getServerCart();
+    const updatedCart = [...currentCart, newItem];
+    await addToServerCart(updatedCart);
+    commitChange();
+  };
+  useEffect(() => {
+    cartData();
+  }, []);
   return (
     <>
       <Navbar
         scrolled={true}
-        categoryList={[]}
-        logoUrl=""
+        categoryList={categoryList}
+        logoUrl={storeInfo[0]?.logoUrl}
         productList={[]}
-        onCommit={() => {}}
+        onCommit={() => commitChange}
       />
       {/* MAIN CONTENT */}
       <div className="flex flex-col items-center w-full min-h-[calc(100vh-200px)] px-4 py-10">
@@ -56,48 +116,42 @@ export default function LoginPage() {
                     <th className="px-6 py-4">Image</th>
                     <th className="px-6 py-4">Product Name</th>
                     <th className="px-6 py-4">Price</th>
-                    <th className="px-6 py-4">Availability</th>
                     <th className="px-6 py-4 text-center">Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {wishlist.map((item) => (
+                  {productItem.map((item) => (
                     <tr
-                      key={item.id}
+                      key={item.attributeID}
                       className="border-b border-gray-200 hover:bg-gray-50 transition-all duration-200"
                     >
                       <td className="px-6 py-4">
                         <img
-                          src={item.image}
-                          alt={item.name}
+                          src={item.image || "/placeholder.jpg"}
                           width={80}
                           height={100}
                           className="rounded-lg object-cover"
                         />
                       </td>
                       <td className="px-6 py-4 font-semibold text-gray-800">
-                        {item.name}
+                        {item.productName}
                       </td>
                       <td className="px-6 py-4">
                         <span className="text-gray-600 font-bold text-lg">
                           Rs:{item.price.toLocaleString()}
                         </span>
-                        <span className="text-gray-400 line-through text-sm ml-2">
-                          Rs:{item.originalPrice.toLocaleString()}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-green-600 font-medium">
-                        {item.availability}
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center justify-center gap-3">
                           <button
+                            onClick={() => deleteProduct(item.attributeID)}
                             className="p-2.5 rounded-full bg-red-50 hover:bg-red-100 text-red-500 hover:text-red-600 shadow-sm transition-all duration-200"
                             title="Remove"
                           >
                             <Trash2 size={18} />
                           </button>
                           <button
+                            onClick={() => addToCart(item.attributeID)}
                             className="p-2.5 rounded-full bg-gray-900 hover:bg-gray-800 text-white shadow-sm transition-all duration-200"
                             title="Add to Cart"
                           >
@@ -113,36 +167,33 @@ export default function LoginPage() {
 
             {/* --- Mobile Cards --- */}
             <div className="block md:hidden p-4 space-y-4">
-              {wishlist.map((item) => (
+              {productItem.map((item) => (
                 <div
-                  key={item.id}
+                  key={item.attributeID}
                   className="flex flex-col sm:flex-row sm:items-center sm:justify-between border border-gray-200 rounded-xl p-4 bg-white shadow-sm hover:shadow-md transition"
                 >
                   <div className="flex items-center gap-4">
                     <img
-                      src={item.image}
-                      alt={item.name}
+                      src={item.image || "/placeholder.jpg"}
+                      alt={item.productName}
                       width={80}
                       height={100}
                       className="rounded-lg object-cover"
                     />
                     <div>
                       <h3 className="font-semibold text-gray-900 text-base">
-                        {item.name}
+                        {item.productName}
                       </h3>
                       <p className="text-orange-600 font-bold text-sm mt-1">
                         Rs:{item.price.toLocaleString()}
-                        <span className="text-gray-400 line-through text-xs ml-2">
-                          Rs:{item.originalPrice.toLocaleString()}
-                        </span>
-                      </p>
-                      <p className="text-green-600 text-xs mt-1">
-                        {item.availability}
                       </p>
                     </div>
                   </div>
                   <div className="flex justify-end sm:flex-col gap-3 mt-4 sm:mt-0">
-                    <button className="flex items-center justify-center p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-md transition">
+                    <button
+                      onClick={() => deleteProduct(item.attributeID)}
+                      className="flex items-center justify-center p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-md transition"
+                    >
                       <Trash2 size={16} />
                     </button>
                     <button className="flex items-center justify-center p-2 bg-black hover:bg-gray-800 text-white rounded-md transition">

@@ -14,6 +14,7 @@ import {
 import DeleteComponent from "@/app/Component/UsefullComponent/DeleteComponent/page";
 import Spinner from "@/app/Component/UsefullComponent/Spinner/page";
 import { Pencil, Trash } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface AddExpenseProps {
@@ -24,6 +25,7 @@ export default function GetFormUnit({
   onEdit,
   onShowMessage,
 }: AddExpenseProps) {
+  const router = useRouter();
   const [UnitList, setUnitList] = useState<UnitList[]>([]);
   const [loading, setLoading] = useState(false);
   const [ID, setID] = useState("");
@@ -40,6 +42,8 @@ export default function GetFormUnit({
       setStoreList(data.storeList);
       setStoreID(data.storeList[0].storeID);
       UnitGet(data.storeList[0].storeID);
+    } else if (response.status === 401) {
+      router.push("/admin/login");
     } else {
       setStoreList([]);
     }
@@ -53,6 +57,8 @@ export default function GetFormUnit({
       if (response.status === 200 || response.status === 201) {
         const data = response.data as UnitApiResponse;
         setUnitList(data.categoryList);
+      } else if (response.status === 401) {
+        router.push("/admin/login");
       } else {
         setUnitList([]);
       }
@@ -74,6 +80,8 @@ export default function GetFormUnit({
         const data = UnitList.filter((item) => item.unitID !== ID);
         setUnitList(data);
         setDelete(false);
+      } else if (response.status === 401) {
+        router.push("/admin/login");
       } else {
         setDelete(false);
         onShowMessage(

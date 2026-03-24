@@ -4,6 +4,7 @@ import SellerRevoke from "@/api/lib/Admin/CreateLogins/RevokeSeller/RevokeSeller
 import DeleteComponent from "@/app/Component/UsefullComponent/DeleteComponent/page";
 import Spinner from "@/app/Component/UsefullComponent/Spinner/page";
 import { RefreshCcw, Trash } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface responseFromSellerGet {
@@ -18,6 +19,7 @@ interface sellerList {
   userName: string;
 }
 export default function GetLoginForm() {
+  const router = useRouter();
   const [ID, setID] = useState("");
   const [Delete, setDelete] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -37,6 +39,8 @@ export default function GetLoginForm() {
         } else {
           setgetSeller([]);
         }
+      } else if (response.status === 401) {
+        router.push("/admin/login");
       }
     } finally {
       setLoading(false);
@@ -53,6 +57,8 @@ export default function GetLoginForm() {
     if (response.status === 200 || response.status === 201) {
       console.log(response);
       getStores();
+    } else if (response.status === 401) {
+      router.push("/admin/login");
     }
   };
   const DeleteSeller = async (ID: string) => {
@@ -64,6 +70,8 @@ export default function GetLoginForm() {
     if (response.status === 200 || response.status === 201) {
       setDelete(false);
       getStores();
+    } else if (response.status === 401) {
+      router.push("/admin/login");
     }
   };
   useEffect(() => {

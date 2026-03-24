@@ -3,7 +3,7 @@ export default function ErrorHandler(status: number): string {
     case 400:
       return "Bad Request.";
     case 401:
-      return "Invalid Email or Password.";
+      return "UnAuthorized User";
     case 403:
       return "You are not authorized.";
     case 404:

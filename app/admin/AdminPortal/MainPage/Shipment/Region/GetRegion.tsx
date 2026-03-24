@@ -9,12 +9,14 @@ import {
 import DeleteComponent from "@/app/Component/UsefullComponent/DeleteComponent/page";
 import Spinner from "@/app/Component/UsefullComponent/Spinner/page";
 import { Pencil, Trash } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 interface AddTillFormProps {
   countryList: Countryget[];
   onEdit: (region: regionlist, regionID: string) => void;
 }
 export default function GetRegion({ countryList, onEdit }: AddTillFormProps) {
+  const router = useRouter();
   const [countryID, setCountryID] = useState("");
   const [loading, setLoading] = useState(false);
   const [RegionList, setRegionList] = useState<regionlist[]>([]);
@@ -26,9 +28,12 @@ export default function GetRegion({ countryList, onEdit }: AddTillFormProps) {
       setLoading(true);
       const token = localStorage.getItem("adminToken");
       const response = await GetRegionApi(ID, String(token));
-      const data = response.data as responseRegionList;
-      setRegionList(data.regionlist);
-      console.log(data.regionlist);
+      if (response.status === 200) {
+        const data = response.data as responseRegionList;
+        setRegionList(data.regionlist);
+      } else if (response.status === 401) {
+        router.push("/admin/login");
+      }
     } catch {
     } finally {
       setLoading(false);
@@ -50,9 +55,13 @@ export default function GetRegion({ countryList, onEdit }: AddTillFormProps) {
         regionID: ID,
       };
       const response = await DeleteRegion(formData, String(token));
-      setDelete(false);
-      setRegionList(RegionList.filter((item) => item.regionID !== ID));
-      setID("");
+      if (response.status === 200) {
+        setDelete(false);
+        setRegionList(RegionList.filter((item) => item.regionID !== ID));
+        setID("");
+      } else if (response.status === 401) {
+        router.push("/admin/login");
+      }
     } catch {
     } finally {
       setLoading(false);

@@ -23,14 +23,15 @@ import {
   Box,
   PackageSearch,
 } from "lucide-react";
-import { FaCashRegister, FaMoneyBill } from "react-icons/fa";
-import { BsShop } from "react-icons/bs";
+import { MiddleWareRequestCheck } from "@/api/lib/OtherController/MiddleWare/MiddleWare";
+import { useRouter } from "next/navigation";
 
 export default function OnlineSeller({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string | null>("");
 
@@ -41,6 +42,15 @@ export default function OnlineSeller({
   };
   const toggleMenu2 = (menu: string) => {
     setActiveMenu2(activeMenu2 === menu ? null : menu);
+  };
+
+  const requesting = async (currentPath: string) => {
+    const repsonse = await MiddleWareRequestCheck("OnlineSeller", currentPath);
+    if (!repsonse.isValid) {
+      router.push("/admin/login");
+    } else {
+      return;
+    }
   };
 
   return (
@@ -92,6 +102,7 @@ export default function OnlineSeller({
               href="/OnlineSeller/MainPage/Dashboard"
               className="flex items-center gap-3 px-4 py-3 rounded-xl
             text-neutral-700 hover:bg-neutral-100 transition-all"
+              onClick={() => requesting("/OnlineSeller/MainPage/Dashboard")}
             >
               <LayoutDashboard size={18} />
               <span className="text-sm font-medium">Dashboard</span>
@@ -124,6 +135,11 @@ export default function OnlineSeller({
                 <div className="ml-9 space-y-1">
                   <Link
                     href="/OnlineSeller/MainPage/OrderManagement/OrderSetting"
+                    onClick={() =>
+                      requesting(
+                        "/OnlineSeller/MainPage/OrderManagement/OrderSetting",
+                      )
+                    }
                     className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
                   >
                     <div className="flex items-center gap-3">
@@ -133,6 +149,11 @@ export default function OnlineSeller({
                   </Link>
                   <Link
                     href="/OnlineSeller/MainPage/OrderManagement/OrderShipment"
+                    onClick={() =>
+                      requesting(
+                        "/OnlineSeller/MainPage/OrderManagement/OrderShipment",
+                      )
+                    }
                     className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
                   >
                     <div className="flex items-center gap-3">
@@ -147,6 +168,11 @@ export default function OnlineSeller({
             </div>
             <Link
               href="/OnlineSeller/MainPage/CreateLogins"
+              onClick={() =>
+                requesting(
+                  "/OnlineSeller/MainPage/OrderManagement/OrderShipment",
+                )
+              }
               className="flex items-center gap-3 px-4 py-3 rounded-xl
             text-neutral-700 hover:bg-neutral-100 transition-all"
             >

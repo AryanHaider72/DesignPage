@@ -12,6 +12,7 @@ import {
   Countryget,
   CountrygetApiResponse,
 } from "@/api/types/Admin/Shipment/Country/Country";
+import { useRouter } from "next/navigation";
 
 interface response {
   message: string;
@@ -27,6 +28,7 @@ interface zonelist {
 }
 
 export default function AddStoreForm() {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [ZoneID, setZoneID] = useState("");
   const [StoreName, setStoreName] = useState("");
@@ -46,7 +48,9 @@ export default function AddStoreForm() {
       setCountries(data.countryList);
       setCountryID(data.countryList[0].countryID);
       getRegion(data.countryList[0].countryID);
-    } else if (response.status === 401) return; //router.push("/sellerlogin");
+    } else if (response.status === 401) {
+      router.push("/admin/login");
+    }
   };
   const getRegion = async (ID: string) => {
     const token = localStorage.getItem("adminToken");
@@ -56,6 +60,8 @@ export default function AddStoreForm() {
       setRegionList(data.regionlist);
       setRegionID(data.regionlist[0].regionID);
       getZone(data.regionlist[0].regionID);
+    } else if (response.status === 401) {
+      router.push("/admin/login");
     } else {
       setRegionList([]);
     }
@@ -68,6 +74,8 @@ export default function AddStoreForm() {
         const data = response.data as response;
         setZoneList(data.zonelist);
         setZoneID(data.zonelist[0].zoneID);
+      } else if (response.status === 401) {
+        router.push("/admin/login");
       } else {
         setZoneList([]);
       }
@@ -93,6 +101,8 @@ export default function AddStoreForm() {
         setStoreName("");
         setStoreDescription("");
         // setResponseBack(1);
+      } else if (response.status === 401) {
+        router.push("/admin/login");
       }
     } finally {
       setIsLoading(false);

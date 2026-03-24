@@ -8,6 +8,7 @@ import {
 import DeleteComponent from "@/app/Component/UsefullComponent/DeleteComponent/page";
 import Spinner from "@/app/Component/UsefullComponent/Spinner/page";
 import { Pencil, Trash } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface GetTillFormProps {
@@ -18,6 +19,7 @@ export default function CourierServiceGetForm({
   initialData,
   onShowMessage,
 }: GetTillFormProps) {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [ID, setID] = useState("");
   const [Delete, setDelete] = useState(false);
@@ -28,8 +30,12 @@ export default function CourierServiceGetForm({
       setLoading(true);
       const token = localStorage.getItem("adminToken");
       const response = await GetCouriereApi(String(token));
-      const data = response.data as ResponseCouriereGetData;
-      setCourierData(data.courierList);
+      if (response.status === 200 || response.status === 201) {
+        const data = response.data as ResponseCouriereGetData;
+        setCourierData(data.courierList);
+      } else if (response.status === 401) {
+        router.push("/admin/login");
+      }
     } finally {
       setLoading(false);
     }
@@ -49,6 +55,8 @@ export default function CourierServiceGetForm({
         const data = courierData.filter((item) => item.courierID !== ID);
         setCourierData(data);
         setDelete(false);
+      } else if (response.status === 401) {
+        router.push("/admin/login");
       } else {
         setDelete(false);
         onShowMessage(

@@ -8,6 +8,7 @@ import {
 import DeleteComponent from "@/app/Component/UsefullComponent/DeleteComponent/page";
 import Spinner from "@/app/Component/UsefullComponent/Spinner/page";
 import { Pencil, Trash } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 interface AddExpenseProps {
   onEdit: (Datalist: DelievryGetData) => void;
@@ -17,6 +18,7 @@ export default function GetDeliveryStandardGetList({
   onEdit,
   onShowMessage,
 }: AddExpenseProps) {
+  const router = useRouter();
   const [ID, setID] = useState("");
   const [Delete, setDelete] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -27,9 +29,13 @@ export default function GetDeliveryStandardGetList({
       setLoading(true);
       const token = localStorage.getItem("adminToken");
       const response = await GetDelieveryStandardApi(String(token));
-      const data = response.data as ResponseDelievryGetData;
-      console.log(response);
-      setDelieveryGet(data.delievryData);
+      if (response.status === 200 || response.status === 201) {
+        const data = response.data as ResponseDelievryGetData;
+        console.log(response);
+        setDelieveryGet(data.delievryData);
+      } else if (response.status === 401) {
+        router.push("/admin/login");
+      }
     } finally {
       setLoading(false);
     }
@@ -49,6 +55,8 @@ export default function GetDeliveryStandardGetList({
         const data = delieveryGet.filter((item) => item.deliveryTypeID !== ID);
         setDelieveryGet(data);
         setDelete(false);
+      } else if (response.status === 401) {
+        router.push("/admin/login");
       } else {
         setDelete(false);
         onShowMessage(

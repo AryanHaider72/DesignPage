@@ -18,11 +18,13 @@ import {
 } from "@/api/types/Admin/Shipment/Region/Region";
 import DeleteComponent from "@/app/Component/UsefullComponent/DeleteComponent/page";
 import { Pencil, Trash } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 interface GetTillFormProps {
   onEdit: (till: zonelist, tillID: string) => void;
 }
 export default function GetCity({ onEdit }: GetTillFormProps) {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [ID, setID] = useState("");
   const [Delete, setDelete] = useState(false);
@@ -38,14 +40,19 @@ export default function GetCity({ onEdit }: GetTillFormProps) {
     if (response.status === 201 || response.status === 200) {
       const data = response.data as CountrygetApiResponse;
       setCountries(data.countryList);
+    } else if (response.status === 401) {
+      router.push("/admin/login");
     }
   };
   const getRegion = async (ID: string) => {
     const token = localStorage.getItem("adminToken");
     const response = await GetRegionApi(ID, String(token));
-    const data = response.data as responseRegionList;
-    setRegionList(data.regionlist);
-    console.log(data.regionlist);
+    if (response.status === 201 || response.status === 200) {
+      const data = response.data as responseRegionList;
+      setRegionList(data.regionlist);
+    } else if (response.status === 401) {
+      router.push("/admin/login");
+    }
   };
 
   const getCityRecord = async (ID: string) => {
@@ -53,9 +60,12 @@ export default function GetCity({ onEdit }: GetTillFormProps) {
       setLoading(true);
       const token = localStorage.getItem("adminToken");
       const response = await GetCityApi(ID, String(token));
-      const data = response.data as responseZoneList;
-      console.log(response);
-      setCityList(data.zonelist);
+      if (response.status === 201 || response.status === 200) {
+        const data = response.data as responseZoneList;
+        setCityList(data.zonelist);
+      } else if (response.status === 401) {
+        router.push("/admin/login");
+      }
     } finally {
       setLoading(false);
     }
@@ -71,7 +81,8 @@ export default function GetCity({ onEdit }: GetTillFormProps) {
       if (response.status === 200 || response.status === 201) {
         setDelete(false);
         setCityList(cityList.filter((item) => item.zoneID !== ID));
-      } else {
+      } else if (response.status === 401) {
+        router.push("/admin/login");
       }
     } catch (error) {
       setLoading(true);

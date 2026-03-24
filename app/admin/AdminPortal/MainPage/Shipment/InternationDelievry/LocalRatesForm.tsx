@@ -8,6 +8,7 @@ import {
 } from "@/api/types/Admin/Shipment/local/local";
 
 import Spinner from "@/app/Component/UsefullComponent/Spinner/page";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 type EditableField =
   | "lessThen1KG"
@@ -18,6 +19,7 @@ interface AddExpenseProps {
   onShowMessage: (message: any, type: "success" | "error") => void;
 }
 export default function LocalRatesForm({ onShowMessage }: AddExpenseProps) {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [loading2, setLoading2] = useState(false);
   const [internationData, setInternationData] = useState<loopListZone[]>([]);
@@ -33,6 +35,8 @@ export default function LocalRatesForm({ onShowMessage }: AddExpenseProps) {
         const data = response.data as responseINternationShippingRateZone;
         console.log(response.data);
         setInternationData(data.loopList);
+      } else if (response.status === 401) {
+        router.push("/admin/login");
       }
     } finally {
       setLoading(false);
@@ -76,6 +80,8 @@ export default function LocalRatesForm({ onShowMessage }: AddExpenseProps) {
           response.message || "Rates Modified successfully",
           "success",
         );
+      } else if (response.status === 401) {
+        router.push("/admin/login");
       }
     } catch (error) {
       onShowMessage("Something went wrong", "error");

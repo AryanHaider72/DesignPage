@@ -37,12 +37,15 @@ import { BsShop } from "react-icons/bs";
 import { RiAlignItemTopFill } from "react-icons/ri";
 import { GiClothes } from "react-icons/gi";
 import { CgProfile } from "react-icons/cg";
+import { MiddleWareRequestCheck } from "@/api/lib/OtherController/MiddleWare/MiddleWare";
+import { useRouter } from "next/navigation";
 
 export default function AppSidebar({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string | null>("");
 
@@ -62,6 +65,15 @@ export default function AppSidebar({
   };
   const toggleMenu4 = (menu: string) => {
     setActiveMenu4(activeMenu4 === menu ? null : menu);
+  };
+
+  const requesting = async (currentPath: string) => {
+    const repsonse = await MiddleWareRequestCheck("PlatformOwner", currentPath);
+    if (!repsonse.isValid) {
+      router.push("/admin/login");
+    } else {
+      return;
+    }
   };
 
   return (
@@ -111,6 +123,9 @@ export default function AppSidebar({
           <nav className="flex-1 overflow-y-auto px-4 py-6 space-y-2">
             <Link
               href="/admin/AdminPortal/MainPage/Dashboard"
+              onClick={() =>
+                requesting("/admin/AdminPortal/MainPage/Dashboard")
+              }
               className="flex items-center gap-3 px-4 py-3 rounded-xl
             text-neutral-700 hover:bg-neutral-100 transition-all"
             >
@@ -146,6 +161,9 @@ export default function AppSidebar({
                 <div className="ml-9 space-y-1">
                   <Link
                     href="/admin/AdminPortal/MainPage/Codes/Suppliers"
+                    onClick={() =>
+                      requesting("/admin/AdminPortal/MainPage/Codes/Suppliers")
+                    }
                     className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
                   >
                     <div className="flex items-center gap-3">
@@ -155,6 +173,9 @@ export default function AppSidebar({
                   </Link>
                   <Link
                     href="/admin/AdminPortal/MainPage/Codes/Units"
+                    onClick={() =>
+                      requesting("/admin/AdminPortal/MainPage/Codes/Units")
+                    }
                     className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
                   >
                     <div className="flex items-center gap-3">
@@ -164,6 +185,9 @@ export default function AppSidebar({
                   </Link>
                   <Link
                     href="/admin/AdminPortal/MainPage/Codes/Category"
+                    onClick={() =>
+                      requesting("/admin/AdminPortal/MainPage/Codes/Category")
+                    }
                     className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
                   >
                     <div className="flex items-center gap-3">
@@ -174,6 +198,11 @@ export default function AppSidebar({
 
                   <Link
                     href="/admin/AdminPortal/MainPage/Codes/SubCategory"
+                    onClick={() =>
+                      requesting(
+                        "/admin/AdminPortal/MainPage/Codes/SubCategory",
+                      )
+                    }
                     className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
                   >
                     <div className="flex items-center gap-3">
@@ -183,6 +212,9 @@ export default function AppSidebar({
                   </Link>
                   <Link
                     href="/admin/AdminPortal/MainPage/Codes/Product"
+                    onClick={() =>
+                      requesting("/admin/AdminPortal/MainPage/Codes/Product")
+                    }
                     className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
                   >
                     <div className="flex items-center gap-3">
@@ -224,6 +256,11 @@ export default function AppSidebar({
                 <div className="ml-9 space-y-1">
                   <Link
                     href="/admin/AdminPortal/MainPage/Shipment/DelieveryStandard"
+                    onClick={() =>
+                      requesting(
+                        "/admin/AdminPortal/MainPage/Shipment/DelieveryStandard",
+                      )
+                    }
                     className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
                   >
                     <div className="flex items-center gap-3">
@@ -233,6 +270,11 @@ export default function AppSidebar({
                   </Link>
                   <Link
                     href="/admin/AdminPortal/MainPage/Shipment/CourierService"
+                    onClick={() =>
+                      requesting(
+                        "/admin/AdminPortal/MainPage/Shipment/CourierService",
+                      )
+                    }
                     className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
                   >
                     <div className="flex items-center gap-3">
@@ -242,6 +284,11 @@ export default function AppSidebar({
                   </Link>
                   <Link
                     href="/admin/AdminPortal/MainPage/Shipment/InternationDelievry"
+                    onClick={() =>
+                      requesting(
+                        "/admin/AdminPortal/MainPage/Shipment/InternationDelievry",
+                      )
+                    }
                     className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
                   >
                     <div className="flex items-center gap-3">
@@ -253,6 +300,9 @@ export default function AppSidebar({
                   </Link>
                   <Link
                     href="/admin/AdminPortal/MainPage/Shipment/Region"
+                    onClick={() =>
+                      requesting("/admin/AdminPortal/MainPage/Shipment/Region")
+                    }
                     className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
                   >
                     <div className="flex items-center gap-3">
@@ -262,6 +312,9 @@ export default function AppSidebar({
                   </Link>
                   <Link
                     href="/admin/AdminPortal/MainPage/Shipment/Zone"
+                    onClick={() =>
+                      requesting("/admin/AdminPortal/MainPage/Shipment/Zone")
+                    }
                     className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
                   >
                     <div className="flex items-center gap-3">
@@ -271,6 +324,9 @@ export default function AppSidebar({
                   </Link>
                   <Link
                     href="/admin/AdminPortal/MainPage/Shipment/City"
+                    onClick={() =>
+                      requesting("/admin/AdminPortal/MainPage/Shipment/City")
+                    }
                     className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
                   >
                     <div className="flex items-center gap-3">
@@ -311,6 +367,11 @@ export default function AppSidebar({
                 <div className="ml-9 space-y-1">
                   <Link
                     href="/admin/AdminPortal/MainPage/StoreManagement/StoreCreation"
+                    onClick={() =>
+                      requesting(
+                        "/admin/AdminPortal/MainPage/StoreManagement/StoreCreation",
+                      )
+                    }
                     className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
                   >
                     <div className="flex items-center gap-3">
@@ -322,6 +383,11 @@ export default function AppSidebar({
                   </Link>
                   <Link
                     href="/admin/AdminPortal/MainPage/StoreManagement/StoreProfile"
+                    onClick={() =>
+                      requesting(
+                        "/admin/AdminPortal/MainPage/StoreManagement/StoreProfile",
+                      )
+                    }
                     className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
                   >
                     <div className="flex items-center gap-3">
@@ -379,6 +445,11 @@ export default function AppSidebar({
                 <div className="ml-9 space-y-1">
                   <Link
                     href="/admin/AdminPortal/MainPage/CreateLogin/PosStoreLogin"
+                    onClick={() =>
+                      requesting(
+                        "/admin/AdminPortal/MainPage/CreateLogin/PosStoreLogin",
+                      )
+                    }
                     className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
                   >
                     <div className="flex items-center gap-3">
@@ -390,6 +461,11 @@ export default function AppSidebar({
                   </Link>
                   <Link
                     href="/admin/AdminPortal/MainPage/CreateLogin/OnlineStoreLogin"
+                    onClick={() =>
+                      requesting(
+                        "/admin/AdminPortal/MainPage/CreateLogin/OnlineStoreLogin",
+                      )
+                    }
                     className="block text-sm text-neutral-600 hover:text-black hover:bg-gray-200 py-2 px-2 transition duration-300 rounded-md"
                   >
                     <div className="flex items-center gap-3">

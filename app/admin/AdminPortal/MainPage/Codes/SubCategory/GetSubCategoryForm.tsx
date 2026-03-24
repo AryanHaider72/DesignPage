@@ -24,6 +24,7 @@ import {
 import DeleteComponent from "@/app/Component/UsefullComponent/DeleteComponent/page";
 import Spinner from "@/app/Component/UsefullComponent/Spinner/page";
 import { List, Pencil, Trash } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface AddExpenseProps {
@@ -34,6 +35,7 @@ export default function GetSubCategoryForm({
   onEdit,
   onShowMessage,
 }: AddExpenseProps) {
+  const router = useRouter();
   const [StoreID, setStoreID] = useState("");
   const [Delete, setDelete] = useState(false);
   const [storeList, setStoreList] = useState<storeListInital[]>([]);
@@ -59,6 +61,8 @@ export default function GetSubCategoryForm({
       console.log(storeID);
       setStoreID(storeID);
       getCategroyMain(storeID);
+    } else if (response.status === 401) {
+      router.push("/admin/login");
     } else {
       setStoreList([]);
     }
@@ -73,6 +77,8 @@ export default function GetSubCategoryForm({
       setCategoryMainID(data.categoryList[0].categoryID);
 
       getSubCategroy(data.categoryList[0].categoryID, storeID);
+    } else if (response.status === 401) {
+      router.push("/admin/login");
     }
   };
   const getSubCategroy = async (ID: string, storeID: string) => {
@@ -87,6 +93,8 @@ export default function GetSubCategoryForm({
       getFurtherSubCategroy(data.categoryList[0].subCategoryID, storeID, ID);
       setCatgeorySubList(data.categoryList);
       setSubCategoryID(data.categoryList[0].subCategoryID);
+    } else if (response.status === 401) {
+      router.push("/admin/login");
     } else {
       setCatgeorySubList([]);
     }
@@ -107,6 +115,8 @@ export default function GetSubCategoryForm({
       if (response.status === 200 || response.status === 201) {
         const data = response.data as FurtherSubApiResponse;
         setFurtherCategorySubList(data.categoryList);
+      } else if (response.status === 401) {
+        router.push("/admin/login");
       }
     } finally {
       setLoading(false);
@@ -126,6 +136,8 @@ export default function GetSubCategoryForm({
         );
         setFurtherCategorySubList(data);
         setDelete(false);
+      } else if (response.status === 401) {
+        router.push("/admin/login");
       } else {
         setDelete(false);
         onShowMessage(

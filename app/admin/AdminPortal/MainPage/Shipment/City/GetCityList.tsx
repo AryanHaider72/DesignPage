@@ -23,11 +23,13 @@ import {
 import DeleteComponent from "@/app/Component/UsefullComponent/DeleteComponent/page";
 import Spinner from "@/app/Component/UsefullComponent/Spinner/page";
 import { Pencil, Trash } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 interface GetTillFormProps {
   onEdit: (till: zonelistOrigin) => void;
 }
 export default function GetCityList({ onEdit }: GetTillFormProps) {
+  const router = useRouter();
   const [ID, setID] = useState("");
   const [Delete, setDelete] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -45,27 +47,41 @@ export default function GetCityList({ onEdit }: GetTillFormProps) {
     if (response.status === 201 || response.status === 200) {
       const data = response.data as CountrygetApiResponse;
       setCountries(data.countryList);
+    } else if (response.status === 401) {
+      router.push("/admin/login");
     }
   };
   const getRegion = async (ID: string) => {
     const token = localStorage.getItem("adminToken");
     const response = await GetRegionApi(ID, String(token));
-    const data = response.data as responseRegionList;
-    setRegionList(data.regionlist);
+    if (response.status === 200 || response.status === 201) {
+      const data = response.data as responseRegionList;
+      setRegionList(data.regionlist);
+    } else if (response.status === 401) {
+      router.push("/admin/login");
+    }
   };
   const getZone = async (ID: string) => {
     const token = localStorage.getItem("adminToken");
     const response = await GetCityApi(ID, String(token));
-    const data = response.data as responseZoneList;
-    setCityList(data.zonelist);
+    if (response.status === 200 || response.status === 201) {
+      const data = response.data as responseZoneList;
+      setCityList(data.zonelist);
+    } else if (response.status === 401) {
+      router.push("/admin/login");
+    }
   };
   const getCity = async (ID: string) => {
     try {
       setLoading(true);
       const token = localStorage.getItem("adminToken");
       const response = await GetCityOriginApi(String(token), ID);
-      const data = response.data as responseCityOrigin;
-      setCityOriginList(data.zonelist);
+      if (response.status === 200 || response.status === 201) {
+        const data = response.data as responseCityOrigin;
+        setCityOriginList(data.zonelist);
+      } else if (response.status === 401) {
+        router.push("/admin/login");
+      }
     } finally {
       setLoading(false);
     }
@@ -87,7 +103,8 @@ export default function GetCityList({ onEdit }: GetTillFormProps) {
       if (response.status === 200 || response.status === 201) {
         setDelete(false);
         setCityOriginList(cityOriginList.filter((item) => item.cityID !== ID));
-      } else {
+      } else if (response.status === 401) {
+        router.push("/admin/login");
       }
     } catch (error) {
       setLoading(true);

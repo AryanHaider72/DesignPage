@@ -48,13 +48,13 @@ const AppContext = createContext<AppContextType>({
   ProductList: [],
   FeaturedProduct: [],
   setFeaturedProduct: () => {},
-  loading: false,
+  loading: true, // Start with loading true
 });
 
 // Provider component
 export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [categoryList, setCategoryList] = useState<categoryList[]>([]);
-  const [pageNumber, setPageNumber] = useState(1);
+  const [pageNumber] = useState(1);
   const [storeInfo, setStoreInfo] = useState<storeGet[]>([]);
   const [ProductList, setProductList] = useState<FeaturedProductForCustomer[]>(
     [],
@@ -64,38 +64,58 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   >([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch categories and store info when provider mounts
+  // Fetch all data
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchAllData = async () => {
+      setLoading(true);
       try {
-        const catResponse = await GetCategoryiesCustomerApi();
+        // Fetch all data in parallel for better performance
+        const [catResponse, storeResponse, featuredResponse, productResponse] =
+          await Promise.all([
+            GetCategoryiesCustomerApi(),
+            GetStoreCustomerApi(),
+            GetCustomerFeaturedProductApi(),
+            GetProductCustomerApi(pageNumber),
+          ]);
+
+        // Process categories
         if (catResponse.status === 200 || catResponse.status === 201) {
           const catData = catResponse.data as GetCategoryResponse;
           setCategoryList(catData.categoryList);
         }
 
-        const storeResponse = await GetStoreCustomerApi();
+        // Process store info
         if (storeResponse.status === 200 || storeResponse.status === 201) {
           const storeData = storeResponse.data as CustomerStoreInfoResponse;
           setStoreInfo(storeData.storeGet);
         }
-        const responseFetured = await GetCustomerFeaturedProductApi();
-        if (responseFetured.status === 200 || responseFetured.status === 201) {
-          const data = responseFetured.data as ProductApiResponseCustomer;
+
+        // Process featured products
+        if (
+          featuredResponse.status === 200 ||
+          featuredResponse.status === 201
+        ) {
+          const data = featuredResponse.data as ProductApiResponseCustomer;
           setFeaturedProduct(data.productList);
         }
-        const response = await GetProductCustomerApi(pageNumber);
-        if (response.status === 200 || response.status === 201) {
-          const data = response.data as ProductApiResponseCustomer;
+
+        // Process all products
+        if (productResponse.status === 200 || productResponse.status === 201) {
+          const data = productResponse.data as ProductApiResponseCustomer;
           setProductList(data.productList);
         }
+      } catch (error) {
+        console.error("Error fetching data:", error);
       } finally {
-        setLoading(false);
+        // Add a small delay to ensure smooth transition
+        setTimeout(() => {
+          setLoading(false);
+        }, 500);
       }
     };
 
-    fetchData();
-  }, []);
+    fetchAllData();
+  }, [pageNumber]);
 
   return (
     <AppContext.Provider

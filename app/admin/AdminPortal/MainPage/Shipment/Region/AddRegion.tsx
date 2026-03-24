@@ -4,6 +4,7 @@ import AddRegionApi from "@/api/lib/Admin/Shipment/Region/regionAdd";
 import { Countryget } from "@/api/types/Admin/Shipment/Country/Country";
 
 import { regionlist } from "@/api/types/Admin/Shipment/Region/Region";
+import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
 interface AddTillFormProps {
   countryList: Countryget[];
@@ -19,6 +20,7 @@ export default function AddRegion({
   initialData,
   TillID,
 }: AddTillFormProps) {
+  const router = useRouter();
   const [isLoading, setisLoading] = useState(false);
   const [countryID, setCountryID] = useState("");
   const [RegionName, setRegionName] = useState("");
@@ -41,6 +43,8 @@ export default function AddRegion({
         );
         setRegionName("");
         setCountryID("");
+      } else if (response.status === 401) {
+        router.push("/admin/login");
       } else {
         onShowMessage(response.message || "Something went wrong", "error");
       }
@@ -68,6 +72,8 @@ export default function AddRegion({
         );
         setRegionName("");
         setCountryID("");
+      } else if (response.status === 401) {
+        router.push("/admin/login");
       } else {
         onShowMessage(response.message || "Something went wrong", "error");
       }

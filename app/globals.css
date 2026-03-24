@@ -49,3 +49,28 @@ body {
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 } */
+/* app/globals.css */
+.loader-transition {
+  transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Prevent scroll during loader */
+.no-scroll {
+  overflow: hidden;
+}
+
+/* Fade in animation for content */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}

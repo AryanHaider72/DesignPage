@@ -2,6 +2,7 @@
 import AddDelievryStandard from "@/api/lib/Admin/Shipment/Delievry/AddDelievryStandard/AddDelievryStandard";
 import ModifyDelievryStandard from "@/api/lib/Admin/Shipment/Delievry/ModifyDelievryStandard/ModifyDelievryStandard";
 import { DelievryGetData } from "@/api/types/Admin/Shipment/Delievry/Delievry";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 interface AddTillFormProps {
   Update: boolean;
@@ -13,6 +14,7 @@ export default function DeleiveryStandardAddForm({
   Update,
   initialData,
 }: AddTillFormProps) {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [StandardName, setStandardName] = useState("");
   const [NumberOfDays, setNumberOfDays] = useState("");
@@ -37,6 +39,8 @@ export default function DeleiveryStandardAddForm({
           response.message || "Standard Added successfully",
           "success",
         );
+      } else if (response.status === 401) {
+        router.push("/admin/login");
       }
     } catch (error) {
       onShowMessage("Something went wrong", "error");
@@ -64,6 +68,8 @@ export default function DeleiveryStandardAddForm({
           response.message || "Standard Modified successfully",
           "success",
         );
+      } else if (response.status === 401) {
+        router.push("/admin/login");
       }
     } catch (error) {
       onShowMessage("Something went wrong", "error");

@@ -8,6 +8,7 @@ import {
   shippingDetail,
 } from "@/api/types/Admin/Shipment/International/Internation";
 import Spinner from "@/app/Component/UsefullComponent/Spinner/page";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 type EditableField =
   | "lessThen1KG"
@@ -20,6 +21,7 @@ interface AddExpenseProps {
 export default function InternationDelievryAddForm({
   onShowMessage,
 }: AddExpenseProps) {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [loading2, setLoading2] = useState(false);
   const [dataList, setDataList] = useState([]);
@@ -35,6 +37,8 @@ export default function InternationDelievryAddForm({
         const data = response.data as responseINternationShippingRateCountry;
         console.log(response.data);
         setInternationData(data.loopList);
+      } else if (response.status === 401) {
+        router.push("/admin/login");
       }
     } finally {
       setLoading(false);
@@ -93,6 +97,8 @@ export default function InternationDelievryAddForm({
           response.message || "Rates Modified Successfully",
           "success",
         );
+      } else if (response.status === 401) {
+        router.push("/admin/login");
       }
     } catch (error) {
       onShowMessage("Something went wrong", "error");

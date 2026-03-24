@@ -6,80 +6,156 @@ import {
   Truck,
   Twitter,
   Youtube,
+  Facebook,
+  Mail,
+  Phone,
+  MapPin,
+  CreditCard,
+  Shield,
+  RefreshCw,
+  ChevronRight,
 } from "lucide-react";
 import Link from "next/link";
 
 export default function Footer() {
+  const currentYear = new Date().getFullYear();
+
+  const quickLinks = [
+    { name: "About Us", href: "/about" },
+    { name: "Shop", href: "/shop" },
+    { name: "New Arrivals", href: "/new-arrivals" },
+    { name: "Best Sellers", href: "/best-sellers" },
+    { name: "Contact Us", href: "/contact" },
+  ];
+
+  const supportLinks = [
+    { name: "FAQ", href: "/faq" },
+    { name: "Shipping Info", href: "/shipping" },
+    { name: "Returns", href: "/returns" },
+    { name: "Size Guide", href: "/size-guide" },
+    { name: "Privacy Policy", href: "/privacy" },
+  ];
+
+  const paymentIcons = [
+    { name: "Visa", icon: "💳" },
+    { name: "Mastercard", icon: "💳" },
+    { name: "PayPal", icon: "💰" },
+    { name: "Apple Pay", icon: "📱" },
+  ];
+
+  const socialIcons = [
+    { icon: Twitter, href: "#", label: "Twitter" },
+    { icon: Instagram, href: "#", label: "Instagram" },
+    { icon: Facebook, href: "#", label: "Facebook" },
+    { icon: Youtube, href: "#", label: "YouTube" },
+    { icon: Linkedin, href: "#", label: "LinkedIn" },
+  ];
+
   return (
-    <div>
-      <footer className="w-full bg-gray-50">
-        <div className="max-w-7xl mx-auto px-6 py-14">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
-            {/* Brand Card */}
-            <div className="bg-gradient-to-br from-indigo-600 to-purple-600 text-white rounded-2xl p-6 shadow-lg">
-              <h2 className="text-2xl font-semibold mb-3">Karim5</h2>
-              <p className="text-sm opacity-90 mb-6">
-                Trusted by thousands of customers worldwide. Have questions?
-                We’re here to help.
-              </p>
+    <footer className="bg-white border-t border-gray-100">
+      {/* Main Footer */}
+      <div className="max-w-7xl mx-auto px-4 py-12 md:py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+          {/* Brand Section */}
+          <div className="space-y-4">
+            <h2 className="text-2xl font-light text-gray-900">Karim5</h2>
+            <p className="text-sm text-gray-500 leading-relaxed">
+              Discover premium quality products designed to elevate your style
+              and everyday life. Trusted by thousands of customers worldwide.
+            </p>
 
-              <div className="flex items-center gap-3">
-                {[<Twitter />, <Instagram />, <Linkedin />, <Youtube />].map(
-                  (item, index) => (
-                    <span
-                      key={index}
-                      className="w-9 h-9 flex items-center justify-center bg-white/20 rounded-full text-sm cursor-pointer hover:bg-white/30 transition"
-                    >
-                      {item}
-                    </span>
-                  ),
-                )}
-              </div>
+            {/* Social Links */}
+            <div className="flex items-center gap-3 pt-2">
+              {socialIcons.map((social, index) => (
+                <Link
+                  key={index}
+                  href={social.href}
+                  className="w-9 h-9 flex items-center justify-center rounded-full bg-gray-50 text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-all duration-200"
+                  aria-label={social.label}
+                >
+                  <social.icon className="w-4 h-4" />
+                </Link>
+              ))}
             </div>
+          </div>
 
-            {/* Contact */}
-            <div>
-              <h3 className="font-semibold text-gray-900 mb-4">Get In Touch</h3>
-              <ul className="space-y-3 text-sm text-gray-600">
-                <li>support@yourbrand.com</li>
-                <li>+92 300 1234567</li>
-                <li>Lahore, Pakistan</li>
-              </ul>
-            </div>
+          {/* Quick Links */}
+          <div>
+            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">
+              Quick Links
+            </h3>
+            <ul className="space-y-2">
+              {quickLinks.map((link, index) => (
+                <li key={index}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-gray-500 hover:text-gray-900 transition-colors duration-200 inline-flex items-center gap-1 group"
+                  >
+                    <ChevronRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-            {/* Quick Links */}
+          {/* Support */}
+          <div>
+            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">
+              Support
+            </h3>
+            <ul className="space-y-2">
+              {supportLinks.map((link, index) => (
+                <li key={index}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-gray-500 hover:text-gray-900 transition-colors duration-200 inline-flex items-center gap-1 group"
+                  >
+                    <ChevronRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Contact & Newsletter */}
+          <div className="space-y-6">
             <div>
-              <h3 className="font-semibold text-gray-900 mb-4">Quick Links</h3>
-              <ul className="space-y-3 text-sm text-gray-600">
-                <li>
-                  <Link href="/">Home</Link>
+              <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">
+                Contact Info
+              </h3>
+              <ul className="space-y-3">
+                <li className="flex items-center gap-3 text-sm text-gray-500">
+                  <Mail className="w-4 h-4 text-gray-400" />
+                  <span>support@karim5.com</span>
                 </li>
-                <li>
-                  <Link href="/about">About</Link>
+                <li className="flex items-center gap-3 text-sm text-gray-500">
+                  <Phone className="w-4 h-4 text-gray-400" />
+                  <span>+92 300 1234567</span>
                 </li>
-                <li>
-                  <Link href="/products">Products</Link>
-                </li>
-                <li>
-                  <Link href="/contact">Contact</Link>
+                <li className="flex items-center gap-3 text-sm text-gray-500">
+                  <MapPin className="w-4 h-4 text-gray-400" />
+                  <span>Lahore, Pakistan</span>
                 </li>
               </ul>
             </div>
 
             {/* Newsletter */}
             <div>
-              <h3 className="font-semibold text-gray-900 mb-4">Newsletter</h3>
-              <p className="text-sm text-gray-600 mb-4">
-                Subscribe to get the latest updates.
+              <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-3">
+                Newsletter
+              </h3>
+              <p className="text-xs text-gray-500 mb-3">
+                Subscribe for exclusive offers and updates.
               </p>
-
-              <div className="flex items-center gap-2">
+              <div className="flex gap-2">
                 <input
                   type="email"
-                  placeholder="Enter email..."
-                  className="w-full px-4 py-2 text-sm rounded-full border focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  placeholder="Your email"
+                  className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-transparent transition-all duration-200"
                 />
-                <button className="px-5 py-2 rounded-full bg-indigo-600 text-white text-sm hover:bg-indigo-700 transition">
+                <button className="px-4 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors duration-200">
                   Subscribe
                 </button>
               </div>
@@ -87,11 +163,29 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="bg-gray-100 text-center py-4 text-sm text-gray-600">
-          © {new Date().getFullYear()} YourBrand. All rights reserved.
+        {/* Payment & Copyright */}
+        <div className="mt-8 pt-6 border-t border-gray-100 flex flex-col sm:flex-row justify-between items-center gap-4">
+          {/* Payment Methods */}
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-gray-500">Secure payments:</span>
+            <div className="flex items-center gap-2">
+              {paymentIcons.map((method, index) => (
+                <span
+                  key={index}
+                  className="px-2 py-1 text-xs bg-gray-50 text-gray-600 rounded"
+                >
+                  {method.name}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Copyright */}
+          <p className="text-xs text-gray-400">
+            © {currentYear} Karim5. All rights reserved.
+          </p>
         </div>
-      </footer>
-    </div>
+      </div>
+    </footer>
   );
 }

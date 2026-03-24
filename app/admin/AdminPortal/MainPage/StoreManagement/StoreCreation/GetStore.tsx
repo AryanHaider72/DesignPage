@@ -7,11 +7,13 @@ import {
 } from "@/api/types/Admin/Store/Store";
 import Spinner from "@/app/Component/UsefullComponent/Spinner/page";
 import { Check, DotSquare, Ellipsis, Pencil, Trash } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function StoreGetPage() {
   const [loading, setLoading] = useState(true);
   const [isloading, setIsLoading] = useState(false);
+  const router = useRouter();
   const [storeList, setStoreList] = useState<storeListInital[]>([]);
 
   const getStores = async () => {
@@ -22,6 +24,8 @@ export default function StoreGetPage() {
       const data = response.data as ResponseStoreList;
       if (data.storeList.length > 0) {
         setStoreList(data.storeList);
+      } else if (response.status === 401) {
+        router.push("/admin/login");
       } else {
         setStoreList([]);
       }
@@ -36,6 +40,8 @@ export default function StoreGetPage() {
       const response = await StoreDefaultSet(ID, String(token));
       if (response.status === 200) {
         getStores();
+      } else if (response.status === 401) {
+        router.push("/admin/login");
       }
     } finally {
       setIsLoading(false);

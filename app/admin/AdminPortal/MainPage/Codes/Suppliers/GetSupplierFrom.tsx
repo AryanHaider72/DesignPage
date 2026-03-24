@@ -8,6 +8,7 @@ import {
 import DeleteComponent from "@/app/Component/UsefullComponent/DeleteComponent/page";
 import Spinner from "@/app/Component/UsefullComponent/Spinner/page";
 import { Pencil, Trash } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface AddExpenseProps {
@@ -18,6 +19,7 @@ export default function GetSupplierForm({
   onEdit,
   onShowMessage,
 }: AddExpenseProps) {
+  const router = useRouter();
   const [SupplierList, setSupplierList] = useState<SupplierData[]>([]);
   const [loading, setLoading] = useState(false);
   const [ID, setID] = useState("");
@@ -31,6 +33,8 @@ export default function GetSupplierForm({
       if (response.status === 200 || response.status === 201) {
         const data = response.data as ResponseSupplierGetData;
         setSupplierList(data.supplierList);
+      } else if (response.status === 401) {
+        router.push("/admin/login");
       } else {
         setSupplierList([]);
       }
@@ -52,6 +56,8 @@ export default function GetSupplierForm({
         const data = SupplierList.filter((item) => item.supplierID !== ID);
         setSupplierList(data);
         setDelete(false);
+      } else if (response.status === 401) {
+        router.push("/admin/login");
       } else {
         setDelete(false);
         onShowMessage(

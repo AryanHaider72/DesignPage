@@ -2,6 +2,7 @@
 import AddSupplierApi from "@/api/lib/Admin/Codes/Supplier/AddSupplier/AddSupplier";
 import ModifySupplierApi from "@/api/lib/Admin/Codes/Supplier/ModifySupplier/ModifySupplier";
 import { SupplierData } from "@/api/types/Admin/Codes/Supplier/Supplier";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface AddExpenseProps {
@@ -15,6 +16,7 @@ export default function AddSupplierForm({
   Update,
   onShowMessage,
 }: AddExpenseProps) {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [SupplierName, setSupplierName] = useState("");
   const [PhoneNo, setPhoneNo] = useState("");
@@ -48,6 +50,8 @@ export default function AddSupplierForm({
           response.message || "Customer Added successfully",
           "success",
         );
+      } else if (response.status === 401) {
+        router.push("/admin/login");
       } else {
         onShowMessage(response.message, "error");
       }
@@ -81,6 +85,8 @@ export default function AddSupplierForm({
           response.message || "Supplier Modified successfully",
           "success",
         );
+      } else if (response.status === 401) {
+        router.push("/admin/login");
       } else {
         onShowMessage(response.message, "error");
       }

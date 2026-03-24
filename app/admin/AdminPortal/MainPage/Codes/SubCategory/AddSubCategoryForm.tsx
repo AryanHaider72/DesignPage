@@ -20,6 +20,7 @@ import {
   storeListInital,
 } from "@/api/types/Admin/Store/Store";
 import { Plus, Trash } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface AddUnitProps {
@@ -46,6 +47,7 @@ export default function AddSubCategoryForm({
   Update,
   onShowMessage,
 }: AddUnitProps) {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [StoreID, setStoreID] = useState("");
   const [StoreName, setStoreName] = useState("");
@@ -73,6 +75,8 @@ export default function AddSubCategoryForm({
       setCategoryMainID(data.categoryList[0].categoryID);
       setCategoryMainName(data.categoryList[0].categoryName);
       getSubCategroy(data.categoryList[0].categoryID, ID);
+    } else if (response.status === 401) {
+      router.push("/admin/login");
     }
   };
 
@@ -91,6 +95,8 @@ export default function AddSubCategoryForm({
         UnitGet(data.storeList[0].storeID);
         setStoreName(data.storeList[0].storeName);
       }
+    } else if (response.status === 401) {
+      router.push("/admin/login");
     } else {
       setStoreList([]);
     }
@@ -102,6 +108,8 @@ export default function AddSubCategoryForm({
     if (response.status === 200 || response.status === 201) {
       const data = response.data as UnitApiResponse;
       setUnitList(data.categoryList);
+    } else if (response.status === 401) {
+      router.push("/admin/login");
     } else {
       setUnitList([]);
     }
@@ -118,6 +126,8 @@ export default function AddSubCategoryForm({
       setCatgeorySubList(data.categoryList);
       setSubCategoryMainName(data.categoryList[0].subCategoryName);
       setSubCategoryMainID(data.categoryList[0].subCategoryID);
+    } else if (response.status === 401) {
+      router.push("/admin/login");
     } else {
       setCatgeorySubList([]);
     }
@@ -143,6 +153,8 @@ export default function AddSubCategoryForm({
           response.message || "Category Added successfully",
           "success",
         );
+      } else if (response.status === 401) {
+        router.push("/admin/login");
       } else {
         onShowMessage(response.message, "error");
       }
@@ -191,6 +203,8 @@ export default function AddSubCategoryForm({
           response.message || "Category Added successfully",
           "success",
         );
+      } else if (response.status === 401) {
+        router.push("/admin/login");
       } else {
         onShowMessage(response.message, "error");
       }

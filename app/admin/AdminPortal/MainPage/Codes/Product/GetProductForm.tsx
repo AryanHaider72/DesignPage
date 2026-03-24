@@ -16,6 +16,7 @@ import { Camera, Pencil, Trash } from "lucide-react";
 import { useEffect, useState, useRef, useCallback } from "react";
 import ModifyBasicInfo from "./GetProduct/ModifyBasicInfo/page";
 import { Varient } from "@/api/types/Admin/Codes/Product/Product";
+import { useRouter } from "next/navigation";
 
 interface AddExpenseProps {
   productID: (data: string) => void;
@@ -77,6 +78,7 @@ export default function GetProductsFunctionForm({
   onVarientData,
   onShowMessage,
 }: AddExpenseProps) {
+  const router = useRouter();
   const [ID, setID] = useState("");
   const [Loading, setLoading] = useState(false);
   const [Delete, setDelete] = useState(false);
@@ -127,14 +129,15 @@ export default function GetProductsFunctionForm({
     const token = localStorage.getItem("adminToken");
     const response = await GetInitalStoreSalesMan(String(token));
     const data = response.data as ResponseStoreList;
-
-    if (data.storeList.length > 0) {
-      setStoreList(data.storeList);
-      setStoreID(data.storeList[0].storeID);
-      // Load products for first store
-      getProducts(data.storeList[0].storeID, 1, true);
-    } else {
-      setStoreList([]);
+    if (response.status === 200) {
+      if (data.storeList.length > 0) {
+        setStoreList(data.storeList);
+        setStoreID(data.storeList[0].storeID);
+      } else {
+        setStoreList([]);
+      }
+    } else if (response.status === 401) {
+      router.push("/admin/login");
     }
   };
   useEffect(() => {
@@ -177,6 +180,8 @@ export default function GetProductsFunctionForm({
         console.log(
           `Page ${data.currentPage} of ${data.totalPages}, hasMore: ${data.currentPage < data.totalPages}`,
         ); // Debug log
+      } else if (response.status === 401) {
+        router.push("/admin/login");
       }
     } catch (error) {
       console.error("Error loading products:", error);

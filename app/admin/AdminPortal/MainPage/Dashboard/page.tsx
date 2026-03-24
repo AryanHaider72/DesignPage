@@ -51,6 +51,8 @@ export default function AdminDashboard() {
       const data = response.data as StoreApiResponse;
       console.log(data);
       setStoreList(data.storeList);
+    } else if (response.status === 401) {
+      router.push("/admin/login");
     }
   };
   useEffect(() => {

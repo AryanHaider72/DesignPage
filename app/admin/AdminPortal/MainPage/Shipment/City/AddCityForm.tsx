@@ -17,6 +17,7 @@ import {
   regionlist,
   responseRegionList,
 } from "@/api/types/Admin/Shipment/Region/Region";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 interface AddTillFormProps {
   //countryList: Countryget[];
@@ -30,6 +31,7 @@ export default function AddCityForm({
   onShowMessage,
   initialData,
 }: AddTillFormProps) {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [Countries, setCountries] = useState<Countryget[]>([]);
   const [RegionList, setRegionList] = useState<regionlist[]>([]);
@@ -47,20 +49,30 @@ export default function AddCityForm({
       const data = response.data as CountrygetApiResponse;
       setCountries(data.countryList);
       getRegion(data.countryList[0].countryID);
+    } else if (response.status === 401) {
+      router.push("/admin/login");
     }
   };
   const getRegion = async (ID: string) => {
     const token = localStorage.getItem("adminToken");
     const response = await GetRegionApi(ID, String(token));
-    const data = response.data as responseRegionList;
-    setRegionList(data.regionlist);
-    getZone(data.regionlist[0].regionID);
+    if (response.status === 200 || response.status === 201) {
+      const data = response.data as responseRegionList;
+      setRegionList(data.regionlist);
+      getZone(data.regionlist[0].regionID);
+    } else if (response.status === 401) {
+      router.push("/admin/login");
+    }
   };
   const getZone = async (ID: string) => {
     const token = localStorage.getItem("adminToken");
     const response = await GetCityApi(ID, String(token));
-    const data = response.data as responseZoneList;
-    setCityList(data.zonelist);
+    if (response.status === 200 || response.status === 201) {
+      const data = response.data as responseZoneList;
+      setCityList(data.zonelist);
+    } else if (response.status === 401) {
+      router.push("/admin/login");
+    }
   };
 
   const addCityTable = async () => {
@@ -75,6 +87,8 @@ export default function AddCityForm({
       if (response.status === 200 || response.status === 201) {
         setCityName("");
         onShowMessage(response.message || "City Added successfully", "success");
+      } else if (response.status === 401) {
+        router.push("/admin/login");
       }
     } catch (error) {
       onShowMessage("Something went wrong", "error");
@@ -99,6 +113,8 @@ export default function AddCityForm({
           response.message || "City Modified successfully",
           "success",
         );
+      } else if (response.status === 401) {
+        router.push("/admin/login");
       }
     } catch (error) {
       onShowMessage("Something went wrong", "error");

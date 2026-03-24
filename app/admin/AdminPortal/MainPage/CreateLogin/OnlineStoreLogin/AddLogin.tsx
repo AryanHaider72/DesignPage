@@ -6,6 +6,7 @@ import {
   storeListInital,
 } from "@/api/types/Admin/Store/Store";
 import { Plus, Trash } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface itemsList {
@@ -19,6 +20,7 @@ interface AddUnitProps {
   onShowMessage: (message: any, type: "success" | "error") => void;
 }
 export default function AddLoginsOnline({ onShowMessage }: AddUnitProps) {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [storeID, setStoreID] = useState("");
   const [Email, setEmail] = useState("");
@@ -32,6 +34,8 @@ export default function AddLoginsOnline({ onShowMessage }: AddUnitProps) {
     const data = response.data as ResponseStoreList;
     if (data.storeList.length > 0) {
       setStoreList(data.storeList);
+    } else if (response.status === 401) {
+      router.push("/admin/login");
     } else {
       setStoreList([]);
     }

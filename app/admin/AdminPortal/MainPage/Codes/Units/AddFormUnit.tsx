@@ -6,6 +6,7 @@ import {
   ResponseStoreList,
   storeListInital,
 } from "@/api/types/Admin/Store/Store";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface AddUnitProps {
@@ -20,6 +21,7 @@ export default function AddFormUnit({
   Update,
   onShowMessage,
 }: AddUnitProps) {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [ID, setID] = useState("");
   const [StoreID, setStoreID] = useState("");
@@ -34,6 +36,8 @@ export default function AddFormUnit({
     const data = response.data as ResponseStoreList;
     if (data.storeList.length > 0) {
       setStoreList(data.storeList);
+    } else if (response.status === 401) {
+      router.push("/admin/login");
     } else {
       setStoreList([]);
     }
@@ -55,6 +59,8 @@ export default function AddFormUnit({
         setAbbreviation("");
         setDescription("");
         onShowMessage(response.message || "Unit Added successfully", "success");
+      } else if (response.status === 401) {
+        router.push("/admin/login");
       } else {
         onShowMessage(response.message, "error");
       }
@@ -83,6 +89,8 @@ export default function AddFormUnit({
           response.message || "Unit Modified successfully",
           "success",
         );
+      } else if (response.status === 401) {
+        router.push("/admin/login");
       } else {
         onShowMessage(response.message, "error");
       }

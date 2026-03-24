@@ -1,5 +1,6 @@
 "use client";
 import { Plus, Save } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface listVarient {
@@ -23,6 +24,7 @@ export default function VariantInformation({
   values,
   onEdit,
 }: VarinetInfoPassProps) {
+  const router = useRouter();
   const [mainVarientName, setMainVarientName] = useState("");
   const [listVarient, setListVarient] = useState<listVarient[]>(values);
   const [currentAttributes, setCurrentAttributes] = useState<
