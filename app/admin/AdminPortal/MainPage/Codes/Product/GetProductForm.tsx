@@ -35,6 +35,7 @@ interface ModfiyBasicInfoData {
   storeSale: string;
   categoryID: string;
   subCategoryID: string;
+  isStock: string;
   subCategoryDetailID: string;
   unitID: string;
   productName: string;
@@ -265,6 +266,7 @@ export default function GetProductsFunctionForm({
         subCategoryID: data.subCategoryID,
         subCategoryDetailID: data.subCategoryDetailID,
         unitID: data.unitID,
+        isStock: data.isStock,
         productName: data.productName,
         description: data.description,
         feturedProduct: data.feturedProduct,

@@ -21,6 +21,7 @@ interface ModfiyBasicInfoData {
   description: string;
   feturedProduct: boolean;
   discount: number;
+  isStock: string;
   currentStock: number;
   threshold: number;
   width: number;

@@ -89,18 +89,30 @@ export default function CheckOut() {
     useState<requestAddStoreToGetRate | null>(null);
   const [CityList, setCityList] = useState([]);
   const [selected2, setSelected2] = useState("");
+
   useEffect(() => {
     const storedItems = localStorage.getItem("checkoutItems");
     if (storedItems) {
       try {
-        const parsedItems: cartItem[] = JSON.parse(storedItems);
-        console.log("items List: ", parsedItems);
+        const parsedItems = JSON.parse(storedItems);
 
+        // Validate that parsedItems is an array
+        if (!Array.isArray(parsedItems)) {
+          console.error("checkoutItems is not an array:", parsedItems);
+          setProductItem2([]);
+          return;
+        }
+
+        console.log("items List: ", parsedItems);
         const item = filterItems(parsedItems, ProductList);
         setProductItem2(item);
       } catch (error) {
         console.error("Failed to parse checkout items:", error);
+        setProductItem2([]);
       }
+    } else {
+      // If no items in localStorage, set empty array
+      setProductItem2([]);
     }
   }, [ProductList]);
 
@@ -254,10 +266,15 @@ export default function CheckOut() {
     getStandard();
   }, []);
   const filterItems = (
-    cartItem: CartData[],
+    cartItem: CartData[] | null | undefined,
     productList: FeaturedProductForCustomer[],
   ) => {
     const result: any[] = [];
+
+    // Check if cartItem is an array and has items
+    if (!cartItem || !Array.isArray(cartItem) || cartItem.length === 0) {
+      return result;
+    }
 
     cartItem.forEach((cartItem) => {
       productList.forEach((product) => {

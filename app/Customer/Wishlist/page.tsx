@@ -18,6 +18,7 @@ interface cartItems {
 interface GetProductFromCookies {
   productID: string;
   productName: string;
+  isStock: string;
   image: string;
   attributeID: string;
   variantValue: string;
@@ -34,6 +35,15 @@ export default function LoginPage({ commitChange }: wishListprops) {
   const [productItem, setProductItem] = useState<GetProductFromCookies[]>([]);
   const [isLogin, setIsLogin] = useState(true);
   const [activePage, setActivePage] = useState("login");
+  const [navbarHeight, setNavbarHeight] = useState(0);
+
+  // Get navbar height dynamically
+  useEffect(() => {
+    const navbar = document.querySelector("nav");
+    if (navbar) {
+      setNavbarHeight(navbar.offsetHeight);
+    }
+  }, []);
 
   const cartData = async () => {
     const cart = await getServerWishlist();
@@ -54,6 +64,7 @@ export default function LoginPage({ commitChange }: wishListprops) {
             if (value.attributeID === cartItem.attributeID) {
               result.push({
                 productID: product.productID,
+                isStock: product.isStock,
                 productName: product.productName,
                 image: product.images?.[0]?.url,
                 attributeID: value.attributeID,
@@ -101,10 +112,29 @@ export default function LoginPage({ commitChange }: wishListprops) {
         onCommit={() => commitChange}
       />
       {/* MAIN CONTENT */}
-      <div className="flex flex-col items-center w-full min-h-[calc(100vh-200px)] px-4 py-10">
-        <h1 className="text-3xl font-bold text-gray-800 ">
+      <div
+        className="flex flex-col items-center w-full min-h-[calc(100vh-200px)] px-4 py-10"
+        style={{ paddingTop: `${navbarHeight + 50}px` }}
+      >
+        <div className="inline-block mb-4">
+          <div className="flex items-center gap-2">
+            <div className="h-px w-8 bg-gray-300" />
+            <span className="text-xs font-medium uppercase tracking-wider text-gray-500">
+              WishList Items
+            </span>
+            <div className="h-px w-8 bg-gray-300" />
+          </div>
+        </div>
+        <h2
+          className="text-3xl md:text-4xl font-light text-gray-900 mb-3"
+          style={{ fontFamily: "var(--font-playfair)" }}
+        >
           Wishlist / Liked Products
-        </h1>
+        </h2>
+        <p className="text-gray-500 max-w-2xl mx-auto text-sm">
+          Experience the difference with our premium services and unwavering
+          commitment to excellence
+        </p>
         <hr className="w-1/2 border-gray-300 mt-6 mb-10" />
         <div className="w-full flex justify-center  py-12 px-4">
           <div className="w-full max-w-6xl bg-white rounded-2xl shadow-md overflow-hidden">
@@ -116,6 +146,7 @@ export default function LoginPage({ commitChange }: wishListprops) {
                     <th className="px-6 py-4">Image</th>
                     <th className="px-6 py-4">Product Name</th>
                     <th className="px-6 py-4">Price</th>
+                    <th className="px-6 py-4">Status</th>
                     <th className="px-6 py-4 text-center">Action</th>
                   </tr>
                 </thead>
@@ -142,6 +173,18 @@ export default function LoginPage({ commitChange }: wishListprops) {
                         </span>
                       </td>
                       <td className="px-6 py-4">
+                        {item.isStock === "InStock" ? (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700">
+                            In Stock
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-700">
+                            {/* <span className="w-2 h-2 bg-red-500 rounded-full"></span> */}
+                            Out of Stock
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4">
                         <div className="flex items-center justify-center gap-3">
                           <button
                             onClick={() => deleteProduct(item.attributeID)}
@@ -150,13 +193,15 @@ export default function LoginPage({ commitChange }: wishListprops) {
                           >
                             <Trash2 size={18} />
                           </button>
-                          <button
-                            onClick={() => addToCart(item.attributeID)}
-                            className="p-2.5 rounded-full bg-gray-900 hover:bg-gray-800 text-white shadow-sm transition-all duration-200"
-                            title="Add to Cart"
-                          >
-                            <ShoppingCart size={18} />
-                          </button>
+                          {item.isStock === "InStock" && (
+                            <button
+                              onClick={() => addToCart(item.attributeID)}
+                              className="p-2.5 rounded-full bg-gray-900 hover:bg-gray-800 text-white shadow-sm transition-all duration-200"
+                              title="Add to Cart"
+                            >
+                              <ShoppingCart size={18} />
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>

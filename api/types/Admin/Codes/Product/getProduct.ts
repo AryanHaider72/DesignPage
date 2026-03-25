@@ -21,6 +21,7 @@ export interface ProductForAdmin {
   storeSale: string;
   categoryID: string;
   subCategoryID: string;
+  isStock: string;
   subCategoryDetailID: string;
   unitID: string;
   productName: string;

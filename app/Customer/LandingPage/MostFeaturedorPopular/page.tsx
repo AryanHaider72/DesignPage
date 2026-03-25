@@ -6,6 +6,8 @@ import { getServerWishlist } from "@/api/lib/CookiesApi/WishList/GetWishList/Get
 import { CartData } from "@/api/types/CookiesApi/CartItem";
 import { FeaturedProductForCustomer } from "@/api/types/Customer/LandingPage/Product/Product";
 import { ChevronLeft, ChevronRight, Heart } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useRef, useState, useEffect } from "react";
 
 interface feturedProductProps {
@@ -17,6 +19,7 @@ export default function MostFeaturedorPopular({
   onCommitChnage,
   FeaturedProduct = [],
 }: feturedProductProps) {
+  const router = useRouter();
   const list = ["Featured", "Most Popular"];
   const [value, setValue] = useState(list[0]);
   const [selectedAttributes, setSelectedAttributes] = useState<
@@ -163,7 +166,7 @@ export default function MostFeaturedorPopular({
 
         {/* Header Section */}
         <div
-          className={`flex flex-col gap-6 md:flex-row md:items-end md:justify-between mb-12 transition-all duration-700 delay-100 ${
+          className={`flex flex-col gap-6 md:flex-row md:items-end md:justify-around mb-12 transition-all duration-700 delay-100 ${
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           }`}
         >
@@ -248,11 +251,16 @@ export default function MostFeaturedorPopular({
                   <div className="bg-white rounded-lg border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
                     {/* Image */}
                     <div className="relative h-[320px] sm:h-[360px] md:h-[400px] lg:h-[420px] overflow-hidden bg-gray-50">
-                      <img
-                        src={item?.images?.[0]?.url || "/placeholder.jpg"}
-                        alt={item.productName || "Product image"}
-                        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                      />
+                      <Link href={`/Customer/Product/${item.productID}`}>
+                        <img
+                          src={item?.images?.[0]?.url || "/placeholder.jpg"}
+                          alt={item.productName || "Product image"}
+                          onClick={() =>
+                            router.push(`/Customer/Product/${item.productID}`)
+                          }
+                          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
+                      </Link>
 
                       {/* Overlay with Actions */}
                       {item.variants && item.variants.length > 0 && (
@@ -276,14 +284,18 @@ export default function MostFeaturedorPopular({
                                       )
                                     }
                                     key={item2.attributeID}
-                                    className={`px-2.5 py-1 text-xs font-medium rounded
-                                      transition-all duration-200
-                                      ${
-                                        selectedAttributes[item.productID] ===
-                                        item2.attributeID
-                                          ? "bg-gray-900 text-white"
-                                          : "text-gray-600 hover:bg-gray-100"
-                                      }`}
+                                    className={`${
+                                      item2.qty > 0 ||
+                                      item.isStock === "InStock"
+                                        ? `px-2.5 py-1 text-xs font-medium rounded transition-all duration-200 ${
+                                            selectedAttributes[
+                                              item.productID
+                                            ] === item2.attributeID
+                                              ? "bg-gray-900 text-white"
+                                              : "text-gray-600 hover:bg-gray-100"
+                                          }`
+                                        : "text-gray-300"
+                                    }`}
                                   >
                                     {item2.varientValue?.toUpperCase() || ""}
                                   </button>
@@ -294,18 +306,20 @@ export default function MostFeaturedorPopular({
 
                           {/* Action Buttons */}
                           <div className="flex items-center justify-center gap-4">
-                            <button
-                              onClick={() => {
-                                const attrId =
-                                  selectedAttributes[item.productID];
-                                if (attrId) addToCart(attrId);
-                              }}
-                              className="px-4 py-1.5 text-xs font-medium text-gray-700 
+                            {item.isStock === "InStock" && (
+                              <button
+                                onClick={() => {
+                                  const attrId =
+                                    selectedAttributes[item.productID];
+                                  if (attrId) addToCart(attrId);
+                                }}
+                                className="px-4 py-1.5 text-xs font-medium text-gray-700 
                                        hover:text-gray-900 transition-colors duration-200
                                        border border-gray-300 rounded hover:border-gray-400 hover:bg-gray-50"
-                            >
-                              ADD TO BAG
-                            </button>
+                              >
+                                ADD TO BAG
+                              </button>
+                            )}
                             <button
                               onClick={() => {
                                 const attrId =

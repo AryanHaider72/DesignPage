@@ -1,128 +1,266 @@
+import { addToServerCart } from "@/api/lib/CookiesApi/AddCart/AddCart";
+import { getServerCart } from "@/api/lib/CookiesApi/GetCart/GetCart";
+import { addToServerWishList } from "@/api/lib/CookiesApi/WishList/AddWishlist/AddWishlist";
+import { getServerWishlist } from "@/api/lib/CookiesApi/WishList/GetWishList/GetWishList";
+import { CartData } from "@/api/types/CookiesApi/CartItem";
+import { FeaturedProductForCustomer } from "@/api/types/Customer/LandingPage/Product/Product";
 import { Heart } from "lucide-react";
 import Link from "next/link";
+import { useState, useEffect } from "react";
 
-export default function SuggestedForYouProduct() {
-  const SuggestedProductList = [
-    {
-      images:
-        "https://res.cloudinary.com/daz8ajhg3/image/upload/v1768379198/dfyyrgq7hok6qm3q0mxz.webp",
-      productName: "Weist Coat",
-      price: 2500,
-      subList: ["xl", "md", "lg", "sm"],
-      description:
-        "Premium quality fabric designed for everyday comfort and effortless style. Perfect for casual wear or layering year-round.",
+interface SuggestedProps {
+  SuggestedProduct: FeaturedProductForCustomer[];
+}
+
+export default function SuggestedForYouProduct({
+  SuggestedProduct,
+}: SuggestedProps) {
+  const [productPrices, setProductPrices] = useState<Record<string, number>>(
+    () => {
+      const initialPrices: Record<string, number> = {};
+      SuggestedProduct.forEach((product) => {
+        const firstVariant = product.variants[0];
+        const firstAttribute = firstVariant?.variantValues[0];
+        if (firstAttribute) {
+          initialPrices[product.productID] = firstAttribute.salePrice;
+        }
+      });
+      return initialPrices;
     },
-    {
-      images:
-        "https://res.cloudinary.com/daz8ajhg3/image/upload/v1768378939/p1iyljvgzhdbtpddntt3.webp",
-      productName: "Stitched",
-      price: 5000,
-      subList: ["xl", "md", "lg", "sm"],
-      description:
-        "A modern essential crafted with attention to detail. Designed to elevate your everyday look with comfort and confidence.",
-    },
-    {
-      images:
-        "https://res.cloudinary.com/daz8ajhg3/image/upload/v1768378839/rzsrh8yburloiygdyrgy.jpg",
-      productName: "Unsticted",
-      price: 1500,
-      subList: [],
-      description:
-        "Premium quality fabric designed for everyday comfort and effortless style. Perfect for casual wear or layering year-round.",
-    },
-    {
-      images:
-        "https://res.cloudinary.com/daz8ajhg3/image/upload/v1768380236/xftbs9aqjiskjswfxctv.webp",
-      productName: "Shalwar Kameez",
-      subList: ["xl", "md", "lg", "sm"],
-      price: 10000,
-      description:
-        "A modern essential crafted with attention to detail. Designed to elevate your everyday look with comfort and confidence.",
-    },
-    {
-      images:
-        "https://res.cloudinary.com/daz8ajhg3/image/upload/v1768379317/wi0zw4upirxrzil7j4ak.webp",
-      productName: "Sweaters",
-      price: 10000,
-      description:
-        "A modern essential crafted with attention to detail. Designed to elevate your everyday look with comfort and confidence.",
-    },
-  ];
+  );
+
+  const [selectedAttributes, setSelectedAttributes] = useState<
+    Record<string, string>
+  >({});
+
+  // Initialize selected attributes for each product
+  useEffect(() => {
+    const initialSelected: Record<string, string> = {};
+    SuggestedProduct.forEach((product) => {
+      const firstVariant = product.variants[0];
+      const firstAttribute = firstVariant?.variantValues[0];
+      if (firstAttribute) {
+        initialSelected[product.productID] = firstAttribute.attributeID;
+      }
+    });
+    setSelectedAttributes(initialSelected);
+  }, [SuggestedProduct]);
+
+  const updatePrice = (
+    productID: string,
+    variantID: string,
+    attributeID: string,
+  ) => {
+    const product = SuggestedProduct.find(
+      (item) => item.productID === productID,
+    );
+    if (!product) return;
+
+    const variant = product.variants.find(
+      (item2) => item2.varientID === variantID,
+    );
+    if (!variant) return;
+
+    const attribute = variant.variantValues.find(
+      (item3) => item3.attributeID === attributeID,
+    );
+    if (!attribute) return;
+
+    setProductPrices((prev) => ({
+      ...prev,
+      [productID]: attribute.salePrice,
+    }));
+
+    setSelectedAttributes((prev) => ({
+      ...prev,
+      [productID]: attributeID,
+    }));
+  };
+
+  const addToCart = async (ID: string) => {
+    const newItem: CartData = {
+      attributeID: ID,
+      qty: 1,
+    };
+    const currentCart = await getServerCart();
+    const updatedCart = [...currentCart, newItem];
+    await addToServerCart(updatedCart);
+  };
+
+  const addToWishList = async (ID: string) => {
+    const newItem: CartData = {
+      attributeID: ID,
+      qty: 1,
+    };
+    const currentCart = await getServerWishlist();
+    const updatedCart = [...currentCart, newItem];
+    await addToServerWishList(updatedCart);
+  };
+
+  // Limit to 10 products
+  const displayProducts = SuggestedProduct.slice(0, 10);
+
   return (
     <>
-      <div className="w-full max-w-7xl mx-auto mt-16 px-4">
-        <h2
-          style={{ fontFamily: "var(--font-playfair)" }}
-          className="text-4xl  flex justify-start font-semibold text-gray-900 mb-3 text-center"
-        >
-          Suggested For You
-        </h2>
-        {/* <hr className="w-1/2 mb-3 text-gray-400" /> */}
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {SuggestedProductList.map((item, index) => (
+      <div className="w-full p-10 mx-auto mt-16 px-4">
+        <div className="flex justify-between items-center mb-8">
+          <h2
+            style={{ fontFamily: "var(--font-playfair)" }}
+            className="text-3xl md:text-4xl font-light text-gray-900"
+          >
+            Suggested For You
+          </h2>
+          {displayProducts.length > 5 && (
             <Link
-              href={`${index}`}
-              key={index}
-              className="group bg-white rounded-xl border border-gray-200 overflow-hidden
-                 flex flex-col cursor-pointer transition-shadow duration-300 hover:shadow-lg"
+              href="/suggested-products"
+              className="text-sm text-gray-500 hover:text-gray-800 transition-colors"
             >
-              {/* Image */}
-              <div className="relative h-[400px] overflow-hidden">
-                <img
-                  src={item.images}
-                  alt={item.productName}
-                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
+              View All →
+            </Link>
+          )}
+        </div>
 
-                {/* Sublist + Add to Bag Overlay */}
-                {item.subList && item.subList.length > 0 && (
+        {/* Grid Layout - Larger cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 md:gap-8">
+          {displayProducts.map((item, index) => (
+            <div
+              key={item.productID || index}
+              className="group bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2 min-w-[280px] sm:min-w-[320px]"
+            >
+              {/* Image Section - Larger height */}
+              <div className="relative h-[320px] sm:h-[360px] md:h-[380px] lg:h-[400px] overflow-hidden bg-gray-50">
+                <Link href={`/Customer/Product/${item.productID}`}>
+                  <img
+                    src={item?.images[0]?.url || "/placeholder.jpg"}
+                    alt={item.productName}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                </Link>
+
+                {/* Overlay with Actions - Shows on hover */}
+                {item.variants && item.variants.length > 0 && (
                   <div
-                    className="absolute bottom-0 left-1/2 transform -translate-x-1/2
-                       w-full bg-white bg-opacity-90 opacity-0 group-hover:opacity-90
-                       flex flex-col items-center justify-center gap-2 p-3
-                       transition-opacity duration-300"
+                    className="absolute inset-x-0 bottom-0 bg-white bg-opacity-95 
+                                   transform translate-y-full group-hover:translate-y-0
+                                   transition-transform duration-300 ease-out
+                                   p-4 border-t border-gray-100"
                   >
                     {/* Sizes */}
-                    <div className="flex gap-2 flex-wrap justify-center">
-                      {item.subList.map((size, idx) => (
-                        <span
-                          key={idx}
-                          className="px-3 py-1 text-sm font-medium text-gray-500 hover:text-gray-800 cursor-pointer transition-colors duration-200"
-                        >
-                          {size.toUpperCase()}
-                        </span>
+                    <div className="flex flex-wrap gap-2 justify-center mb-3">
+                      {item.variants.map((size) => (
+                        <div key={size.varientID} className="flex gap-1">
+                          {size.variantValues.map((item2) => (
+                            <button
+                              onClick={() =>
+                                updatePrice(
+                                  item.productID,
+                                  size.varientID,
+                                  item2.attributeID,
+                                )
+                              }
+                              key={item2.attributeID}
+                              className={`${
+                                item2.qty > 0 || item.isStock === "InStock"
+                                  ? `px-2.5 py-1 text-xs font-medium rounded transition-all duration-200 ${
+                                      selectedAttributes[item.productID] ===
+                                      item2.attributeID
+                                        ? "bg-gray-900 text-white"
+                                        : "text-gray-600 hover:bg-gray-100"
+                                    }`
+                                  : "text-gray-300"
+                              }`}
+                            >
+                              {item2.varientValue?.toUpperCase() || ""}
+                            </button>
+                          ))}
+                        </div>
                       ))}
                     </div>
 
-                    {/* Buttons */}
-                    <div className=" flex gap-4 mt-2 justify-center w-full">
-                      <button className="px-4 py-1 text-sm font-semibold text-gray-700 rounded hover:text-black transition-colors duration-200">
-                        ADD TO BAG
-                      </button>
-                      <button className="px-4 py-1 text-sm font-semibold text-red-500 rounded hover:text-red-600 transition-colors duration-200">
-                        <Heart />
+                    {/* Action Buttons */}
+                    <div className="flex items-center justify-center gap-4">
+                      {item.isStock === "InStock" && (
+                        <button
+                          onClick={() => {
+                            const attrId = selectedAttributes[item.productID];
+                            if (attrId) addToCart(attrId);
+                          }}
+                          className="px-4 py-1.5 text-xs font-medium text-gray-700 
+                                       hover:text-gray-900 transition-colors duration-200
+                                       border border-gray-300 rounded hover:border-gray-400 hover:bg-gray-50"
+                        >
+                          ADD TO BAG
+                        </button>
+                      )}
+                      <button
+                        onClick={() => {
+                          const attrId = selectedAttributes[item.productID];
+                          if (attrId) addToWishList(attrId);
+                        }}
+                        className="p-1.5 text-gray-500 hover:text-red-500 transition-colors duration-200 hover:scale-110"
+                      >
+                        <Heart className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
                 )}
+
+                {/* Out of Stock Badge */}
+                {item.isStock !== "InStock" && (
+                  <div className="absolute top-3 right-3 bg-red-500 text-white text-xs px-2.5 py-1 rounded-full font-medium">
+                    Out of Stock
+                  </div>
+                )}
+
+                {/* Discount Badge */}
+                {item.discount > 0 && (
+                  <div className="absolute top-3 left-3 bg-green-500 text-white text-xs px-2.5 py-1 rounded-full font-medium">
+                    {item.discount}% OFF
+                  </div>
+                )}
               </div>
 
-              {/* Content */}
-              <div className="p-4 flex flex-col gap-1">
-                <h3 className="text-lg font-bold text-gray-900 line-clamp-1">
+              {/* Content - Larger padding and text */}
+              <div className="p-4">
+                <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-2 line-clamp-1">
                   {item.productName}
                 </h3>
-                <p className="text-sm text-gray-500 line-clamp-2">
+                <p className="text-sm text-gray-500 mb-3 line-clamp-2">
                   {item.description}
                 </p>
-                <span className="mt-2 text-lg font-semibold text-gray-900">
-                  {item.price.toLocaleString()}-/
-                </span>
+                <div className="flex items-center justify-between">
+                  <div className="flex flex-col">
+                    <span className="text-xl font-bold text-gray-900">
+                      Rs.{" "}
+                      {productPrices[item.productID]?.toLocaleString() ||
+                        item?.variants[0]?.variantValues[0]?.salePrice?.toLocaleString()}
+                    </span>
+                    {item.discount > 0 && (
+                      <span className="text-sm text-gray-400 line-through">
+                        Rs.{" "}
+                        {item?.variants[0]?.variantValues[0]?.salePrice?.toLocaleString()}
+                      </span>
+                    )}
+                  </div>
+                  {/* Rating */}
+                  <div className="flex items-center gap-1 bg-gray-100 px-2 py-1 rounded-lg">
+                    <span className="text-yellow-500 text-sm">★</span>
+                    <span className="text-xs text-gray-600 font-medium">
+                      4.5
+                    </span>
+                  </div>
+                </div>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
+
+        {/* Show message if no products */}
+        {displayProducts.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-gray-500">No suggested products available.</p>
+          </div>
+        )}
       </div>
     </>
   );

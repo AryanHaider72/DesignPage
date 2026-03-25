@@ -7,6 +7,7 @@ import { CartData } from "@/api/types/CookiesApi/CartItem";
 import { FeaturedProductForCustomer } from "@/api/types/Customer/LandingPage/Product/Product";
 import { useAppContext } from "@/app/useContext";
 import { ChevronLeft, ChevronRight, Heart } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
 export default function ShopByProductCategory({
@@ -185,12 +186,13 @@ export default function ShopByProductCategory({
                   <div className="bg-white rounded-lg border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
                     {/* Image */}
                     <div className="relative h-[320px] sm:h-[360px] md:h-[400px] lg:h-[420px] overflow-hidden bg-gray-50">
-                      <img
-                        src={item?.images[0]?.url || "/placeholder.jpg"}
-                        alt={item.productName}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                      />
-
+                      <Link href={`/Customer/Product/${item.productID}`}>
+                        <img
+                          src={item?.images[0]?.url || "/placeholder.jpg"}
+                          alt={item.productName}
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
+                      </Link>
                       {/* Overlay with Actions */}
                       {item.variants && item.variants.length > 0 && (
                         <div
@@ -213,14 +215,18 @@ export default function ShopByProductCategory({
                                       )
                                     }
                                     key={item2.attributeID}
-                                    className={`px-2.5 py-1 text-xs font-medium rounded
-                                      transition-all duration-200
-                                      ${
-                                        selectedAttributes[item.productID] ===
-                                        item2.attributeID
-                                          ? "bg-gray-900 text-white"
-                                          : "text-gray-600 hover:bg-gray-100"
-                                      }`}
+                                    className={`${
+                                      item2.qty > 0 ||
+                                      item.isStock === "InStock"
+                                        ? `px-2.5 py-1 text-xs font-medium rounded transition-all duration-200 ${
+                                            selectedAttributes[
+                                              item.productID
+                                            ] === item2.attributeID
+                                              ? "bg-gray-900 text-white"
+                                              : "text-gray-600 hover:bg-gray-100"
+                                          }`
+                                        : "text-gray-300"
+                                    }`}
                                   >
                                     {item2.varientValue?.toUpperCase() || ""}
                                   </button>
@@ -231,18 +237,20 @@ export default function ShopByProductCategory({
 
                           {/* Action Buttons */}
                           <div className="flex items-center justify-center gap-4">
-                            <button
-                              onClick={() => {
-                                const attrId =
-                                  selectedAttributes[item.productID];
-                                if (attrId) addToCart(attrId);
-                              }}
-                              className="px-4 py-1.5 text-xs font-medium text-gray-700 
+                            {item.isStock === "InStock" && (
+                              <button
+                                onClick={() => {
+                                  const attrId =
+                                    selectedAttributes[item.productID];
+                                  if (attrId) addToCart(attrId);
+                                }}
+                                className="px-4 py-1.5 text-xs font-medium text-gray-700 
                                        hover:text-gray-900 transition-colors duration-200
-                                       border border-gray-300 rounded hover:border-gray-400"
-                            >
-                              ADD TO BAG
-                            </button>
+                                       border border-gray-300 rounded hover:border-gray-400 hover:bg-gray-50"
+                              >
+                                ADD TO BAG
+                              </button>
+                            )}
                             <button
                               onClick={() => {
                                 const attrId =

@@ -6,145 +6,258 @@ import Footer from "../../LandingPage/FooterSection/page";
 import { ChevronDown, FilterIcon, Heart, X } from "lucide-react";
 import FilterComponent from "@/app/Component/UsefullComponent/FilterComponent/page";
 import Link from "next/link";
+import { useAppContext } from "@/app/useContext";
+import { CartData } from "@/api/types/CookiesApi/CartItem";
+import { getServerCart } from "@/api/lib/CookiesApi/GetCart/GetCart";
+import { addToServerCart } from "@/api/lib/CookiesApi/AddCart/AddCart";
+import { getServerWishlist } from "@/api/lib/CookiesApi/WishList/GetWishList/GetWishList";
+import { addToServerWishList } from "@/api/lib/CookiesApi/WishList/AddWishlist/AddWishlist";
+import { FeaturedProductForCustomer } from "@/api/types/Customer/LandingPage/Product/Product";
 
 export default function ShopItems() {
+  const { categoryList, storeInfo, ProductList } = useAppContext();
   const param = useParams();
+  const [subCategoryID, setSubCategoryID] = useState("");
+  const [selectedSubCategoryDetails, setSelectedSubCategoryDetails] = useState<
+    string[]
+  >([]);
+  const [searchItem, setSearchItems] = useState<FeaturedProductForCustomer[]>(
+    [],
+  );
   const [categoryID, setCategoryID] = useState("");
   const [Filter, setFilters] = useState(false);
   const [sortType, setSortType] = useState<string | null>(null);
   const [Open, setOpen] = useState(false);
+  const [navbarHeight, setNavbarHeight] = useState(0);
+  const [productPrices, setProductPrices] = useState<Record<string, number>>(
+    () => {
+      const initialPrices: Record<string, number> = {};
+      ProductList.forEach((product) => {
+        const firstVariant = product.variants[0];
+        const firstAttribute = firstVariant?.variantValues[0];
+        if (firstAttribute) {
+          initialPrices[product.productID] = firstAttribute.salePrice;
+        }
+      });
+      return initialPrices;
+    },
+  );
 
-  const itemList = [
-    {
-      images:
-        "https://res.cloudinary.com/daz8ajhg3/image/upload/v1768379198/dfyyrgq7hok6qm3q0mxz.webp",
-      productName: "Weist Coat",
-      price: 2500,
-      subList: ["xl", "md", "lg", "sm"],
-      description:
-        "Premium quality fabric designed for everyday comfort and effortless style. Perfect for casual wear or layering year-round.",
-    },
-    {
-      images:
-        "https://res.cloudinary.com/daz8ajhg3/image/upload/v1768378939/p1iyljvgzhdbtpddntt3.webp",
-      productName: "Stitched",
-      price: 5000,
-      subList: ["xl", "md", "lg", "sm"],
-      description:
-        "A modern essential crafted with attention to detail. Designed to elevate your everyday look with comfort and confidence.",
-    },
-    {
-      images:
-        "https://res.cloudinary.com/daz8ajhg3/image/upload/v1768378839/rzsrh8yburloiygdyrgy.jpg",
-      productName: "Unsticted",
-      price: 1500,
-      subList: [],
-      description:
-        "Premium quality fabric designed for everyday comfort and effortless style. Perfect for casual wear or layering year-round.",
-    },
-    {
-      images:
-        "https://res.cloudinary.com/daz8ajhg3/image/upload/v1768380236/xftbs9aqjiskjswfxctv.webp",
-      productName: "Shalwar Kameez",
-      subList: ["xl", "md", "lg", "sm"],
-      price: 10000,
-      description:
-        "A modern essential crafted with attention to detail. Designed to elevate your everyday look with comfort and confidence.",
-    },
-    {
-      images:
-        "https://res.cloudinary.com/daz8ajhg3/image/upload/v1768379317/wi0zw4upirxrzil7j4ak.webp",
-      productName: "Sweaters",
-      price: 10000,
-      description:
-        "A modern essential crafted with attention to detail. Designed to elevate your everyday look with comfort and confidence.",
-    },
-    {
-      images:
-        "https://res.cloudinary.com/daz8ajhg3/image/upload/v1768379318/abdhqjgltd36ggrhkbes.webp",
-      productName: "NewDress1",
-      price: 10000,
-      description:
-        "A modern essential crafted with attention to detail. Designed to elevate your everyday look with comfort and confidence.",
-    },
-    {
-      images:
-        "https://res.cloudinary.com/daz8ajhg3/image/upload/v1768379317/wi0zw4upirxrzil7j4ak.webp",
-      productName: "NewDress2",
-      price: 10000,
-      description:
-        "A modern essential crafted with attention to detail. Designed to elevate your everyday look with comfort and confidence.",
-    },
-  ];
+  // Get navbar height dynamically
+  useEffect(() => {
+    const navbar = document.querySelector("nav");
+    if (navbar) {
+      setNavbarHeight(navbar.offsetHeight);
+    }
+  }, []);
+
+  const [selectedAttributes, setSelectedAttributes] = useState<
+    Record<string, string>
+  >({});
+
+  // Filter products based on both main category and subcategory details
+  useEffect(() => {
+    let filtered = [...ProductList];
+
+    // Filter by main subcategory
+    if (subCategoryID) {
+      filtered = filtered.filter(
+        (item) => item.subCategoryID === subCategoryID,
+      );
+    }
+
+    // Filter by subcategory details (checkbox selections)
+    if (selectedSubCategoryDetails.length > 0) {
+      filtered = filtered.filter((item) => {
+        // Check if product has any variant that matches selected subcategory details
+        // You need to adjust this logic based on your data structure
+        // Assuming product has a subCategoryDetailID field or you need to check variants
+        return (
+          item.subCategoryDetailID &&
+          selectedSubCategoryDetails.includes(item.subCategoryDetailID)
+        );
+      });
+    }
+
+    setSearchItems(filtered);
+  }, [ProductList, subCategoryID, selectedSubCategoryDetails]);
+
+  const updatePrice = (
+    productID: string,
+    variantID: string,
+    attributeID: string,
+  ) => {
+    const product = ProductList.find((item) => item.productID === productID);
+    if (!product) return;
+
+    const variant = product.variants.find(
+      (item2) => item2.varientID === variantID,
+    );
+    if (!variant) return;
+
+    const attribute = variant.variantValues.find(
+      (item3) => item3.attributeID === attributeID,
+    );
+    if (!attribute) return;
+
+    setProductPrices((prev) => ({
+      ...prev,
+      [productID]: attribute.salePrice,
+    }));
+
+    setSelectedAttributes((prev) => ({
+      ...prev,
+      [productID]: attributeID,
+    }));
+  };
+
+  const addToCart = async (ID: string) => {
+    const newItem: CartData = {
+      attributeID: ID,
+      qty: 1,
+    };
+    const currentCart = await getServerCart();
+    const updatedCart = [...currentCart, newItem];
+    await addToServerCart(updatedCart);
+  };
+
+  const addToWishList = async (ID: string) => {
+    const newItem: CartData = {
+      attributeID: ID,
+      qty: 1,
+    };
+    const currentCart = await getServerWishlist();
+    const updatedCart = [...currentCart, newItem];
+    await addToServerWishList(updatedCart);
+  };
 
   const handleSort = (type: string) => {
     setSortType(type);
     setOpen(false);
+
+    // Apply sorting to filtered products
+    let sorted = [...searchItem];
+    switch (type) {
+      case "all":
+        sorted.find((item) => {
+          return item;
+        });
+        break;
+      case "featured":
+        sorted.find((item) => {
+          return item.feturedProduct === true;
+        });
+        break;
+      case "Price: Low to High":
+        sorted.sort((a, b) => {
+          const priceA = productPrices[a.productID] || 0;
+          const priceB = productPrices[b.productID] || 0;
+          return priceA - priceB;
+        });
+        break;
+      case "Price: High to Low":
+        sorted.sort((a, b) => {
+          const priceA = productPrices[a.productID] || 0;
+          const priceB = productPrices[b.productID] || 0;
+          return priceB - priceA;
+        });
+        break;
+      default:
+        break;
+    }
+    setSearchItems(sorted);
   };
+
   useEffect(() => {
     console.log(param.Shop);
     if (param && !Array.isArray(param.Shop)) {
       setCategoryID(param?.Shop || "");
+      setSubCategoryID(param?.Shop || "");
     }
   }, [param]);
+
+  // Handle subcategory details filter change
+  const handleSubCategoryDetailsChange = (selectedIds: string[]) => {
+    setSelectedSubCategoryDetails(selectedIds);
+  };
+
   return (
     <>
       <div className="flex flex-col justify-between gap-15">
         <div>
           <Navbar
             scrolled={true}
-            categoryList={[]}
-            logoUrl=""
+            categoryList={categoryList}
+            logoUrl={storeInfo[0]?.logoUrl}
             productList={[]}
             onCommit={() => {}}
           />
         </div>
-        <div>
-          <div
-            onClick={() => setOpen(false)}
-            className="mt-10 flex flex-col items-center w-full   px-4 py-10"
-          >
-            <div className="text-center mb-10">
-              <h1 className="text-4xl font-extrabold tracking-tight text-gray-900">
-                Shop Our Collection
-              </h1>
-              <p className="mt-3 text-gray-500 max-w-xl mx-auto">
-                Discover high-quality products carefully selected for you
+        <div
+          className="flex flex-col items-center w-full min-h-[calc(100vh-200px)] px-4 py-10"
+          style={{ paddingTop: `${navbarHeight + 50}px` }}
+        >
+          {/* Header Section */}
+          <div>
+            <div className="text-center mb-12">
+              <div className="inline-block mb-4">
+                <div className="flex items-center gap-2">
+                  <div className="h-px w-8 bg-gray-300" />
+                  <span className="text-xs font-medium uppercase tracking-wider text-gray-500">
+                    Shop
+                  </span>
+                  <div className="h-px w-8 bg-gray-300" />
+                </div>
+              </div>
+              <h2
+                className="text-3xl md:text-4xl font-light text-gray-900 mb-3"
+                style={{ fontFamily: "var(--font-playfair)" }}
+              >
+                Shop Overview
+              </h2>
+              <p className="text-gray-500 max-w-2xl mx-auto text-sm flex items-center justify-center gap-2">
+                Click any product to view complete details, specifications, and
+                available options
               </p>
             </div>
+            <hr className="w-full border-gray-300 mb-10" />
           </div>
-          <div className="w-full flex flex-col md:flex-row md:items-center md:justify-around gap-4 mt-4 mb-6">
-            {/* LEFT: Filters */}
-            <div className="flex items-center gap-3">
+
+          {/* Filter Bar */}
+          <div className="w-full flex flex-col md:flex-row md:items-center md:justify-between gap-4 mt-2 border-b border-gray-200 pb-4">
+            <div className="flex items-center gap-4">
               <button
                 title="filter"
                 onClick={() => setFilters(true)}
-                className="
-                  flex items-center justify-center gap-2
-                  px-3 py-2 rounded-md font-bold
-                  bg-gray-100 text-gray-700
-                  hover:bg-green-50 hover:text-green-600
-                  shadow-sm transition-all duration-300
-                "
+                className="flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-white text-gray-700 border border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-all duration-200 text-sm font-medium"
               >
-                <FilterIcon className="w-5 h-5" />
+                <FilterIcon className="w-4 h-4" />
                 Filters
+                {selectedSubCategoryDetails.length > 0 && (
+                  <span className="bg-gray-900 text-white text-xs px-1.5 py-0.5 rounded-full">
+                    {selectedSubCategoryDetails.length}
+                  </span>
+                )}
               </button>
+
+              {/* Active Filters Display */}
+              <div className="hidden md:flex items-center gap-2">
+                <span className="text-xs text-gray-400">|</span>
+                <span className="text-xs text-gray-500">
+                  {searchItem.length} products
+                </span>
+              </div>
             </div>
-            <div className="relative inline-block z-30">
+
+            {/* Sort Dropdown */}
+            <div className="relative inline-block">
               <button
                 type="button"
                 onClick={() => setOpen(!Open)}
-                className="
-                  flex items-center justify-center gap-2
-                  px-3 py-2 rounded-md font-bold
-                  bg-gray-100 text-gray-700
-                  hover:bg-blue-50 hover:text-blue-600
-                  shadow-sm transition-all duration-300
-                "
+                className="flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-white text-gray-700 border border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-all duration-200 text-sm font-medium"
               >
-                {sortType || "Sort By"}
-
+                <span className="text-gray-500">Sort by:</span>
+                <span className="font-semibold">{sortType || "Featured"}</span>
                 <ChevronDown
                   className={`w-4 h-4 transition-transform duration-200 ${
                     Open ? "rotate-180" : ""
@@ -153,137 +266,207 @@ export default function ShopItems() {
               </button>
 
               {Open && (
-                <div
-                  className="
-                      absolute right-0 mt-2 w-44 p-2
-                      z-50
-                      bg-white
-                      border border-gray-200
-                      rounded-lg shadow-xl
-                    "
-                >
-                  <ul className="p-1 text-sm text-gray-700 font-medium ">
-                    {[
-                      "Price: High to Low",
-                      "Price: Low to High ",
-                      "Alphabetic: A-Z",
-                      "Alphabetic:  Z-A",
-                      // "Date: old to new",
-                      // "Date: new to old",
-                    ].map((item) => (
-                      <li key={item}>
+                <>
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setOpen(false)}
+                  />
+                  <div className="absolute right-0 mt-2 w-48 z-50 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
+                    <div className="py-1">
+                      {[
+                        { label: "All", value: "all" },
+                        { label: "Featured", value: "featured" },
+                        { label: "Price: Low to High", value: "price_asc" },
+                        { label: "Price: High to Low", value: "price_desc" },
+                      ].map((item) => (
                         <button
-                          // onClick={() => setOpen(false)}
+                          key={item.value}
                           onClick={() => {
-                            handleSort(item);
+                            handleSort(item.label);
                             setOpen(false);
                           }}
-                          className="
-                              w-full text-left px-3 py-2 rounded-md font-bold
-                              hover:bg-gray-100 hover:text-gray-900
-                              transition
-                            "
+                          className={`w-full text-left px-4 py-2 text-sm transition-colors ${
+                            sortType === item.label
+                              ? "bg-gray-100 text-gray-900 font-medium"
+                              : "text-gray-700 hover:bg-gray-50"
+                          }`}
                         >
-                          {item}
+                          {item.label}
+                          {sortType === item.label && (
+                            <span className="float-right text-gray-400">✓</span>
+                          )}
                         </button>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                      ))}
+                    </div>
+                  </div>
+                </>
               )}
             </div>
           </div>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {itemList.map((item, index) => (
-                <Link
-                  href={`${index}`}
-                  key={index}
-                  className="group bg-white rounded-xl border border-gray-200 overflow-hidden
-                 flex flex-col cursor-pointer transition-shadow duration-300 hover:shadow-lg"
-                >
-                  {/* Image */}
-                  <div className="relative h-[400px] overflow-hidden">
-                    <img
-                      src={item.images}
-                      alt={item.productName}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
 
-                    {/* Sublist + Add to Bag Overlay */}
-                    {item.subList && item.subList.length > 0 && (
+          {/* Products Grid */}
+          <div className="w-full p-10 mx-auto mt-16 px-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 md:gap-8">
+              {searchItem.map((item, index) => (
+                <div
+                  key={item.productID || index}
+                  className="group bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2 min-w-[280px] sm:min-w-[320px]"
+                >
+                  {/* Image Section - Larger height */}
+                  <div className="relative h-[320px] sm:h-[360px] md:h-[380px] lg:h-[400px] overflow-hidden bg-gray-50">
+                    <Link href={`/Customer/Product/${item.productID}`}>
+                      <img
+                        src={item?.images[0]?.url || "/placeholder.jpg"}
+                        alt={item.productName}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                    </Link>
+
+                    {/* Overlay with Actions - Shows on hover */}
+                    {item.variants && item.variants.length > 0 && (
                       <div
-                        className="absolute bottom-0 left-1/2 transform -translate-x-1/2
-                       w-full bg-white bg-opacity-90 opacity-0 group-hover:opacity-90
-                       flex flex-col items-center justify-center gap-2 p-3
-                       transition-opacity duration-300"
+                        className="absolute inset-x-0 bottom-0 bg-white bg-opacity-95 
+                                   transform translate-y-full group-hover:translate-y-0
+                                   transition-transform duration-300 ease-out
+                                   p-4 border-t border-gray-100"
                       >
                         {/* Sizes */}
-                        <div className="flex gap-2 flex-wrap justify-center">
-                          {item.subList.map((size, idx) => (
-                            <span
-                              key={idx}
-                              className="px-3 py-1 text-sm font-medium text-gray-500 hover:text-gray-800 cursor-pointer transition-colors duration-200"
-                            >
-                              {size.toUpperCase()}
-                            </span>
+                        <div className="flex flex-wrap gap-2 justify-center mb-3">
+                          {item.variants.map((size) => (
+                            <div key={size.varientID} className="flex gap-1">
+                              {size.variantValues.map((item2) => (
+                                <button
+                                  onClick={() =>
+                                    updatePrice(
+                                      item.productID,
+                                      size.varientID,
+                                      item2.attributeID,
+                                    )
+                                  }
+                                  key={item2.attributeID}
+                                  className={`${
+                                    item2.qty > 0 || item.isStock === "InStock"
+                                      ? `px-2.5 py-1 text-xs font-medium rounded transition-all duration-200 ${
+                                          selectedAttributes[item.productID] ===
+                                          item2.attributeID
+                                            ? "bg-gray-900 text-white"
+                                            : "text-gray-600 hover:bg-gray-100"
+                                        }`
+                                      : "text-gray-300"
+                                  }`}
+                                >
+                                  {item2.varientValue?.toUpperCase() || ""}
+                                </button>
+                              ))}
+                            </div>
                           ))}
                         </div>
 
-                        {/* Buttons */}
-                        <div className=" flex gap-4 mt-2 justify-center w-full">
-                          <button className="px-4 py-1 text-sm font-semibold text-gray-700 rounded hover:text-black transition-colors duration-200">
-                            ADD TO BAG
-                          </button>
-                          <button className="px-4 py-1 text-sm font-semibold text-red-500 rounded hover:text-red-600 transition-colors duration-200">
-                            <Heart />
+                        {/* Action Buttons */}
+                        <div className="flex items-center justify-center gap-4">
+                          {item.isStock === "InStock" && (
+                            <button
+                              onClick={() => {
+                                const attrId =
+                                  selectedAttributes[item.productID];
+                                if (attrId) addToCart(attrId);
+                              }}
+                              className="px-4 py-1.5 text-xs font-medium text-gray-700 
+                                       hover:text-gray-900 transition-colors duration-200
+                                       border border-gray-300 rounded hover:border-gray-400 hover:bg-gray-50"
+                            >
+                              ADD TO BAG
+                            </button>
+                          )}
+                          <button
+                            onClick={() => {
+                              const attrId = selectedAttributes[item.productID];
+                              if (attrId) addToWishList(attrId);
+                            }}
+                            className="p-1.5 text-gray-500 hover:text-red-500 transition-colors duration-200 hover:scale-110"
+                          >
+                            <Heart className="w-4 h-4" />
                           </button>
                         </div>
                       </div>
                     )}
+
+                    {/* Out of Stock Badge */}
+                    {item.isStock !== "InStock" && (
+                      <div className="absolute top-3 right-3 bg-red-500 text-white text-xs px-2.5 py-1 rounded-full font-medium">
+                        Out of Stock
+                      </div>
+                    )}
+
+                    {/* Discount Badge */}
+                    {item.discount > 0 && (
+                      <div className="absolute top-3 left-3 bg-green-500 text-white text-xs px-2.5 py-1 rounded-full font-medium">
+                        {item.discount}% OFF
+                      </div>
+                    )}
                   </div>
 
-                  {/* Content */}
-                  <div className="p-4 flex flex-col gap-1">
-                    <h3 className="text-lg font-bold text-gray-900 line-clamp-1">
+                  {/* Content - Larger padding and text */}
+                  <div className="p-4">
+                    <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-2 line-clamp-1">
                       {item.productName}
                     </h3>
-                    <p className="text-sm text-gray-500 line-clamp-2">
+                    <p className="text-sm text-gray-500 mb-3 line-clamp-2">
                       {item.description}
                     </p>
-                    <span className="mt-2 text-lg font-semibold text-gray-900">
-                      {item.price.toLocaleString()}-/
-                    </span>
+                    <div className="flex items-center justify-between">
+                      <div className="flex flex-col">
+                        <span className="text-xl font-bold text-gray-900">
+                          Rs.{" "}
+                          {productPrices[item.productID]?.toLocaleString() ||
+                            item?.variants[0]?.variantValues[0]?.salePrice?.toLocaleString()}
+                        </span>
+                        {item.discount > 0 && (
+                          <span className="text-sm text-gray-400 line-through">
+                            Rs.{" "}
+                            {item?.variants[0]?.variantValues[0]?.salePrice?.toLocaleString()}
+                          </span>
+                        )}
+                      </div>
+                      {/* Rating */}
+                      <div className="flex items-center gap-1 bg-gray-100 px-2 py-1 rounded-lg">
+                        <span className="text-yellow-500 text-sm">★</span>
+                        <span className="text-xs text-gray-600 font-medium">
+                          4.5
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                </Link>
+                </div>
               ))}
             </div>
+
+            {searchItem.length === 0 && (
+              <div className="text-center py-12">
+                <p className="text-gray-500">
+                  No products found matching your filters.
+                </p>
+              </div>
+            )}
           </div>
         </div>
         <div>
           <Footer />
         </div>
       </div>
+
+      {/* Filter Drawer */}
       {Filter && (
         <>
-          {/* Overlay */}
           <div
             className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm transition-all duration-500"
             onClick={() => setFilters(false)}
-          ></div>
-
-          {/* Drawer */}
-          <div
-            className={`
-                        fixed top-0 left-0 z-100 h-full 
-                        bg-white shadow-xl transform transition-transform duration-500 ease-in-out
-                        w-[80vw] sm:w-[60vw] md:w-[45vw] lg:w-[35vw] xl:w-[25vw]
-                        flex flex-col
-                      `}
-          >
-            {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-gray-200">
-              <h2 className="text-lg font-semibold text-gray-800">Filters</h2>
+          />
+          <div className="fixed top-0 left-0 z-100 h-full bg-white shadow-xl transform transition-transform duration-500 ease-in-out w-[80vw] sm:w-[60vw] md:w-[45vw] lg:w-[35vw] xl:w-[25vw] flex flex-col">
+            <div className="flex w-full items-center justify-between p-4 border-b border-gray-200">
+              <h1 className="text-3xl font-bold mb-4 text-gray-900">
+                Filter & Sorting
+              </h1>
               <button
                 title="Close"
                 className="text-gray-500 hover:text-red-500 transition"
@@ -292,9 +475,12 @@ export default function ShopItems() {
                 <X className="w-6 h-6" />
               </button>
             </div>
-
-            {/* Body */}
-            <FilterComponent />
+            <FilterComponent
+              subCategoryID={setSubCategoryID}
+              onSubCategoryDetailsChange={handleSubCategoryDetailsChange}
+              ReturnSubCategroy={subCategoryID}
+              selectedSubCategoryDetails={selectedSubCategoryDetails}
+            />
           </div>
         </>
       )}

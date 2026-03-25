@@ -48,6 +48,7 @@ interface ModfiyBasicInfoData {
   subCategoryDetailID: string;
   unitID: string;
   productName: string;
+  isStock: string;
   description: string;
   feturedProduct: boolean;
   discount: number;
@@ -113,7 +114,7 @@ export default function ModifyBasicInfo({
       countryName: item?.countryName || "",
     })),
   );
-  const [Status, setStatus] = useState("InStock");
+  const [Status, setStatus] = useState(values?.isStock);
   const [Length, setLength] = useState(values?.depth);
   const [Weight, setWeight] = useState(values?.weight);
   const [Width, setWidth] = useState(values?.width);

@@ -10,6 +10,7 @@ interface NavbarProps {
 
 export default function ShopByStyle({ categoryList }: NavbarProps) {
   const [isVisible, setIsVisible] = useState(false);
+  const [subCategoryID, setSubCategoryID] = useState("");
   const sectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -32,6 +33,12 @@ export default function ShopByStyle({ categoryList }: NavbarProps) {
 
     return () => observer.disconnect();
   }, []);
+
+  useEffect(() => {
+    if (categoryList) {
+      setSubCategoryID(categoryList[0]?.subCategoryID);
+    }
+  }, [categoryList]);
 
   return (
     <div ref={sectionRef} className="w-full py-10 bg-gray-50 overflow-hidden">
@@ -66,7 +73,7 @@ export default function ShopByStyle({ categoryList }: NavbarProps) {
         <div className="flex flex-wrap justify-center gap-8 md:gap-12">
           {categoryList?.map((item, index) => (
             <Link
-              href={`/Customer/Shop/${index}`}
+              href={`/Customer/Shop/${item.subCategoryID}`}
               key={index}
               className={`group flex flex-col items-center transition-all duration-500 ${
                 isVisible
@@ -115,7 +122,7 @@ export default function ShopByStyle({ categoryList }: NavbarProps) {
             }`}
           >
             <Link
-              href="/Customer/Shop"
+              href={`/Customer/Shop/${subCategoryID}`}
               className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors duration-200 group"
             >
               <span>View All Collections</span>
