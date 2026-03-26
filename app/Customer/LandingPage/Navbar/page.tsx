@@ -5,7 +5,7 @@ import { FeaturedProductForCustomer } from "@/api/types/Customer/LandingPage/Pro
 import { useAppContext } from "@/app/useContext";
 import CartItems from "@/app/Component/UsefullComponent/CartSidebar/page";
 import SearchSidebarCompnent from "@/app/Component/UsefullComponent/SearchComponent/page";
-import { Heart, Search, ShoppingCart, User } from "lucide-react";
+import { BlocksIcon, Heart, Search, ShoppingCart, User } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getServerWishlist } from "@/api/lib/CookiesApi/WishList/GetWishList/GetWishList";
@@ -31,6 +31,7 @@ export default function Navbar({
 }: NavbarProps) {
   const [cartItem, setCarItem] = useState<cartItems[]>([]);
   const [wishList, setWishList] = useState<cartItems[]>([]);
+  const [token, setToken] = useState<string | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [cartShow, setCartShow] = useState(false);
   const [SearchShow, setSearchShow] = useState(false);
@@ -62,6 +63,10 @@ export default function Navbar({
     }
   }, [cartShow]);
 
+  useEffect(() => {
+    const newtoken = localStorage.getItem("CustomerToken");
+    setToken(newtoken); // Remove String() wrapper
+  }, []);
   return (
     <>
       {/* Top promo bar */}
@@ -172,10 +177,10 @@ export default function Navbar({
             </button>
 
             <Link
-              href={"/Customer/login"}
+              href={`${token ? "/Customer/MainPage/Dashboard" : "/Customer/login"}`}
               className={`relative rounded-full p-2  ${scrolled ? "hover:bg-gray-100" : "hover:bg-gray-900"}`}
             >
-              <User size={20} />
+              {token ? <BlocksIcon size={20} /> : <User size={20} />}
             </Link>
 
             {/* Mobile Hamburger Menu */}

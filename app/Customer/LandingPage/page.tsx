@@ -31,41 +31,41 @@ export default function HomePage() {
   }, []);
 
   // Check if all data is loaded
-  const isDataLoaded =
-    !loading &&
-    categoryList?.length > 0 &&
-    storeInfo?.length > 0 &&
-    ProductList?.length > 0 &&
-    FeaturedProduct?.length > 0;
+  // const isDataLoaded =
+  //   !loading &&
+  //   categoryList?.length > 0 &&
+  //   storeInfo?.length > 0 &&
+  //   ProductList?.length > 0 &&
+  //   FeaturedProduct?.length > 0;
 
-  // Handle smooth transition from loader to content
-  useEffect(() => {
-    if (isDataLoaded) {
-      // Small delay to let loader finish its animation
-      const timer = setTimeout(() => {
-        setShowContent(true);
-        // Fade in content
-        setTimeout(() => {
-          setContentOpacity(1);
-        }, 50);
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [isDataLoaded]);
+  // // Handle smooth transition from loader to content
+  // useEffect(() => {
+  //   if (isDataLoaded) {
+  //     // Small delay to let loader finish its animation
+  //     const timer = setTimeout(() => {
+  //       setShowContent(true);
+  //       // Fade in content
+  //       setTimeout(() => {
+  //         setContentOpacity(1);
+  //       }, 50);
+  //     }, 500);
+  //     return () => clearTimeout(timer);
+  //   }
+  // }, [isDataLoaded]);
 
-  // Show loader while data is loading
-  if (!showContent || !isDataLoaded) {
-    return (
-      <LoaderScreen onLoadingComplete={() => {}} isLoading={!isDataLoaded} />
-    );
-  }
+  // // Show loader while data is loading
+  // if (!showContent || !isDataLoaded) {
+  //   return (
+  //     <LoaderScreen onLoadingComplete={() => {}} isLoading={!isDataLoaded} />
+  //   );
+  // }
 
   const item = () => {};
 
   return (
     <div
       className="transition-opacity duration-1000 ease-out"
-      style={{ opacity: contentOpacity }}
+      // style={{ opacity: contentOpacity }}
     >
       <Navbar
         scrolled={scrolled}
@@ -77,7 +77,7 @@ export default function HomePage() {
       <MainBannerPage store={storeInfo} />
       <ShopByStyle categoryList={categoryList} />
       <MostFeaturedorPopular
-        FeaturedProduct={FeaturedProduct}
+        FeaturedProduct={ProductList}
         onCommitChnage={item}
       />
       <FeaturedProducts categoryList={categoryList} />

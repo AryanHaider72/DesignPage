@@ -1,18 +1,22 @@
 "use server";
 
 import ErrorHandler from "@/api/ErrorHandler/ErrorHandler";
-import { getRequest } from "@/api/main/main";
+import { postRequest } from "@/api/main/main";
+import {
+  RequestLoginData,
+  ResponseLoginData,
+} from "@/api/types/Admin/Authentication/Login/login";
 
-export default async function GetProductCustomerApi(
-  pageNumber: number,
+export default async function CsutomerLoginApi(
+  data: { email: string; password: string },
   token?: string,
 ) {
   const customHeader: Record<string, string> = {};
   if (token) customHeader.Authorization = `Bearer ${token}`;
 
-  const response = await getRequest(
-    `/api/Product/Customer/GetProduct?pageNumber=${pageNumber}`,
-    null,
+  const response = await postRequest(
+    `/api/CustomerAuthentication/Login`,
+    data,
     customHeader,
   );
 
@@ -20,16 +24,17 @@ export default async function GetProductCustomerApi(
     const message = ErrorHandler(response.status);
 
     return {
-      data: response.data,
+      data: response.data as ResponseLoginData,
       status: response.status,
       message: message,
       success: false,
     };
   }
+
   return {
-    data: response.data,
+    data: response.data as ResponseLoginData,
     status: response.status,
-    message: response.message,
+    message: "Login Successful",
     success: true,
   };
 }

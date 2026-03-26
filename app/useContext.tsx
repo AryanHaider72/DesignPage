@@ -62,7 +62,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [FeaturedProduct, setFeaturedProduct] = useState<
     FeaturedProductForCustomer[]
   >([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   // Fetch all data
   useEffect(() => {

@@ -1,17 +1,18 @@
 "use server";
 
 import ErrorHandler from "@/api/ErrorHandler/ErrorHandler";
-import { getRequest } from "@/api/main/main";
+import { getRequest, postRequest } from "@/api/main/main";
 
-export default async function GetProductCustomerApi(
-  pageNumber: number,
+export default async function ChangePasswordApi(
+  email: string,
+  password?: string,
   token?: string,
 ) {
   const customHeader: Record<string, string> = {};
   if (token) customHeader.Authorization = `Bearer ${token}`;
 
-  const response = await getRequest(
-    `/api/Product/Customer/GetProduct?pageNumber=${pageNumber}`,
+  const response = await postRequest(
+    `/api/CustomerAuthentication/Customer/ChangePassword/${email}/${password}`,
     null,
     customHeader,
   );
@@ -26,10 +27,11 @@ export default async function GetProductCustomerApi(
       success: false,
     };
   }
+
   return {
     data: response.data,
     status: response.status,
-    message: response.message,
+    message: "Password Changed Successfully",
     success: true,
   };
 }

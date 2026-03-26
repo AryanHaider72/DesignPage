@@ -22,21 +22,31 @@ export default function MostFeaturedorPopular({
   const router = useRouter();
   const list = ["Featured", "Most Popular"];
   const [value, setValue] = useState(list[0]);
+  const [newProductList, setNewProductList] = useState<
+    FeaturedProductForCustomer[]
+  >([]);
   const [selectedAttributes, setSelectedAttributes] = useState<
     Record<string, string>
   >({});
   const [productPrices, setProductPrices] = useState<Record<string, number>>(
     {},
   );
-  const [isVisible, setIsVisible] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
   const carouselRef = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     if (!FeaturedProduct || FeaturedProduct.length === 0) return;
+    const data = FeaturedProduct.filter((item) => item.feturedProduct === true);
+    if (data) {
+      setNewProductList(data);
+    }
+  }, [FeaturedProduct]);
+
+  useEffect(() => {
+    if (!newProductList || newProductList.length === 0) return;
 
     const initialPrices: Record<string, number> = {};
-    FeaturedProduct.forEach((product) => {
+    newProductList.forEach((product) => {
       const firstVariant = product.variants?.[0];
       const firstAttribute = firstVariant?.variantValues?.[0];
       if (firstAttribute) {
@@ -44,7 +54,7 @@ export default function MostFeaturedorPopular({
       }
     });
     setProductPrices(initialPrices);
-  }, [FeaturedProduct]);
+  }, [newProductList]);
 
   // Intersection Observer for scroll animation
   useEffect(() => {
@@ -93,11 +103,9 @@ export default function MostFeaturedorPopular({
     variantID: string,
     attributeID: string,
   ) => {
-    if (!FeaturedProduct) return;
+    if (!newProductList) return;
 
-    const product = FeaturedProduct.find(
-      (item) => item.productID === productID,
-    );
+    const product = newProductList.find((item) => item.productID === productID);
     if (!product) return;
 
     const variant = product.variants.find(
@@ -142,7 +150,7 @@ export default function MostFeaturedorPopular({
     onCommitChnage();
   };
 
-  if (!FeaturedProduct || FeaturedProduct.length === 0) {
+  if (!newProductList || newProductList.length === 0) {
     return null;
   }
 
@@ -207,7 +215,7 @@ export default function MostFeaturedorPopular({
           }`}
         >
           {/* Navigation Buttons */}
-          {FeaturedProduct.length > 0 && (
+          {newProductList.length > 0 && (
             <>
               <button
                 onClick={scrollLeft}
@@ -240,7 +248,7 @@ export default function MostFeaturedorPopular({
               className="flex gap-5 md:gap-6 scroll-smooth"
               style={{ width: "max-content", minWidth: "100%" }}
             >
-              {FeaturedProduct.map((item, index) => (
+              {newProductList.map((item, index) => (
                 <div
                   key={index}
                   className={`group w-[280px] sm:w-[320px] md:w-[360px] lg:w-[380px] flex-shrink-0
@@ -274,7 +282,7 @@ export default function MostFeaturedorPopular({
                           <div className="flex flex-wrap gap-2 justify-center mb-3">
                             {item.variants.map((size) => (
                               <div key={size.varientID} className="flex gap-1">
-                                {size.variantValues.map((item2) => (
+                                {size.variantValues.map((item2, index) => (
                                   <button
                                     onClick={() =>
                                       updatePrice(
@@ -283,7 +291,7 @@ export default function MostFeaturedorPopular({
                                         item2.attributeID,
                                       )
                                     }
-                                    key={item2.attributeID}
+                                    key={index}
                                     className={`${
                                       item2.qty > 0 ||
                                       item.isStock === "InStock"
@@ -362,9 +370,9 @@ export default function MostFeaturedorPopular({
           </div>
 
           {/* Dots Indicator for Mobile */}
-          {FeaturedProduct.length > 3 && (
+          {newProductList.length > 3 && (
             <div className="flex justify-center gap-2 mt-6 lg:hidden">
-              {FeaturedProduct.map((_, index) => (
+              {newProductList.map((_, index) => (
                 <button
                   key={index}
                   onClick={() => {

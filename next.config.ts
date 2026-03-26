@@ -59,5 +59,9 @@ export const Routes = {
         "/WareHouseSeller/MainPage/OrderManagement",
       ],
     },
+    Customer: {
+      token: "CustomerToken",
+      paths: ["/Customer/MainPage/Dashboard", "/Customer/MainPage/Orders"],
+    },
   },
 };

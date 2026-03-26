@@ -1,18 +1,23 @@
 "use server";
 
 import ErrorHandler from "@/api/ErrorHandler/ErrorHandler";
-import { getRequest } from "@/api/main/main";
+import { getRequest, postRequest } from "@/api/main/main";
+import {
+  RequestLoginData,
+  ResponseLoginData,
+} from "@/api/types/Admin/Authentication/Login/login";
 
-export default async function GetProductCustomerApi(
-  pageNumber: number,
+export default async function OtpVerificationApi(
+  email: string,
+  data: { code: string },
   token?: string,
 ) {
   const customHeader: Record<string, string> = {};
   if (token) customHeader.Authorization = `Bearer ${token}`;
 
-  const response = await getRequest(
-    `/api/Product/Customer/GetProduct?pageNumber=${pageNumber}`,
-    null,
+  const response = await postRequest(
+    `/api/CustomerAuthentication/Customer/EmailVerfication/${email}`,
+    data,
     customHeader,
   );
 
@@ -26,10 +31,11 @@ export default async function GetProductCustomerApi(
       success: false,
     };
   }
+
   return {
     data: response.data,
     status: response.status,
-    message: response.message,
+    message: "Customer Verified Successfully",
     success: true,
   };
 }

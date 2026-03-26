@@ -1,15 +1,25 @@
 "use client";
-import { Eye, EyeOff, Mail } from "lucide-react";
+import { Eye, EyeOff, Mail, X } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Footer from "../LandingPage/FooterSection/page";
 import Navbar from "../LandingPage/Navbar/page";
+import { useAppContext } from "@/app/useContext";
+import CsutomerSignUpApi from "@/api/lib/Customer/Authntication/Signup/SignUp";
+import { useRouter } from "next/navigation";
+import CsutomerLoginApi from "@/api/lib/Customer/Authntication/login/login";
+import VerifyOTP from "@/app/Component/UsefullComponent/OtpPage/page";
+import ForgotPasswordComponent from "@/app/Component/UsefullComponent/ForgotPassword/page";
+import OtpVerificationApi from "@/api/lib/Customer/Authntication/Otpverification/OtpVerification";
 
 export default function CustomerLogin() {
+  const router = useRouter();
+  const { categoryList, storeInfo } = useAppContext();
   const [loading, setLoading] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
   const [Email, setEmail] = useState("");
   const [Password, setPassword] = useState("");
+  const [OtpCode, setOtpCode] = useState("");
   const [ConfirmPassword, setConfirmPassword] = useState("");
   const [PhoneNo, setPhoneNo] = useState("");
   const [Address, setAddress] = useState("");
@@ -19,19 +29,91 @@ export default function CustomerLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [ShowMessage, setShowMessage] = useState(false);
   const [showPassword1, setShowPassword1] = useState(false);
+  const [OtpVerification, setOtpVerification] = useState(false);
+  const [navbarHeight, setNavbarHeight] = useState(0);
+
+  // Get navbar height dynamically
+  useEffect(() => {
+    const navbar = document.querySelector("nav");
+    if (navbar) {
+      setNavbarHeight(navbar.offsetHeight);
+    }
+  }, []);
+  const SignUpNow = async () => {
+    try {
+      setLoading(true);
+      const formData = {
+        userName: fullName,
+        email: Email,
+        password: Password,
+        phoneNo: PhoneNo,
+      };
+      const response = await CsutomerSignUpApi(formData);
+      if (response.status === 200 || response.status === 201) {
+        setFullName("");
+        setEmail("");
+        setConfirmPassword("");
+        setPassword("");
+        setAddress("");
+        setPhoneNo("");
+        router.push("/");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+  const OtpVerificationReq = async (email: string) => {
+    const formData = {
+      code: OtpCode,
+    };
+    const response = await OtpVerificationApi(email, formData);
+    if (response.status === 200) {
+      alert("Otp Verified Successfully");
+    }
+  };
+  const login = async () => {
+    try {
+      setLoading(true);
+      const formData = {
+        userName: fullName,
+        email: Email,
+        password: Password,
+        phoneNo: PhoneNo,
+      };
+      const response = await CsutomerLoginApi(formData);
+      if (response.status === 200 || response.status === 201) {
+        const data = response.data;
+        setOtpVerification(true);
+        await OtpVerificationReq(Email);
+        localStorage.setItem("CustomerToken", data?.token);
+        setEmail("");
+        setPassword("");
+        router.push("/Customer/MainPage/Dashbaord");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <>
-      <div>
-        <Navbar
-          scrolled={true}
-          categoryList={[]}
-          logoUrl=""
-          productList={[]}
-          onCommit={() => {}}
-        />
-      </div>
-      <div className="mt-30 flex flex-col min-h-screen items-center bg-white p-4">
-        <h1 className="text-3xl font-bold mt-10 text-center">Login / SignUp</h1>
+      <Navbar
+        scrolled={true}
+        categoryList={categoryList}
+        logoUrl={storeInfo[0]?.logoUrl}
+        productList={[]}
+        onCommit={() => {}}
+      />
+
+      <div
+        className="flex flex-col items-center w-full min-h-[calc(100vh-200px)] px-4 py-10"
+        style={{ paddingTop: `${navbarHeight + 50}px` }}
+      >
+        <h2
+          className="text-3xl md:text-4xl font-light text-gray-900 mb-3"
+          style={{ fontFamily: "var(--font-playfair)" }}
+        >
+          Login /Sign-Up
+        </h2>
         <hr className="w-1/2 border-gray-300 mt-6 mb-10" />
         <div className="flex flex-col md:flex-row w-full max-w-5xl bg-white rounded-xl overflow-hidden shadow-2xl relative">
           {/* Left Section - Image */}
@@ -213,7 +295,7 @@ export default function CustomerLogin() {
                 {/* Submit Button */}
                 <button
                   type="button"
-                  // onClick={isLogin ? login : signUp}
+                  onClick={isLogin ? login : SignUpNow}
                   className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-md py-2 mt-2 transition-colors"
                 >
                   {isLogin ? (
@@ -240,9 +322,37 @@ export default function CustomerLogin() {
           </div>
         </div>
       </div>
-      <div>
-        <Footer />
-      </div>
+      {OtpVerification && (
+        <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 relative overflow-y-auto max-h-[90vh]">
+            <button
+              onClick={() => {
+                setOtpVerification(false);
+              }}
+              className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <VerifyOTP email={Email} code={setOtpCode} />
+          </div>
+        </div>
+      )}
+      {forgotPAssword && (
+        <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 relative overflow-y-auto max-h-[90vh]">
+            <button
+              onClick={() => {
+                setForgotPassword(false);
+              }}
+              className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <ForgotPasswordComponent />
+          </div>
+        </div>
+      )}
+      <Footer />
     </>
   );
 }

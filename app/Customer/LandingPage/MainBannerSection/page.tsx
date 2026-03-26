@@ -26,7 +26,7 @@ export default function MainBannerPage({ store }: LandingPageProps) {
   };
   useEffect(() => {
     if (categoryList) {
-      setSubCategoryID(categoryList[0].subCategoryID);
+      setSubCategoryID(categoryList[0]?.subCategoryID);
     }
   }, [categoryList]);
   const handleTouchMove = (e: React.TouchEvent) => {
