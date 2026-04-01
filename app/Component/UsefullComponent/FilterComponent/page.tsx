@@ -178,17 +178,6 @@ export default function FilterComponent({
               );
             })()}
         </div>
-
-        {/* Apply Button */}
-        <button
-          onClick={() => {
-            // You can add additional apply logic here if needed
-          }}
-          className="mt-4 flex items-center justify-between px-4 py-3 bg-black text-white rounded-lg hover:bg-white hover:text-black border border-black transition-all duration-300"
-        >
-          Apply Filters
-          <ArrowRight />
-        </button>
       </div>
     </>
   );

@@ -50,8 +50,6 @@ export default function AddSupplierForm({
           response.message || "Customer Added successfully",
           "success",
         );
-      } else if (response.status === 401) {
-        router.push("/admin/login");
       } else {
         onShowMessage(response.message, "error");
       }
@@ -85,8 +83,6 @@ export default function AddSupplierForm({
           response.message || "Supplier Modified successfully",
           "success",
         );
-      } else if (response.status === 401) {
-        router.push("/admin/login");
       } else {
         onShowMessage(response.message, "error");
       }

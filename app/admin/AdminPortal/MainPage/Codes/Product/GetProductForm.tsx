@@ -134,6 +134,7 @@ export default function GetProductsFunctionForm({
       if (data.storeList.length > 0) {
         setStoreList(data.storeList);
         setStoreID(data.storeList[0].storeID);
+        getProducts(data.storeList[0].storeID, 1, true);
       } else {
         setStoreList([]);
       }
@@ -181,8 +182,6 @@ export default function GetProductsFunctionForm({
         console.log(
           `Page ${data.currentPage} of ${data.totalPages}, hasMore: ${data.currentPage < data.totalPages}`,
         ); // Debug log
-      } else if (response.status === 401) {
-        router.push("/admin/login");
       }
     } catch (error) {
       console.error("Error loading products:", error);

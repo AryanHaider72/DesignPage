@@ -64,8 +64,6 @@ export default function AddCategoryForm({
       } else {
         setStoreList([]);
       }
-    } else if (response.status === 401) {
-      router.push("/admin/login");
     }
   };
 
@@ -87,8 +85,6 @@ export default function AddCategoryForm({
           response.message || "Sub-Category Added successfully",
           "success",
         );
-      } else if (response.status === 401) {
-        router.push("/admin/login");
       } else {
         onShowMessage(response.message, "error");
       }

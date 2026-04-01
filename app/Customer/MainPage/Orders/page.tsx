@@ -1,11 +1,23 @@
 "use client";
+import CustomerOrderGet from "@/api/lib/Customer/Orders/OrderGet/orderGet";
+import {
+  RespoinsesellerOrderGetStore,
+  storesMainListSeller,
+  storesSubListCustomer,
+} from "@/api/types/OnlineSeller/OnlineSeller";
+import Spinner from "@/app/Component/UsefullComponent/Spinner/page";
 import { Clock, CreditCard, Eye, MapPin, Truck, User, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function OrderManagement() {
+  const [isLoading, setIsLoading] = useState(false);
   const [dateFrom, setDateFrom] = useState<string>("");
   const [dateTo, setDateTo] = useState<string>("");
-  const [SelectedOrder, setSelectedOrder] = useState(false);
+  const [orderList, setOrderList] = useState<storesMainListSeller[]>([]);
+  const [selectedOrder, setSelectedOrder] = useState<storesMainListSeller>();
+  const [subProductList, setsubProductList] = useState<storesSubListCustomer[]>(
+    [],
+  );
   const statusStyle = (status: string) => {
     switch (status) {
       case "Delivered":
@@ -20,6 +32,32 @@ export default function OrderManagement() {
         return "bg-green-100 text-green-700 border-green-200";
     }
   };
+  const getOrderForSeller = async () => {
+    try {
+      setIsLoading(true);
+      const token = localStorage.getItem("OnlineSellerToken");
+      const response = await CustomerOrderGet(String(token));
+      if (response.status === 200 || response.status === 201) {
+        const data = response.data as RespoinsesellerOrderGetStore;
+        setOrderList(data.storesMainList);
+        console.log(response.data);
+      } else {
+        setOrderList([]);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  useEffect(() => {
+    getOrderForSeller();
+  }, []);
+  const fetchData = (orderID: string) => {
+    const data = orderList.find((item) => item.orderID === orderID);
+    if (data) {
+      setSelectedOrder(data);
+      setsubProductList(data.storesSubList);
+    }
+  };
   return (
     <>
       <div className="flex justify-between items-center mb-6">
@@ -28,84 +66,78 @@ export default function OrderManagement() {
         </h1>
       </div>
       <div className="rounded-3xl bg-white/70 backdrop-blur-xl p-6 shadow-[0_20px_40px_rgba(0,0,0,0.07)] transition-all">
-        <div className="flex gap-2 mt-2">
-          <div className="w-full">
-            <label className="block text-gray-700 font-medium mb-2">
-              Date From
-            </label>
-            <div className="flex items-center border border-gray-200 rounded-lg px-3 py-2.5 bg-gray-50">
-              <input
-                type="date"
-                value={dateFrom}
-                onChange={(e) => setDateFrom(e.target.value)}
-                className="w-full bg-transparent outline-none text-gray-900"
-              />
-            </div>
-          </div>
-          <div className="w-full">
-            <label className="block text-gray-700 font-medium mb-2">
-              Date To
-            </label>
-            <div className="flex items-center border border-gray-200 rounded-lg px-3 py-2.5 bg-gray-50">
-              <input
-                type="date"
-                value={dateTo}
-                onChange={(e) => setDateTo(e.target.value)}
-                className="w-full bg-transparent outline-none text-gray-900"
-              />
-            </div>
-          </div>
-        </div>
-        <div className="space-y-5 mt-10">
-          <>
-            <div className="flex flex-col md:flex-row items-center justify-between bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition-all p-5">
-              {/* === LEFT: Customer Info === */}
-              <div className="flex flex-col w-full md:w-1/3">
-                <h3 className="font-semibold text-gray-900">Aryan Haider</h3>
-                <p className="text-sm text-gray-500">
-                  <span className="font-bold">Phone No: </span>
-                  +92-123-4567890
-                </p>
-                <p className="text-xs text-gray-400">
-                  <span className="font-bold">Email: </span>
-                  aryanhaider16@email.com
-                </p>
-              </div>
+        {isLoading ? (
+          <Spinner />
+        ) : (
+          <div className="space-y-5 mt-10">
+            {orderList.length !== 0 ? (
+              <>
+                {orderList.map((order) => (
+                  <div
+                    key={order.orderID}
+                    className="flex flex-col md:flex-row items-center justify-between bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition-all p-5"
+                  >
+                    {/* === LEFT: Customer Info === */}
+                    <div className="flex flex-col w-full md:w-1/3">
+                      <h3 className="font-semibold text-gray-900">
+                        {order.customerName}
+                      </h3>
+                      <p className="text-sm text-gray-500">
+                        <span className="font-bold">Phone No: </span>
+                        {order.phoneNo}
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        <span className="font-bold">Email: </span>
+                        {order.email}
+                      </p>
+                    </div>
 
-              {/* === CENTER: Status + Date === */}
-              <div className="flex items-center gap-4 mt-3 md:mt-0 w-full md:w-1/3 justify-center">
-                <span
-                  className={`px-3 py-1 text-sm font-medium rounded-full border ${statusStyle(
-                    "pending",
-                  )}`}
-                >
-                  Pending
-                </span>
-                <p className="text-sm text-gray-500">
-                  {new Date().toISOString()[0].split("T")}
-                </p>
-              </div>
+                    {/* === CENTER: Status + Date === */}
+                    <div className="flex items-center gap-4 mt-3 md:mt-0 w-full md:w-1/3 justify-center">
+                      <span
+                        className={`px-3 py-1 text-sm font-medium rounded-full border ${statusStyle(
+                          order.status,
+                        )}`}
+                      >
+                        {order.status}
+                      </span>
+                      <p className="text-sm text-gray-500">
+                        {order.orderDate.split("T")[0]}
+                      </p>
+                    </div>
 
-              {/* === RIGHT: Controls === */}
-              <div className="flex items-center gap-3 mt-3 md:mt-0 w-full md:w-1/3 justify-end">
-                <p className="text-lg font-semibold text-gray-900">Rs. 5470</p>
-                <button
-                  onClick={() => setSelectedOrder(true)}
-                  className="flex items-center gap-2 text-sm text-white bg-black hover:bg-gray-900 rounded-lg px-4 py-2 transition"
-                >
-                  <Eye size={16} /> View
-                </button>
-              </div>
-            </div>
-          </>
-        </div>
+                    {/* === RIGHT: Controls === */}
+                    <div className="flex items-center gap-3 mt-3 md:mt-0 w-full md:w-1/3 justify-end">
+                      <p className="text-lg font-semibold text-gray-900">
+                        Rs.{" "}
+                        {(
+                          order.totalAmount + order.delievryCharges
+                        ).toLocaleString()}
+                      </p>
+                      <button
+                        onClick={() => fetchData(order.orderID)}
+                        className="flex items-center gap-2 text-sm text-white bg-black hover:bg-gray-900 rounded-lg px-4 py-2 transition"
+                      >
+                        <Eye size={16} /> View
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </>
+            ) : (
+              <p className="w-full  px-4 py-3 mb-2 rounded">No Record Found</p>
+            )}
+          </div>
+        )}
       </div>
-      {SelectedOrder && (
+      {selectedOrder && (
         <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-4xl p-6 relative overflow-y-auto max-h-[90vh]">
             <button
               onClick={() => {
-                setSelectedOrder(false);
+                setSelectedOrder(undefined);
+                // setQty(0);
+                // setBags({});
               }}
               className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
             >
@@ -114,12 +146,12 @@ export default function OrderManagement() {
 
             {/* === Header === */}
             <>
-              <div className="mb-6">
+              <div key={selectedOrder.orderID} className="mb-6">
                 <h2 className="text-xl font-bold text-gray-900 mb-1">
                   Order Details
                 </h2>
                 <p className="text-sm text-gray-500">
-                  Order ID: 123654-45678-78987
+                  Order ID: {selectedOrder.orderID}
                 </p>
               </div>
 
@@ -127,10 +159,10 @@ export default function OrderManagement() {
               <div className="flex items-center gap-3 mb-6">
                 <User className="w-5 h-5 text-gray-700" />
                 <div>
-                  <h4 className="font-semibold text-gray-900">Aryan Haider</h4>
-                  <p className="text-sm text-gray-500">
-                    aryanhaider16@gmail.com
-                  </p>
+                  <h4 className="font-semibold text-gray-900">
+                    {selectedOrder.customerName}
+                  </h4>
+                  <p className="text-sm text-gray-500">{selectedOrder.email}</p>
                 </div>
               </div>
 
@@ -150,58 +182,72 @@ export default function OrderManagement() {
                         <th className="p-3 text-right">Shipping</th>
                         <th className="p-3 text-center">Status</th>
                         <th className="p-3 text-center">Bags</th>
-                        <th className="p-3 text-center">Actions</th>
+                        <th className="p-3 text-center">Status</th>
+                        <th className="p-3 text-center">Video Url</th>
                       </tr>
                     </thead>
 
                     <tbody className="divide-y divide-gray-100">
-                      <tr className="hover:bg-gray-50">
-                        {/* Product */}
-                        <td className="p-3">
-                          <div className="flex items-center gap-3">
-                            <div className="relative w-14 h-14 rounded-lg overflow-hidden bg-gray-100">
-                              <img
-                                src={"/placeholder.jpg"}
-                                width={56}
-                                height={56}
-                                className="object-cover"
-                              />
+                      {subProductList.map((item) => (
+                        <tr
+                          key={item.orderDetailID}
+                          className="hover:bg-gray-50"
+                        >
+                          {/* Product */}
+                          <td className="p-3">
+                            <div className="flex items-center gap-3">
+                              <div className="relative w-14 h-14 rounded-lg overflow-hidden bg-gray-100">
+                                <img
+                                  src={item.url || "/placeholder.jpg"}
+                                  alt={item.productName}
+                                  width={56}
+                                  height={56}
+                                  className="object-cover"
+                                />
+                              </div>
+                              <p className="font-medium text-gray-900 text-sm">
+                                {item.productName}
+                              </p>
                             </div>
-                            <p className="font-medium text-gray-900 text-sm">
-                              FM-BLK 123
-                            </p>
-                          </div>
-                        </td>
+                          </td>
 
-                        {/* Quantity */}
-                        <td className="p-3 text-center text-gray-600 font-medium">
-                          Qty: 2
-                        </td>
+                          {/* Quantity */}
+                          <td className="p-3 text-center text-gray-600 font-medium">
+                            Qty: {item.qty}
+                          </td>
 
-                        {/* Item Price */}
-                        <td className="p-3 text-right font-medium text-gray-900">
-                          1200
-                        </td>
+                          {/* Item Price */}
+                          <td className="p-3 text-right font-medium text-gray-900">
+                            {(
+                              item.salePrice * item.qty -
+                              (item.salePrice * item.discount) / 100
+                            ).toLocaleString()}{" "}
+                          </td>
 
-                        {/* Shipping */}
-                        <td className="p-3 text-right text-gray-700 font-medium">
-                          50
-                        </td>
+                          {/* Shipping */}
+                          <td className="p-3 text-right text-gray-700 font-medium">
+                            {item.shippingCharges.toLocaleString()}
+                          </td>
 
-                        {/* Status */}
-                        <td className="p-3 text-center">
-                          <span
-                            className={`px-3 py-1 text-sm font-medium rounded-full border inline-block ${statusStyle(
-                              "pending",
-                            )}`}
-                          >
-                            {"pending"}
-                          </span>
-                        </td>
-                        <td className="p-3 text-right text-gray-700 font-medium">
-                          2
-                        </td>
-                      </tr>
+                          {/* Status */}
+                          <td className="p-3 text-center">
+                            <span
+                              className={`px-3 py-1 text-sm font-medium rounded-full border inline-block ${statusStyle(
+                                item.status,
+                              )}`}
+                            >
+                              {item.status}
+                            </span>
+                          </td>
+
+                          {/* Bags */}
+                          <td className="p-3 text-center">{item.bags}</td>
+
+                          {/* Actions */}
+                          <td className="p-3 text-center">{item.status}</td>
+                          <td className="p-3 text-center">{item.videoUrl}</td>
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
                 </div>
@@ -216,7 +262,7 @@ export default function OrderManagement() {
                       Shipping Address
                     </h4>
                     <p className="text-gray-600 text-sm">
-                      Street-Address-123-ABC
+                      {selectedOrder.shippingAddress}
                     </p>
                   </div>
                 </div>
@@ -239,7 +285,9 @@ export default function OrderManagement() {
                     <h4 className="font-semibold text-gray-900">
                       Payment Method
                     </h4>
-                    <p className="text-gray-600 text-sm">COD</p>
+                    <p className="text-gray-600 text-sm">
+                      {selectedOrder.bankName}
+                    </p>
                   </div>
                 </div>
 
@@ -258,18 +306,40 @@ export default function OrderManagement() {
 
               <div className="flex font-semibold justify-between">
                 <span className="text-sm">Sub-Total</span>
-                <span className=" text-gray-900 text-sm">Rs: 2500</span>
+                <span className=" text-gray-900 text-sm">
+                  Rs: {selectedOrder.totalAmount.toLocaleString()}
+                </span>
               </div>
               <div className="flex font-semibold justify-between">
                 <span className="text-sm">Shipment Charges:</span>
-                <span className=" text-gray-900 text-sm">Rs: 50</span>
+                <span className=" text-gray-900 text-sm">
+                  Rs: {selectedOrder.delievryCharges.toLocaleString()}
+                </span>
               </div>
               <div className="border-t mt-2 text-sm text-gray-700">
                 <div className="flex  p-1 font-semibold justify-between">
                   <span className="">Grand Total:</span>
-                  <span className=" text-gray-900 text-sm">Rs: 2550</span>
+                  <span className=" text-gray-900 text-sm">
+                    Rs:{" "}
+                    {(
+                      selectedOrder.totalAmount + selectedOrder.delievryCharges
+                    ).toLocaleString()}
+                  </span>
                 </div>
               </div>
+              <hr className="mt-2" />
+              {selectedOrder.status === "pending" && (
+                <div className="flex justify-between items-center">
+                  <button
+                    // onClick={() => {
+                    //   orderStatusChange(item.orderDetailID, "Cancelled");
+                    // }}
+                    className="px-4 py-2 mt-2 mb-2 bg-red-500 hover:bg-red-600 rounded-md text-white"
+                  >
+                    Reject
+                  </button>
+                </div>
+              )}
             </>
           </div>
         </div>

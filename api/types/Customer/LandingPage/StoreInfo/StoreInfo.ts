@@ -7,6 +7,8 @@ export interface storeGet {
   headerText: string;
   subHeadingText: string;
   logoUrl: string;
+  email: string;
+  phoneNo: string;
   listImg: listImg[];
 }
 export interface listImg {

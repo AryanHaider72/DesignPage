@@ -34,6 +34,9 @@ import AddCustomerOrderApi from "@/api/lib/Customer/OrderManagement/AddOrder/Add
 import MessagePopUp from "@/app/Component/UsefullComponent/MessagePopup/page";
 import { getServerCart } from "@/api/lib/CookiesApi/GetCart/GetCart";
 import { removeItemFromServerCart } from "@/api/lib/CookiesApi/RemoveCart/RemoveCart";
+import GetCustoemrDataApi from "@/api/lib/Customer/CheckOut/GetCustomerData/GetCustomerData";
+import { ResponseCustomerData } from "@/api/types/Customer/CheckOut/CustomerData/CustomerData";
+import Link from "next/link";
 
 interface cartItem {
   attributeID: string;
@@ -54,8 +57,7 @@ interface GetProductFromCookies {
 }
 
 export default function CheckOut() {
-  const { categoryList, storeInfo, ProductList, FeaturedProduct } =
-    useAppContext();
+  const { categoryList, storeInfo, ProductList } = useAppContext();
   const [loading, setLoading] = useState(false);
   const [Address, setAddress] = useState("");
   const [Appartment, setAppartment] = useState("");
@@ -85,6 +87,7 @@ export default function CheckOut() {
   );
   const [productItem2, setProductItem2] = useState<GetProductFromCookies[]>([]);
   const [paymentList2, setPaymentList2] = useState<paymentget[]>([]);
+  const [customerToken, setCustoemrToken] = useState("");
   const [storePayload, setStorePayload] =
     useState<requestAddStoreToGetRate | null>(null);
   const [CityList, setCityList] = useState([]);
@@ -102,8 +105,6 @@ export default function CheckOut() {
           setProductItem2([]);
           return;
         }
-
-        console.log("items List: ", parsedItems);
         const item = filterItems(parsedItems, ProductList);
         setProductItem2(item);
       } catch (error) {
@@ -260,6 +261,25 @@ export default function CheckOut() {
     }
   }, [countryID, cityName, productItem2, DelievryTypeID]);
 
+  const getCustoemrData = async (token: string) => {
+    const response = await GetCustoemrDataApi(token);
+    if (response.status === 200 || response.status == 201) {
+      const data = response.data as ResponseCustomerData;
+      setEmail(data.customerData[0]?.email);
+      setFirstName(data.customerData[0]?.customerName);
+      setPhoneNo(data.customerData[0]?.phoneNo);
+    } else {
+      console.log();
+    }
+  };
+  useEffect(() => {
+    const token = localStorage.getItem("CustomerToken");
+    if (token) {
+      setCustoemrToken(token);
+      getCustoemrData(token);
+    }
+  }, []);
+
   useEffect(() => {
     getCountry();
     getPayment();
@@ -313,68 +333,82 @@ export default function CheckOut() {
   );
 
   const addOrder = async () => {
-    try {
-      setLoading(true);
-      const shippingAddress = `Country-Name : ${CountryName}
+    if (
+      !FirstName ||
+      !LastName ||
+      !PhoneNo ||
+      !Email ||
+      !cityName ||
+      !CountryName ||
+      !PostalCode ||
+      !PaymentID
+    )
+      return alert("Please Fill in  all Field with(*).");
+    else {
+      try {
+        setLoading(true);
+        const shippingAddress = `Country-Name : ${CountryName}
     City-Name: ${cityName}
     Street-Address: ${Address}`;
 
-      const payload = {
-        customerName: FirstName + " " + LastName,
-        phoneNo: PhoneNo,
-        shippingAddress: shippingAddress,
-        email: Email,
-        city: cityName,
-        country: CountryName,
-        postalCode: PostalCode,
+        const payload = {
+          customerName: FirstName + " " + LastName,
+          phoneNo: PhoneNo,
+          shippingAddress: shippingAddress,
+          email: Email,
+          city: cityName,
+          country: CountryName,
+          postalCode: PostalCode,
 
-        orderMainList: [
-          {
-            orderDate: new Date().toISOString().split("T")[0],
-            paymentID: PaymentID,
-            paymentStatus: "unpaid",
-            delievryCharges: shippingCost,
-            shippingAddress: shippingAddress,
-            orderMethod: "Order Now",
-            couponDiscount: subDiscount,
-            totalBill: subtotal - subDiscount + shippingCost,
-            couponNumber: "",
+          orderMainList: [
+            {
+              orderDate: new Date().toISOString().split("T")[0],
+              paymentID: PaymentID,
+              paymentStatus: "unpaid",
+              delievryCharges: shippingCost,
+              shippingAddress: shippingAddress,
+              orderMethod: "Order Now",
+              couponDiscount: subDiscount,
+              totalBill: subtotal - subDiscount + shippingCost,
+              couponNumber: "",
 
-            orderListSub: productItem2.map((item) => {
-              const itemShipping = calculateItemShipping(
-                item,
-                shippingListInformation,
-                shippingListInformation,
-              );
+              orderListSub: productItem2.map((item) => {
+                const itemShipping = calculateItemShipping(
+                  item,
+                  shippingListInformation,
+                  shippingListInformation,
+                );
 
-              return {
-                attributeID: item.attributeID,
-                qty: item.qty,
-                orignalPrice: item.price * item.qty,
-                salePrice: item.price - (item.price * item.discount) / 100,
-                discount: item.discount,
-                shippingCharges: itemShipping,
-                delievryTypeID: DelievryTypeID,
-              };
-            }),
-          },
-        ],
-      };
-      console.log(payload);
-      const response = await AddCustomerOrderApi(payload);
-      if (response.status === 200 || response.status === 201) {
-        productItem2.map((item) => {
-          return removeItemFromServerCart(item.attributeID);
-        });
-        setMessageType("success");
-        setShowMessage(response.message);
-        localStorage.removeItem("checkoutItems");
-      } else {
-        setMessageType("error");
-        setShowMessage(response.message || "An Error Occurred while Deleting.");
+                return {
+                  attributeID: item.attributeID,
+                  qty: item.qty,
+                  orignalPrice: item.price * item.qty,
+                  salePrice: item.price - (item.price * item.discount) / 100,
+                  discount: item.discount,
+                  shippingCharges: itemShipping,
+                  delievryTypeID: DelievryTypeID,
+                };
+              }),
+            },
+          ],
+        };
+        console.log(payload);
+        const response = await AddCustomerOrderApi(payload);
+        if (response.status === 200 || response.status === 201) {
+          productItem2.map((item) => {
+            return removeItemFromServerCart(item.attributeID);
+          });
+          setMessageType("success");
+          setShowMessage(response.message);
+          localStorage.removeItem("checkoutItems");
+          window.location.href = "/";
+        } else {
+          setMessageType("error");
+          setShowMessage("Please Fill in All Required Fields");
+        }
+      } finally {
+        setLoading(false);
       }
-    } finally {
-      setLoading(false);
     }
   };
   const calculateItemShipping = (
@@ -427,23 +461,43 @@ export default function CheckOut() {
             <div>
               <h2 className="text-2xl font-bold mb-6">Contact</h2>
               <div>
-                <div className="mb-6">
-                  <label
-                    htmlFor="email"
-                    className="block mb-2 text-sm font-medium text-gray-700"
-                  >
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    value={Email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-4 py-3.5 text-base text-gray-900 placeholder-gray-400 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Enter your email"
-                    required
-                  />
-                </div>
+                {customerToken ? (
+                  <div className="mb-6">
+                    <label
+                      htmlFor="email"
+                      className="block mb-2 text-sm font-medium text-gray-700"
+                    >
+                      Email <span className="text-red-600 text-lg">*</span>
+                    </label>
+                    <input
+                      type="email"
+                      id="email"
+                      value={Email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full px-4 py-3.5 text-base text-gray-900 placeholder-gray-400 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Enter your email"
+                      readOnly
+                    />
+                  </div>
+                ) : (
+                  <div className="mb-6">
+                    <label
+                      htmlFor="email"
+                      className="block mb-2 text-sm font-medium text-gray-700"
+                    >
+                      Email <span className="text-red-600 text-lg">*</span>
+                    </label>
+                    <input
+                      type="email"
+                      id="email"
+                      value={Email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full px-4 py-3.5 text-base text-gray-900 placeholder-gray-400 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Enter your email"
+                      required
+                    />
+                  </div>
+                )}
                 <div className="flex items-center mb-10">
                   <input
                     type="checkbox"
@@ -469,7 +523,8 @@ export default function CheckOut() {
                         htmlFor="country"
                         className="block mb-2 text-sm font-medium text-gray-700"
                       >
-                        Country / Region
+                        Country / Region{" "}
+                        <span className="text-red-600 text-lg">*</span>
                       </label>
                       <select
                         value={countryID}
@@ -511,7 +566,7 @@ export default function CheckOut() {
                         htmlFor="country"
                         className="block mb-2 text-sm font-medium text-gray-700"
                       >
-                        City
+                        City <span className="text-red-600 text-lg">*</span>
                       </label>
                       <select
                         id="country"
@@ -538,29 +593,52 @@ export default function CheckOut() {
                   </div>
                   {/* Name fields */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                    <div>
-                      <label
-                        htmlFor="firstName"
-                        className="block mb-2 text-sm font-medium text-gray-700"
-                      >
-                        First name
-                      </label>
-                      <input
-                        type="text"
-                        id="firstName"
-                        value={FirstName}
-                        onChange={(e) => setFirstName(e.target.value)}
-                        className="w-full px-4 py-3.5 text-base text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="First name"
-                        required
-                      />
-                    </div>
+                    {customerToken ? (
+                      <div>
+                        <label
+                          htmlFor="firstName"
+                          className="block mb-2 text-sm font-medium text-gray-700"
+                        >
+                          First name{" "}
+                          <span className="text-red-600 text-lg">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          id="firstName"
+                          value={FirstName}
+                          onChange={(e) => setFirstName(e.target.value)}
+                          className="w-full px-4 py-3.5 text-base text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          placeholder="First name"
+                          readOnly
+                        />
+                      </div>
+                    ) : (
+                      <div>
+                        <label
+                          htmlFor="firstName"
+                          className="block mb-2 text-sm font-medium text-gray-700"
+                        >
+                          First name{" "}
+                          <span className="text-red-600 text-lg">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          id="firstName"
+                          value={FirstName}
+                          onChange={(e) => setFirstName(e.target.value)}
+                          className="w-full px-4 py-3.5 text-base text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          placeholder="First name"
+                          required
+                        />
+                      </div>
+                    )}
                     <div>
                       <label
                         htmlFor="lastName"
                         className="block mb-2 text-sm font-medium text-gray-700"
                       >
-                        Last name
+                        Last name{" "}
+                        <span className="text-red-600 text-lg">*</span>
                       </label>
                       <input
                         type="text"
@@ -580,7 +658,7 @@ export default function CheckOut() {
                       htmlFor="address"
                       className="block mb-2 text-sm font-medium text-gray-700"
                     >
-                      Address
+                      Address <span className="text-red-600 text-lg">*</span>
                     </label>
                     <input
                       type="text"
@@ -617,7 +695,8 @@ export default function CheckOut() {
                         htmlFor="postal"
                         className="block mb-2 text-sm font-medium text-gray-700"
                       >
-                        Postal code (optional)
+                        Postal code{" "}
+                        <span className="text-red-600 text-lg">*</span>
                       </label>
                       <input
                         type="text"
@@ -636,7 +715,7 @@ export default function CheckOut() {
                       htmlFor="phone"
                       className="block mb-2 text-sm font-medium text-gray-700"
                     >
-                      Phone
+                      Phone <span className="text-red-600 text-lg">*</span>
                     </label>
                     <input
                       type="tel"
@@ -745,13 +824,13 @@ export default function CheckOut() {
                     <p>
                       📧 Email:{" "}
                       <span className="font-medium text-gray-800">
-                        support@yourstore.com
+                        {storeInfo[0]?.email}
                       </span>
                     </p>
                     <p>
                       Phone / WhatsApp:{" "}
                       <span className="font-medium text-gray-800">
-                        +212 6 00 00 00 00
+                        {storeInfo[0]?.phoneNo}
                       </span>
                     </p>
                   </div>
@@ -779,7 +858,11 @@ export default function CheckOut() {
             {/* Product List */}
             <div className="space-y-6">
               {productItem2.map((item, index) => (
-                <div key={index} className="flex justify-between items-start">
+                <Link
+                  href={`/Customer/Product/${item.productID}`}
+                  key={index}
+                  className="flex justify-between items-start"
+                >
                   {/* Left: Image + Info */}
                   <div className="flex gap-4">
                     <div className="relative">
@@ -816,7 +899,7 @@ export default function CheckOut() {
                       <span> {(item.qty * item.price).toLocaleString()}-/</span>
                     </p>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
 

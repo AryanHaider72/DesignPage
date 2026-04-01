@@ -28,7 +28,7 @@ export default function GetSupplierForm({
   const SupplierGet = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("posSellerToken");
+      const token = localStorage.getItem("adminToken");
       const response = await GetSupplierApi(String(token));
       if (response.status === 200 || response.status === 201) {
         const data = response.data as ResponseSupplierGetData;
@@ -47,7 +47,7 @@ export default function GetSupplierForm({
   const SupplierDelete = async (ID: string) => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("posSellerToken");
+      const token = localStorage.getItem("adminToken");
       const response = await DeleteSupplierApi(
         { supplierID: ID },
         String(token),

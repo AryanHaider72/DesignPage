@@ -4,9 +4,10 @@ import { addToServerWishList } from "@/api/lib/CookiesApi/WishList/AddWishlist/A
 import { getServerWishlist } from "@/api/lib/CookiesApi/WishList/GetWishList/GetWishList";
 import { CartData } from "@/api/types/CookiesApi/CartItem";
 import { FeaturedProductForCustomer } from "@/api/types/Customer/LandingPage/Product/Product";
+import { useAppContext } from "@/app/useContext";
 import { Heart } from "lucide-react";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 
 interface SuggestedProps {
   SuggestedProduct: FeaturedProductForCustomer[];
@@ -15,12 +16,13 @@ interface SuggestedProps {
 export default function SuggestedForYouProduct({
   SuggestedProduct,
 }: SuggestedProps) {
+  const { categoryList } = useAppContext();
   const [productPrices, setProductPrices] = useState<Record<string, number>>(
     () => {
       const initialPrices: Record<string, number> = {};
       SuggestedProduct.forEach((product) => {
-        const firstVariant = product.variants[0];
-        const firstAttribute = firstVariant?.variantValues[0];
+        const firstVariant = product.variants?.[0];
+        const firstAttribute = firstVariant?.variantValues?.[0];
         if (firstAttribute) {
           initialPrices[product.productID] = firstAttribute.salePrice;
         }
@@ -37,8 +39,8 @@ export default function SuggestedForYouProduct({
   useEffect(() => {
     const initialSelected: Record<string, string> = {};
     SuggestedProduct.forEach((product) => {
-      const firstVariant = product.variants[0];
-      const firstAttribute = firstVariant?.variantValues[0];
+      const firstVariant = product.variants?.[0];
+      const firstAttribute = firstVariant?.variantValues?.[0];
       if (firstAttribute) {
         initialSelected[product.productID] = firstAttribute.attributeID;
       }
@@ -78,6 +80,7 @@ export default function SuggestedForYouProduct({
   };
 
   const addToCart = async (ID: string) => {
+    if (!ID) return;
     const newItem: CartData = {
       attributeID: ID,
       qty: 1,
@@ -88,6 +91,7 @@ export default function SuggestedForYouProduct({
   };
 
   const addToWishList = async (ID: string) => {
+    if (!ID) return;
     const newItem: CartData = {
       attributeID: ID,
       qty: 1,
@@ -97,41 +101,68 @@ export default function SuggestedForYouProduct({
     await addToServerWishList(updatedCart);
   };
 
-  // Limit to 10 products
-  const displayProducts = SuggestedProduct.slice(0, 10);
+  // Memoize display products to prevent unnecessary recalculations
+  const displayProducts = useMemo(
+    () => SuggestedProduct.slice(0, 10),
+    [SuggestedProduct],
+  );
+
+  // Show message if no products
+  if (displayProducts.length === 0) {
+    return (
+      <div className="w-full p-10 mx-auto mt-16 px-4">
+        <div className="text-center py-12">
+          <p className="text-gray-500">No suggested products available.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <>
-      <div className="w-full p-10 mx-auto mt-16 px-4">
-        <div className="flex justify-between items-center mb-8">
-          <h2
-            style={{ fontFamily: "var(--font-playfair)" }}
-            className="text-3xl md:text-4xl font-light text-gray-900"
+    <div className="w-full p-10 mx-auto mt-16 px-4">
+      <div className="flex justify-between items-center mb-8">
+        <h2
+          style={{ fontFamily: "var(--font-playfair)" }}
+          className="text-3xl md:text-4xl font-light text-gray-900"
+        >
+          Suggested For You
+        </h2>
+        {displayProducts.length > 5 && (
+          <Link
+            href={`/Customer/Shop/${categoryList[1]?.subCategoryID}`}
+            className="text-sm text-gray-500 hover:text-gray-800 transition-colors"
           >
-            Suggested For You
-          </h2>
-          {displayProducts.length > 5 && (
-            <Link
-              href="/suggested-products"
-              className="text-sm text-gray-500 hover:text-gray-800 transition-colors"
-            >
-              View All →
-            </Link>
-          )}
-        </div>
+            View All →
+          </Link>
+        )}
+      </div>
 
-        {/* Grid Layout - Larger cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 md:gap-8">
-          {displayProducts.map((item, index) => (
+      {/* Grid Layout - Larger cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 md:gap-8">
+        {displayProducts.map((item) => {
+          // Get the selected attribute ID for this product
+          const selectedAttrId = selectedAttributes[item.productID];
+
+          // Get the price display value
+          const displayPrice =
+            productPrices[item.productID] ||
+            item?.variants?.[0]?.variantValues?.[0]?.salePrice ||
+            0;
+
+          // Get original price for discount display
+          const originalPrice =
+            item?.variants?.[0]?.variantValues?.[0]?.salePrice || 0;
+
+          return (
             <div
-              key={item.productID || index}
-              className="group bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2 min-w-[280px] sm:min-w-[320px]"
+              key={`suggested-product-${item.productID}`}
+              className="group bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
             >
               {/* Image Section - Larger height */}
               <div className="relative h-[320px] sm:h-[360px] md:h-[380px] lg:h-[400px] overflow-hidden bg-gray-50">
                 <Link href={`/Customer/Product/${item.productID}`}>
                   <img
-                    src={item?.images[0]?.url || "/placeholder.jpg"}
+                    src={item?.images?.[0]?.url || "/placeholder.jpg"}
                     alt={item.productName}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
@@ -145,32 +176,38 @@ export default function SuggestedForYouProduct({
                                    transition-transform duration-300 ease-out
                                    p-4 border-t border-gray-100"
                   >
-                    {/* Sizes */}
+                    {/* Variants Section */}
                     <div className="flex flex-wrap gap-2 justify-center mb-3">
-                      {item.variants.map((size) => (
-                        <div key={size.varientID} className="flex gap-1">
-                          {size.variantValues.map((item2) => (
+                      {item.variants.map((variant) => (
+                        <div key={variant.varientID} className="flex gap-1">
+                          {variant.variantValues.map((variantValue, index) => (
                             <button
+                              key={variantValue.attributeID}
                               onClick={() =>
                                 updatePrice(
                                   item.productID,
-                                  size.varientID,
-                                  item2.attributeID,
+                                  variant.varientID,
+                                  variantValue.attributeID,
                                 )
                               }
-                              key={item2.attributeID}
-                              className={`${
-                                item2.qty > 0 || item.isStock === "InStock"
-                                  ? `px-2.5 py-1 text-xs font-medium rounded transition-all duration-200 ${
-                                      selectedAttributes[item.productID] ===
-                                      item2.attributeID
-                                        ? "bg-gray-900 text-white"
-                                        : "text-gray-600 hover:bg-gray-100"
-                                    }`
-                                  : "text-gray-300"
-                              }`}
+                              disabled={
+                                variantValue.qty === 0 &&
+                                item.isStock !== "InStock"
+                              }
+                              className={`
+                                px-2.5 py-1 text-xs font-medium rounded transition-all duration-200
+                                ${
+                                  variantValue.qty === 0 &&
+                                  item.isStock !== "InStock"
+                                    ? "text-gray-300 cursor-not-allowed"
+                                    : selectedAttrId ===
+                                        variantValue.attributeID
+                                      ? "bg-gray-900 text-white"
+                                      : "text-gray-600 hover:bg-gray-100"
+                                }
+                              `}
                             >
-                              {item2.varientValue?.toUpperCase() || ""}
+                              {variantValue.varientValue?.toUpperCase() || ""}
                             </button>
                           ))}
                         </div>
@@ -182,8 +219,7 @@ export default function SuggestedForYouProduct({
                       {item.isStock === "InStock" && (
                         <button
                           onClick={() => {
-                            const attrId = selectedAttributes[item.productID];
-                            if (attrId) addToCart(attrId);
+                            if (selectedAttrId) addToCart(selectedAttrId);
                           }}
                           className="px-4 py-1.5 text-xs font-medium text-gray-700 
                                        hover:text-gray-900 transition-colors duration-200
@@ -194,10 +230,10 @@ export default function SuggestedForYouProduct({
                       )}
                       <button
                         onClick={() => {
-                          const attrId = selectedAttributes[item.productID];
-                          if (attrId) addToWishList(attrId);
+                          if (selectedAttrId) addToWishList(selectedAttrId);
                         }}
                         className="p-1.5 text-gray-500 hover:text-red-500 transition-colors duration-200 hover:scale-110"
+                        aria-label="Add to wishlist"
                       >
                         <Heart className="w-4 h-4" />
                       </button>
@@ -231,14 +267,11 @@ export default function SuggestedForYouProduct({
                 <div className="flex items-center justify-between">
                   <div className="flex flex-col">
                     <span className="text-xl font-bold text-gray-900">
-                      Rs.{" "}
-                      {productPrices[item.productID]?.toLocaleString() ||
-                        item?.variants[0]?.variantValues[0]?.salePrice?.toLocaleString()}
+                      Rs. {displayPrice.toLocaleString()}
                     </span>
-                    {item.discount > 0 && (
+                    {item.discount > 0 && originalPrice > displayPrice && (
                       <span className="text-sm text-gray-400 line-through">
-                        Rs.{" "}
-                        {item?.variants[0]?.variantValues[0]?.salePrice?.toLocaleString()}
+                        Rs. {originalPrice.toLocaleString()}
                       </span>
                     )}
                   </div>
@@ -252,16 +285,9 @@ export default function SuggestedForYouProduct({
                 </div>
               </div>
             </div>
-          ))}
-        </div>
-
-        {/* Show message if no products */}
-        {displayProducts.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-gray-500">No suggested products available.</p>
-          </div>
-        )}
+          );
+        })}
       </div>
-    </>
+    </div>
   );
 }

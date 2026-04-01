@@ -18,6 +18,9 @@ export interface storesMainListSeller {
 }
 export interface storesSubListCustomer {
   bags: number;
+  trackingID: string;
+  attributeID: string;
+  typeName: string;
   barcode: string;
   url: string;
   discount: number;
@@ -25,7 +28,9 @@ export interface storesSubListCustomer {
   productName: string;
   qty: number;
   salePrice: number;
+  phoneNo: string;
   shippingCharges: number;
   status: string;
+  videoUrl: string;
   varientValue: string;
 }

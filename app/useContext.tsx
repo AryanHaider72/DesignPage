@@ -1,6 +1,6 @@
 // app/useContext.tsx
 "use client";
-
+import { Dispatch, SetStateAction } from "react";
 import {
   createContext,
   useContext,
@@ -31,7 +31,7 @@ interface AppContextType {
   setCategoryList: (categories: categoryList[]) => void;
   storeInfo: storeGet[];
   setStoreInfo: (stores: storeGet[]) => void;
-  setProductList: (product: FeaturedProductForCustomer[]) => void;
+  setProductList: Dispatch<SetStateAction<FeaturedProductForCustomer[]>>;
   ProductList: FeaturedProductForCustomer[];
   FeaturedProduct: FeaturedProductForCustomer[];
   setFeaturedProduct: (featured: FeaturedProductForCustomer[]) => void;

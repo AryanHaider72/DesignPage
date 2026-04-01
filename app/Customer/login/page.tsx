@@ -11,6 +11,7 @@ import CsutomerLoginApi from "@/api/lib/Customer/Authntication/login/login";
 import VerifyOTP from "@/app/Component/UsefullComponent/OtpPage/page";
 import ForgotPasswordComponent from "@/app/Component/UsefullComponent/ForgotPassword/page";
 import OtpVerificationApi from "@/api/lib/Customer/Authntication/Otpverification/OtpVerification";
+import OtpSendApi from "@/api/lib/Customer/Authntication/OtpSend/OtpSend";
 
 export default function CustomerLogin() {
   const router = useRouter();
@@ -62,6 +63,12 @@ export default function CustomerLogin() {
       setLoading(false);
     }
   };
+  const OtpSendViaEmail = async (email: string) => {
+    const response = await OtpSendApi(email);
+    if (response.status === 200) {
+      alert("Otp Send Successfully");
+    }
+  };
   const OtpVerificationReq = async (email: string) => {
     const formData = {
       code: OtpCode,
@@ -75,20 +82,19 @@ export default function CustomerLogin() {
     try {
       setLoading(true);
       const formData = {
-        userName: fullName,
         email: Email,
         password: Password,
-        phoneNo: PhoneNo,
       };
       const response = await CsutomerLoginApi(formData);
       if (response.status === 200 || response.status === 201) {
         const data = response.data;
         setOtpVerification(true);
-        await OtpVerificationReq(Email);
+        await OtpSendViaEmail(Email);
         localStorage.setItem("CustomerToken", data?.token);
         setEmail("");
         setPassword("");
-        router.push("/Customer/MainPage/Dashbaord");
+        alert("Login Successfully");
+        //router.push("/Customer/MainPage/Dashbaord");
       }
     } finally {
       setLoading(false);

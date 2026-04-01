@@ -4,6 +4,7 @@ import { addToServerWishList } from "@/api/lib/CookiesApi/WishList/AddWishlist/A
 import { getServerWishlist } from "@/api/lib/CookiesApi/WishList/GetWishList/GetWishList";
 import { CartData } from "@/api/types/CookiesApi/CartItem";
 import { FeaturedProductForCustomer } from "@/api/types/Customer/LandingPage/Product/Product";
+import { useAppContext } from "@/app/useContext";
 import { Heart } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -12,6 +13,8 @@ interface SuggestedProps {
   MightLikeProduct: FeaturedProductForCustomer[];
 }
 export default function YouMightAlsoLike({ MightLikeProduct }: SuggestedProps) {
+  const { categoryList } = useAppContext();
+
   const [productPrices, setProductPrices] = useState<Record<string, number>>(
     () => {
       const initialPrices: Record<string, number> = {};
@@ -106,7 +109,7 @@ export default function YouMightAlsoLike({ MightLikeProduct }: SuggestedProps) {
         </h2>
         {displayProducts.length > 5 && (
           <Link
-            href="/suggested-products"
+            href={`/Customer/Shop/${categoryList[1]?.subCategoryID}`}
             className="text-sm text-gray-500 hover:text-gray-800 transition-colors"
           >
             View All →
@@ -141,8 +144,8 @@ export default function YouMightAlsoLike({ MightLikeProduct }: SuggestedProps) {
                 >
                   {/* Sizes */}
                   <div className="flex flex-wrap gap-2 justify-center mb-3">
-                    {item.variants.map((size) => (
-                      <div key={size.varientID} className="flex gap-1">
+                    {item.variants.map((size, indx2) => (
+                      <div key={indx2} className="flex gap-1">
                         {size.variantValues.map((item2) => (
                           <button
                             onClick={() =>

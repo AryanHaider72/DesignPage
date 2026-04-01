@@ -26,7 +26,7 @@ export default function SearchSidebarCompnent() {
 
   useEffect(() => {
     if (categoryList) {
-      setsubCategoryID(categoryList[1].subCategoryID);
+      setsubCategoryID(categoryList[1]?.subCategoryID);
     }
   }, [categoryList]);
   const productFetch = async () => {

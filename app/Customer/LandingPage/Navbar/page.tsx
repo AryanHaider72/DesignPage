@@ -76,9 +76,6 @@ export default function Navbar({
       >
         <p className="text-sm text-white font-thin p-2">
           Light Layers, Bold Statements – Summer Collection Just Dropped.
-          <span className="font-bold underline ml-1 cursor-pointer">
-            Shop Now
-          </span>
         </p>
       </div>
 
@@ -95,7 +92,7 @@ export default function Navbar({
               {categoryList?.map((item, index) => (
                 <li key={index} className="relative group">
                   <a
-                    href="#"
+                    href={`/Customer/Shop/${item.subCategoryID}`}
                     className={`font-raleway tracking-wide relative text-md transition
                       ${scrolled ? "text-black" : "text-white"}
                       after:absolute after:-bottom-1 after:left-0 after:h-[2px]
@@ -111,18 +108,13 @@ export default function Navbar({
                     transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 z-50"
                     >
                       <ul className="space-y-2">
-                        {item.subCategory.map((item: any) => (
-                          <li key={item.subCategoryDetailID}>
+                        {item.subCategory.map((item2: any) => (
+                          <li key={item2.subCategoryDetailID}>
                             <Link
-                              href={
-                                {
-                                  //pathname: `/${category.subCategoryID}/shop`,
-                                  //query: { qID: item.subCategoryDetailID },
-                                }
-                              }
+                              href={`/Customer/Shop/${item.subCategoryID}`}
                               className="text-md  px-2 flex flex-col gap-2 hover:scale-105 transition-transform duration-300 cursor-pointer"
                             >
-                              {item.name.toUpperCase()}
+                              {item2.name.toUpperCase()}
                             </Link>
                           </li>
                         ))}

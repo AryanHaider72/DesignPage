@@ -19,14 +19,18 @@ import {
   CreditCard,
   Eye,
   MapPin,
+  Receipt,
   Truck,
   User,
   X,
 } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import ShippingSticker from "./ShowSticker/page";
 
 export default function OrderManagement() {
+  const thermalRef = useRef<HTMLDivElement>(null);
+  const [showRecipt, setShowRecipt] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [storeList, setStoreList] = useState<storeListInital[]>([]);
   const [storeID, setStoreID] = useState("");
@@ -36,10 +40,11 @@ export default function OrderManagement() {
   const [qty, setQty] = useState(0);
   const [bags, setBags] = useState<Record<string, number>>({});
   const [selectedOrder, setSelectedOrder] = useState<storesMainListSeller>();
-  const [orderList, setOrderList] = useState<storesMainListSeller[]>([]);
   const [subProductList, setsubProductList] = useState<storesSubListCustomer[]>(
     [],
   );
+  const [stickerPass, setStickerPass] = useState<storesMainListSeller>();
+  const [orderList, setOrderList] = useState<storesMainListSeller[]>([]);
 
   const getStores = async () => {
     const token = localStorage.getItem("OnlineSellerToken");
@@ -107,6 +112,17 @@ export default function OrderManagement() {
     }
   };
 
+  // const getPreviewComponent = (ID: string) => {
+  //   const data = orderList.find((item) => item.orderID === ID);
+  //   if (data)
+  //     return (
+  //       <div className="print-area">
+  //         <div className="scale-wrapper">
+  //           <ShippingSticker data={data} printRef={thermalRef} />
+  //         </div>
+  //       </div>
+  //     );
+  // };
   const fetchData = (orderID: string) => {
     const data = orderList.find((item) => item.orderID === orderID);
     if (data) {
@@ -119,6 +135,11 @@ export default function OrderManagement() {
   }, []);
   return (
     <>
+      {/* {stickerPass && (
+  <div style={{ position: "absolute", left: "-9999px", top: 0 }}>
+    <ShippingSticker data={stickerPass} printRef={thermalRef} />
+  </div>
+)} */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-semibold text-neutral-900">
           Order Management
@@ -320,6 +341,8 @@ export default function OrderManagement() {
                         <th className="p-3 text-center">Status</th>
                         <th className="p-3 text-center">Bags</th>
                         <th className="p-3 text-center">Actions</th>
+                        <th className="p-3 text-center">Video Url</th>
+                        <th className="p-3 text-center">Recipt</th>
                       </tr>
                     </thead>
 
@@ -428,6 +451,39 @@ export default function OrderManagement() {
                               <span className="text-gray-500">N/A</span>
                             )}
                           </td>
+                          <td className="p-3 text-center text-gray-600 font-medium">
+                            <button
+                              onClick={() =>
+                                item.videoUrl &&
+                                window.open(item.videoUrl, "_blank")
+                              }
+                              className="flex items-center gap-2 text-sm font-medium text-white bg-gradient-to-r from-black to-gray-800 hover:opacity-90 rounded-xl px-5 py-2.5 transition-all"
+                            >
+                              <Eye size={18} />
+                              Video
+                            </button>
+                          </td>
+                          <td className="p-3 text-center text-gray-600 font-medium">
+                            <button
+                              onClick={() => {
+                                const data = orderList.find(
+                                  (item) =>
+                                    item.orderID === selectedOrder?.orderID,
+                                );
+                                if (data) {
+                                  setStickerPass(data);
+
+                                  // remove after render (important)
+                                  setTimeout(() => {
+                                    setStickerPass(undefined);
+                                  }, 1500);
+                                }
+                              }}
+                              className="flex items-center gap-2 text-sm font-medium text-white bg-gradient-to-r from-black to-gray-800 hover:opacity-90 rounded-xl px-5 py-2.5 transition-all"
+                            >
+                              <Receipt size={18} />
+                            </button>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -509,19 +565,6 @@ export default function OrderManagement() {
                   </span>
                 </div>
               </div>
-              <hr className="mt-2" />
-              {selectedOrder.status === "pending" && (
-                <div className="flex justify-between items-center">
-                  <button
-                    // onClick={() => {
-                    //   orderStatusChange(item.orderDetailID, "Cancelled");
-                    // }}
-                    className="px-4 py-2 mt-2 mb-2 bg-red-500 hover:bg-red-600 rounded-md text-white"
-                  >
-                    Reject
-                  </button>
-                </div>
-              )}
             </>
           </div>
         </div>

@@ -23,12 +23,14 @@ import {
   List,
   Handshake,
   AlignStartVertical,
+  LogOut,
 } from "lucide-react";
 import { FaCashRegister, FaExchangeAlt, FaMoneyBill } from "react-icons/fa";
 import { BsShop } from "react-icons/bs";
 import { BiVerticalBottom } from "react-icons/bi";
 import { MiddleWareRequestCheck } from "@/api/lib/OtherController/MiddleWare/MiddleWare";
 import { useRouter } from "next/navigation";
+import LogoutApi from "@/api/lib/Admin/Authentication/logout/logout";
 
 export default function OfflineSellerPosSalePoint({
   children,
@@ -54,6 +56,12 @@ export default function OfflineSellerPosSalePoint({
     } else {
       return;
     }
+  };
+  const Logout = async () => {
+    const token = localStorage.getItem("posSellerToken");
+    const repsonse = await LogoutApi(String(token));
+    localStorage.removeItem("posSellerToken");
+    window.location.href = "/PosSellers/login";
   };
   return (
     <div className="flex min-h-screen bg-neutral-100">
@@ -214,15 +222,13 @@ export default function OfflineSellerPosSalePoint({
           </nav>
 
           {/* Footer */}
-          <div className="p-4 border-t border-neutral-200">
-            <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-full bg-neutral-900 text-white flex items-center justify-center text-sm font-semibold">
-                U
-              </div>
-              <div>
-                <p className="text-sm font-medium">Username</p>
-                <p className="text-xs text-neutral-500">user@email.com</p>
-              </div>
+          <div
+            onClick={() => Logout()}
+            className=" p-5 text-black block text-xl hover:bg-red-300    py-2 px-2 transition duration-300 rounded-md"
+          >
+            <div className="flex items-center gap-3 p-2">
+              <LogOut size={18} />
+              <span className=" font-medium">Logout</span>
             </div>
           </div>
         </div>

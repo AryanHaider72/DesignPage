@@ -52,7 +52,7 @@ export default function GetFormUnit({
   const UnitGet = async (ID: string) => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("posSellerToken");
+      const token = localStorage.getItem("adminToken");
       const response = await GetUnitApi(String(token), ID);
       if (response.status === 200 || response.status === 201) {
         const data = response.data as UnitApiResponse;
@@ -71,7 +71,7 @@ export default function GetFormUnit({
   const UnitDelete = async (ID: string) => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("posSellerToken");
+      const token = localStorage.getItem("adminToken");
       const response = await DeleteUnitApi(
         { unitID: ID, storeID: StoreID },
         String(token),

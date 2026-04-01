@@ -65,8 +65,6 @@ export default function GetCategoryForm({
       } else {
         setStoreList([]);
       }
-    } else if (response.status === 401) {
-      router.push("/admin/login");
     }
   };
 
@@ -108,8 +106,6 @@ export default function GetCategoryForm({
         );
         setCatgeorySubList(data);
         setDelete(false);
-      } else if (response.status === 401) {
-        router.push("/admin/login");
       } else {
         setDelete(false);
         onShowMessage(

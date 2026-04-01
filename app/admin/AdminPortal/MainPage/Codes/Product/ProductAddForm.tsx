@@ -253,8 +253,6 @@ export default function ProductAddForm({
           response.message || "Sub-Category Modifed successfully",
           "success",
         );
-      } else if (response.status === 401) {
-        router.push("admin/login");
       } else {
         onShowMessage(response.message, "error");
       }

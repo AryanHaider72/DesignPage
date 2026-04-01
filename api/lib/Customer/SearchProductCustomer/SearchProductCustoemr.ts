@@ -14,7 +14,7 @@ export default async function ProductSearchParamCustomer(
     if (token) customHeader.Authorization = `Bearer ${token}`;
 
     const response = await getRequest(
-      `/api/Product/Customer/SearchGetProduct/${word}`,
+      `/api/Product/Customer/GetProductBy/SearchGetProduct/${word}`,
       {},
       customHeader,
     );

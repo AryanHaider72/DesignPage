@@ -2,10 +2,13 @@
 import { getServerCart } from "@/api/lib/CookiesApi/GetCart/GetCart";
 import { modifyCartServer } from "@/api/lib/CookiesApi/ModifyCart/ModifCart";
 import { removeItemFromServerCart } from "@/api/lib/CookiesApi/RemoveCart/RemoveCart";
+import ProductSearchParamByAttributeID from "@/api/lib/Customer/ProductByAttributeID/ProductByAttributeID";
 import { CartData } from "@/api/types/CookiesApi/CartItem";
 import { categoryList } from "@/api/types/Customer/LandingPage/Category/GetCategroy";
-import { FeaturedProductForCustomer } from "@/api/types/Customer/LandingPage/Product/Product";
-import CheckOut from "@/app/Customer/Checkout/page";
+import {
+  FeaturedProductForCustomer,
+  ProductApiResponseCustomer,
+} from "@/api/types/Customer/LandingPage/Product/Product";
 import { useAppContext } from "@/app/useContext";
 import {
   CreditCard,
@@ -17,15 +20,18 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+
 interface cartItems {
   attributeID: string;
   qty: number;
 }
+
 interface CartItemprops {
   categoryList: categoryList[];
   logoUrl: string;
   commitChange: () => void;
 }
+
 interface GetProductFromCookies {
   productID: string;
   productName: string;
@@ -41,11 +47,11 @@ export default function CartItems({
   logoUrl,
   commitChange,
 }: CartItemprops) {
-  const { ProductList } = useAppContext();
-  const [NumberofProduct, setNumberofProduct] = useState(1);
+  const { ProductList, setProductList } = useAppContext();
   const [cartItem, setCarItem] = useState<cartItems[]>([]);
   const [productItem, setProductItem] = useState<GetProductFromCookies[]>([]);
   const [checkedItems, setCheckedItems] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const handleCheckboxChange = (attributeID: string) => {
     setCheckedItems((prev) =>
@@ -54,6 +60,7 @@ export default function CartItems({
         : [...prev, attributeID],
     );
   };
+
   const freeShippingGoal = 8000;
   const currentAmount = 4000;
   const progressPercentage = Math.min(
@@ -61,27 +68,68 @@ export default function CartItems({
     100,
   );
 
-  const cartData = async () => {
-    const cart = await getServerCart();
+  // Function to fetch product by attribute ID and update context
+  const fetchAndStoreProductByAttributeID = async (attributeID: string) => {
+    try {
+      const response = await ProductSearchParamByAttributeID(attributeID);
+      if (response.status === 200 || response.status === 201) {
+        const data = response.data as ProductApiResponseCustomer;
+        const existingProductIDs = new Set(ProductList.map((p) => p.productID));
+        const newProducts = data.productList.filter(
+          (product) => !existingProductIDs.has(product.productID),
+        );
 
-    setCarItem(cart);
-
-    const items = filterItems(cart);
-
-    setProductItem(items);
+        if (newProducts.length > 0) {
+          setProductList([...ProductList, ...newProducts]);
+        }
+        return data.productList;
+      }
+    } catch (error) {
+      console.error(
+        `Error fetching product for attribute ${attributeID}:`,
+        error,
+      );
+    }
+    return [];
   };
-  const filterItems = (cart: CartData[]) => {
-    const result: any[] = [];
+
+  // Function to get unique attribute IDs that need to be fetched
+  const getMissingAttributeIDs = (
+    cartItems: cartItems[],
+    existingProducts: FeaturedProductForCustomer[],
+  ) => {
+    const existingAttributeIDs = new Set<string>();
+
+    // Collect all attribute IDs that already exist in ProductList
+    existingProducts.forEach((product) => {
+      product.variants?.forEach((variant: any) => {
+        variant.variantValues?.forEach((value: any) => {
+          if (value.attributeID) {
+            existingAttributeIDs.add(value.attributeID);
+          }
+        });
+      });
+    });
+
+    // Return only the attribute IDs from cart that are not in ProductList
+    return cartItems
+      .filter((item) => !existingAttributeIDs.has(item.attributeID))
+      .map((item) => item.attributeID);
+  };
+
+  // Function to build product items from context
+  const buildProductItemsFromContext = (cart: cartItems[]) => {
+    const items: GetProductFromCookies[] = [];
 
     cart.forEach((cartItem) => {
       ProductList.forEach((product) => {
-        product.variants.forEach((variant: any) => {
-          variant.variantValues.forEach((value: any) => {
+        product.variants?.forEach((variant: any) => {
+          variant.variantValues?.forEach((value: any) => {
             if (value.attributeID === cartItem.attributeID) {
-              result.push({
+              items.push({
                 productID: product.productID,
                 productName: product.productName,
-                image: product.images?.[0]?.url,
+                image: product.images?.[0]?.url || "/placeholder.jpg",
                 attributeID: value.attributeID,
                 variantValue: value.varientValue,
                 price: value.salePrice,
@@ -93,21 +141,59 @@ export default function CartItems({
       });
     });
 
-    return result;
+    return items;
   };
-  const deleteProduct = async (attribuetID: string) => {
-    //const token = localStorage.getItem("token1");
-    await removeItemFromServerCart(attribuetID);
+
+  // Main initialization function
+  const initializeCart = async () => {
+    setIsLoading(true);
+    try {
+      // Get cart from server
+      const cart = await getServerCart();
+      setCarItem(cart);
+
+      if (!cart || cart.length === 0) {
+        setProductItem([]);
+        setIsLoading(false);
+        return;
+      }
+
+      // Find which attribute IDs are missing from ProductList
+      const missingAttributeIDs = getMissingAttributeIDs(cart, ProductList);
+
+      // Fetch missing products and add to context
+      if (missingAttributeIDs.length > 0) {
+        const fetchPromises = missingAttributeIDs.map((id) =>
+          fetchAndStoreProductByAttributeID(id),
+        );
+        await Promise.all(fetchPromises);
+      }
+
+      // After ensuring all products are in context, build the product items
+      const items = buildProductItemsFromContext(cart);
+      setProductItem(items);
+    } catch (error) {
+      console.error("Error initializing cart:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const deleteProduct = async (attributeID: string) => {
+    await removeItemFromServerCart(attributeID);
     setProductItem(
-      productItem.filter((item) => item.attributeID !== attribuetID),
+      productItem.filter((item) => item.attributeID !== attributeID),
     );
-    cartData();
+    // Refresh cart data to update the cart items list
+    const updatedCart = await getServerCart();
+    setCarItem(updatedCart);
     commitChange();
   };
+
   const updateQuantity = async (attributeID: any, newQuantity: any) => {
     if (newQuantity < 1) return;
     setProductItem((prev) =>
-      prev.map((item, i) =>
+      prev.map((item) =>
         item.attributeID === attributeID ? { ...item, qty: newQuantity } : item,
       ),
     );
@@ -117,6 +203,7 @@ export default function CartItems({
     );
     console.log(response);
   };
+
   const checkOut = () => {
     const selectedProducts = productItem
       .filter((item) => checkedItems.includes(item.attributeID))
@@ -128,12 +215,37 @@ export default function CartItems({
     localStorage.setItem("checkoutItems", JSON.stringify(selectedProducts));
     window.location.href = "/Customer/Checkout";
   };
+
+  // Initialize cart on component mount and when ProductList changes
   useEffect(() => {
-    cartData();
-  }, []);
+    initializeCart();
+  }, []); // Empty dependency array for initial mount only
+
+  // Optional: Rebuild product items if ProductList changes after initial load
+  useEffect(() => {
+    if (!isLoading && cartItem.length > 0) {
+      const items = buildProductItemsFromContext(cartItem);
+      if (items.length > 0) {
+        setProductItem(items);
+      }
+    }
+  }, [ProductList]);
+
   const subtotal = productItem
     .filter((item) => checkedItems.includes(item.attributeID))
     .reduce((total, item) => total + item.price * item.qty, 0);
+
+  if (isLoading) {
+    return (
+      <div className="w-full p-5 flex justify-center items-center h-full">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading your cart...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full p-5 flex flex-col h-full">
       {/* Header */}
@@ -164,97 +276,117 @@ export default function CartItems({
 
       {/* Items List */}
       <div className="flex-1 mt-10 overflow-y-auto space-y-4">
-        {productItem.map((item, index) => (
-          <div
-            key={index}
-            className="flex gap-3 p-2 border border-gray-100 shadow-md items-start"
-          >
-            {/* Checkbox */}
-            <input
-              type="checkbox"
-              className="w-5 h-5 mt-10"
-              checked={checkedItems.includes(item.attributeID)}
-              onChange={() => handleCheckboxChange(item.attributeID)}
-            />
-
-            {/* Item Info */}
-            <div className="flex-1 flex gap-3">
-              <img
-                src={item.image || "/placeholder.jpg"}
-                alt={item.productName}
-                className="w-24 h-24 object-cover rounded"
+        {productItem.length === 0 ? (
+          <div className="text-center py-10">
+            <ShoppingCart className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+            <p className="text-gray-500">Your cart is empty</p>
+            <Link
+              href="/Customer/Shop"
+              className="text-blue-600 hover:underline mt-2 inline-block"
+            >
+              Continue Shopping
+            </Link>
+          </div>
+        ) : (
+          productItem.map((item, index) => (
+            <div
+              key={index}
+              className="flex gap-3 p-2 border border-gray-100 shadow-md items-start"
+            >
+              {/* Checkbox */}
+              <input
+                type="checkbox"
+                className="w-5 h-5 mt-10"
+                checked={checkedItems.includes(item.attributeID)}
+                onChange={() => handleCheckboxChange(item.attributeID)}
               />
-              <div className="flex flex-col justify-between flex-1">
-                <div className="flex justify-end items-center">
-                  <button
-                    onClick={() => deleteProduct(item.attributeID)}
-                    className="bg-gray-100 p-1 rounded"
-                  >
-                    <Trash className="w-4 h-4 text-gray-800 hover:text-black" />
-                  </button>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">{item.variantValue}</p>
-                  <h3 className="text-lg font-medium text-gray-800">
-                    {item.productName}
-                  </h3>
-                  <p className="text-gray-600">Rs. {item.price} -/</p>
-                </div>
 
-                {/* Quantity & Delete */}
-                <div className="flex justify-end items-center">
-                  <div className="flex items-center justify-between w-25 border border-gray-300 rounded-md shadow-sm bg-gray-200 px-2 py-1">
+              {/* Item Info */}
+              <Link
+                href={`/Customer/Product/${item.productID}`}
+                className="flex-1 flex gap-3"
+              >
+                <img
+                  src={item.image || "/placeholder.jpg"}
+                  alt={item.productName}
+                  className="w-24 h-24 object-cover rounded"
+                />
+                <div className="flex flex-col justify-between flex-1">
+                  <div className="flex justify-end items-center">
                     <button
-                      onClick={() =>
-                        updateQuantity(item.attributeID, item.qty - 1)
-                      }
-                      className="p-1 bg-white shadow-sm rounded"
+                      onClick={() => deleteProduct(item.attributeID)}
+                      className="bg-gray-100 p-1 rounded"
                     >
-                      <Minus size={16} />
-                    </button>
-
-                    <p className="text-lg font-medium">{item.qty}</p>
-
-                    <button
-                      onClick={() =>
-                        updateQuantity(item.attributeID, item.qty + 1)
-                      }
-                      className="p-1 bg-white hover:bg-gray-100 shadow-sm rounded"
-                    >
-                      <Plus size={16} />
+                      <Trash className="w-4 h-4 text-gray-800 hover:text-black" />
                     </button>
                   </div>
+                  <div>
+                    <p className="text-sm text-gray-500">{item.variantValue}</p>
+                    <h3 className="text-lg font-medium text-gray-800">
+                      {item.productName}
+                    </h3>
+                    <p className="text-gray-600">Rs. {item.price} -/</p>
+                  </div>
+
+                  {/* Quantity & Delete */}
+                  <div className="flex justify-end items-center">
+                    <div className="flex items-center justify-between w-25 border border-gray-300 rounded-md shadow-sm bg-gray-200 px-2 py-1">
+                      <button
+                        onClick={() =>
+                          updateQuantity(item.attributeID, item.qty - 1)
+                        }
+                        className="p-1 bg-white shadow-sm rounded"
+                      >
+                        <Minus size={16} />
+                      </button>
+
+                      <p className="text-lg font-medium">{item.qty}</p>
+
+                      <button
+                        onClick={() =>
+                          updateQuantity(item.attributeID, item.qty + 1)
+                        }
+                        className="p-1 bg-white hover:bg-gray-100 shadow-sm rounded"
+                      >
+                        <Plus size={16} />
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              </Link>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
 
       {/* Subtotal & Actions */}
-      <div className="mt-4">
-        <hr className="border-gray-300 mb-2" />
-        <div className="flex justify-between mb-4">
-          <span className="text-lg text-gray-800 font-medium">Sub Total:</span>
-          <span className="text-lg text-gray-900 font-bold">
-            {subtotal.toLocaleString()} -/
-          </span>
-        </div>
+      {productItem.length > 0 && (
+        <div className="mt-4">
+          <hr className="border-gray-300 mb-2" />
+          <div className="flex justify-between mb-4">
+            <span className="text-lg text-gray-800 font-medium">
+              Sub Total:
+            </span>
+            <span className="text-lg text-gray-900 font-bold">
+              {subtotal.toLocaleString()} -/
+            </span>
+          </div>
 
-        <div className="flex  gap-2">
-          <button className="w-full flex justify-center items-center gap-2 bg-black text-white py-3 rounded hover:bg-white hover:text-black border transition-all duration-300">
-            <Heart />
-            View Wishlist
-          </button>
-          <div
-            onClick={checkOut}
-            className=" w-full flex justify-center items-center gap-2 bg-black text-white py-3 rounded hover:bg-white hover:text-black border transition-all duration-300"
-          >
-            <CreditCard />
-            CheckOut
+          <div className="flex gap-2">
+            <button className="w-full flex justify-center items-center gap-2 bg-black text-white py-3 rounded hover:bg-white hover:text-black border transition-all duration-300">
+              <Heart />
+              View Wishlist
+            </button>
+            <div
+              onClick={checkOut}
+              className="w-full flex justify-center items-center gap-2 bg-black text-white py-3 rounded hover:bg-white hover:text-black border transition-all duration-300 cursor-pointer"
+            >
+              <CreditCard />
+              CheckOut
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
