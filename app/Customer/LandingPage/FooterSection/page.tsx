@@ -1,3 +1,4 @@
+import { useAppContext } from "@/app/useContext";
 import {
   Headphones,
   Instagram,
@@ -18,47 +19,32 @@ import {
 import Link from "next/link";
 
 export default function Footer() {
+  const { storeInfo } = useAppContext();
   const currentYear = new Date().getFullYear();
 
-  const quickLinks = [
-    { name: "About Us", href: "/about" },
-    { name: "Shop", href: "/shop" },
-    { name: "New Arrivals", href: "/new-arrivals" },
-    { name: "Best Sellers", href: "/best-sellers" },
-    { name: "Contact Us", href: "/contact" },
-  ];
-
   const supportLinks = [
-    { name: "FAQ", href: "/faq" },
-    { name: "Shipping Info", href: "/shipping" },
-    { name: "Returns", href: "/returns" },
-    { name: "Size Guide", href: "/size-guide" },
-    { name: "Privacy Policy", href: "/privacy" },
-  ];
-
-  const paymentIcons = [
-    { name: "Visa", icon: "💳" },
-    { name: "Mastercard", icon: "💳" },
-    { name: "PayPal", icon: "💰" },
-    { name: "Apple Pay", icon: "📱" },
+    { name: "FAQ", href: "/FrequenltyAskedQuestion" },
+    { name: "Terms & Condition", href: "/Terms&Condition" },
   ];
 
   const socialIcons = [
-    { icon: Twitter, href: "#", label: "Twitter" },
-    { icon: Instagram, href: "#", label: "Instagram" },
-    { icon: Facebook, href: "#", label: "Facebook" },
-    { icon: Youtube, href: "#", label: "YouTube" },
-    { icon: Linkedin, href: "#", label: "LinkedIn" },
+    { icon: Twitter, href: storeInfo[0]?.twitter, label: "Twitter" },
+    { icon: Instagram, href: storeInfo[0]?.instagram, label: "Instagram" },
+    { icon: Facebook, href: storeInfo[0]?.facebook, label: "Facebook" },
+    { icon: Youtube, href: storeInfo[0]?.youtube, label: "YouTube" },
+    { icon: Linkedin, href: storeInfo[0]?.linkdin, label: "LinkedIn" },
   ];
 
   return (
     <footer className="bg-white border-t border-gray-100">
       {/* Main Footer */}
       <div className="max-w-7xl mx-auto px-4 py-12 md:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
           {/* Brand Section */}
           <div className="space-y-4">
-            <h2 className="text-2xl font-light text-gray-900">Karim5</h2>
+            <h2 className="text-2xl font-light text-gray-900">
+              {storeInfo[0]?.storeName}
+            </h2>
             <p className="text-sm text-gray-500 leading-relaxed">
               Discover premium quality products designed to elevate your style
               and everyday life. Trusted by thousands of customers worldwide.
@@ -69,7 +55,7 @@ export default function Footer() {
               {socialIcons.map((social, index) => (
                 <Link
                   key={index}
-                  href={social.href}
+                  href={String(social.href)}
                   className="w-9 h-9 flex items-center justify-center rounded-full bg-gray-50 text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-all duration-200"
                   aria-label={social.label}
                 >
@@ -80,7 +66,7 @@ export default function Footer() {
           </div>
 
           {/* Quick Links */}
-          <div>
+          {/* <div>
             <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">
               Quick Links
             </h3>
@@ -97,7 +83,7 @@ export default function Footer() {
                 </li>
               ))}
             </ul>
-          </div>
+          </div> */}
 
           {/* Support */}
           <div>
@@ -128,11 +114,11 @@ export default function Footer() {
               <ul className="space-y-3">
                 <li className="flex items-center gap-3 text-sm text-gray-500">
                   <Mail className="w-4 h-4 text-gray-400" />
-                  <span>support@karim5.com</span>
+                  <span>{storeInfo[0]?.email}</span>
                 </li>
                 <li className="flex items-center gap-3 text-sm text-gray-500">
                   <Phone className="w-4 h-4 text-gray-400" />
-                  <span>+92 300 1234567</span>
+                  <span>{storeInfo[0]?.phoneNo}</span>
                 </li>
                 <li className="flex items-center gap-3 text-sm text-gray-500">
                   <MapPin className="w-4 h-4 text-gray-400" />
@@ -166,23 +152,11 @@ export default function Footer() {
         {/* Payment & Copyright */}
         <div className="mt-8 pt-6 border-t border-gray-100 flex flex-col sm:flex-row justify-between items-center gap-4">
           {/* Payment Methods */}
-          <div className="flex items-center gap-3">
-            <span className="text-xs text-gray-500">Secure payments:</span>
-            <div className="flex items-center gap-2">
-              {paymentIcons.map((method, index) => (
-                <span
-                  key={index}
-                  className="px-2 py-1 text-xs bg-gray-50 text-gray-600 rounded"
-                >
-                  {method.name}
-                </span>
-              ))}
-            </div>
-          </div>
+          <div className="flex items-center gap-3"></div>
 
           {/* Copyright */}
           <p className="text-xs text-gray-400">
-            © {currentYear} Karim5. All rights reserved.
+            © {currentYear} {storeInfo[0]?.storeName}. All rights reserved.
           </p>
         </div>
       </div>

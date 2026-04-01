@@ -51,7 +51,7 @@ export default function ProductViewManagePage({
     ProductList[0]?.variants[0]?.variantValues[0]?.salePrice,
   );
   const [backgroundPosition, setBackgroundPosition] = useState("center");
-
+  const [productID, setProductID] = useState("");
   const [selectedAttributeID, setSelectedAttributeID] = useState(
     ProductList[0]?.variants[0]?.variantValues[0]?.attributeID,
   );
@@ -80,7 +80,9 @@ export default function ProductViewManagePage({
     // Update background position for zoomed image
     setBackgroundPosition(`${posX}% ${posY}%`);
   };
-
+  useEffect(() => {
+    searchProduct(productID);
+  }, [productID]);
   const searchProduct = async (ID: string) => {
     try {
       const response = await ProductSearchParamByID(ID);
@@ -100,7 +102,7 @@ export default function ProductViewManagePage({
   };
   useEffect(() => {
     if (params && !Array.isArray(params.Product)) {
-      searchProduct(params?.Product || "");
+      setProductID(params?.Product || "");
     }
   }, [params]);
 
@@ -223,93 +225,172 @@ export default function ProductViewManagePage({
             >
               {/* === IMAGE SECTION - FULL WIDTH ON MOBILE === */}
               <div className="w-full lg:w-1/2 flex flex-col items-center">
-                {/* === MAIN IMAGE === */}
-                <div
-                  ref={imageRef}
-                  className="relative w-full aspect-[3/4] sm:aspect-[4/5] lg:aspect-[3/4] overflow-hidden rounded-2xl shadow-md bg-gray-100"
-                  onMouseEnter={() =>
-                    window.innerWidth >= 1024 && setZoomVisible(true)
-                  }
-                  onMouseLeave={() => setZoomVisible(false)}
-                  onMouseMove={(e) =>
-                    window.innerWidth >= 1024 && handleMouseMove(e)
-                  }
-                >
-                  {/* Images Container */}
-                  <div className="relative w-full h-full">
-                    {item.images?.map((src, index) => (
-                      <div
-                        key={index}
-                        className={`absolute inset-0 transition-opacity duration-500 ${
-                          index === currentIndex
-                            ? "opacity-100 z-10"
-                            : "opacity-0 z-0"
-                        }`}
-                      >
-                        <img
-                          src={src?.url || "/placeholder.jpg"}
-                          alt={`${item?.productName || "Product"} - Image ${index + 1}`}
-                          className="w-full h-full object-contain bg-gray-50"
-                          loading={index === 0 ? "eager" : "lazy"}
-                        />
+                {/* MAIN IMAGE CONTAINER */}
+                <div className="relative w-full">
+                  <div
+                    ref={imageRef}
+                    className="relative w-full aspect-[3/4] sm:aspect-[4/5] lg:aspect-[3/4] overflow-hidden rounded-2xl shadow-md bg-gray-100 cursor-crosshair"
+                    onMouseEnter={() =>
+                      window.innerWidth >= 1024 && setZoomVisible(true)
+                    }
+                    onMouseLeave={() => setZoomVisible(false)}
+                    onMouseMove={(e) =>
+                      window.innerWidth >= 1024 && handleMouseMove(e)
+                    }
+                  >
+                    {/* Images Container */}
+                    <div className="relative w-full h-full">
+                      {item.images?.map((src, index) => (
+                        <div
+                          key={src.url || index}
+                          className={`absolute inset-0 transition-opacity duration-500 ${
+                            index === currentIndex
+                              ? "opacity-100 z-10"
+                              : "opacity-0 z-0"
+                          }`}
+                        >
+                          <img
+                            src={src?.url || "/placeholder.jpg"}
+                            alt={`${item?.productName || "Product"} - Image ${index + 1}`}
+                            className="w-full h-full object-cover bg-gray-50"
+                            loading={index === 0 ? "eager" : "lazy"}
+                          />
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Navigation Dots */}
+                    {item.images?.length > 1 && (
+                      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2 z-20">
+                        {item.images.map((_, index) => (
+                          <button
+                            key={index}
+                            onClick={() => setCurrentIndex(index)}
+                            className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                              currentIndex === index
+                                ? "bg-white w-4 shadow-md"
+                                : "bg-gray-400 hover:bg-gray-300"
+                            }`}
+                            aria-label={`Go to image ${index + 1}`}
+                          />
+                        ))}
                       </div>
-                    ))}
+                    )}
+
+                    {/* Zoom indicator overlay */}
+                    {zoomVisible && (
+                      <div className="absolute inset-0 bg-black/10 flex items-center justify-center pointer-events-none z-20">
+                        <div className="bg-black/70 text-white text-xs px-3 py-1.5 rounded-full">
+                          🔍 Move mouse to zoom
+                        </div>
+                      </div>
+                    )}
                   </div>
 
-                  {/* Navigation Dots */}
+                  {/* THUMBNAIL PREVIEWS */}
                   {item.images?.length > 1 && (
-                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2 z-20">
-                      {item.images.map((_, index) => (
+                    <div className="flex justify-center mt-4 gap-2 sm:gap-3 flex-wrap">
+                      {item.images.map((src, index) => (
                         <button
-                          key={index}
+                          key={src.url || index}
                           onClick={() => setCurrentIndex(index)}
-                          className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                          className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 transition-all duration-200 ${
                             currentIndex === index
-                              ? "bg-white w-4 shadow-md"
-                              : "bg-gray-400 hover:bg-gray-300"
+                              ? "border-blue-500 shadow-md scale-105"
+                              : "border-gray-200 hover:border-gray-400 hover:scale-105"
                           }`}
-                          aria-label={`Go to image ${index + 1}`}
-                        />
+                          aria-label={`View thumbnail ${index + 1}`}
+                        >
+                          <img
+                            src={src?.url}
+                            alt={`Thumbnail ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        </button>
                       ))}
                     </div>
                   )}
                 </div>
 
-                {/* === THUMBNAIL PREVIEWS === */}
-                {item.images?.length > 1 && (
-                  <div className="flex justify-center mt-4 gap-2 sm:gap-3 flex-wrap">
-                    {item.images.map((src, index) => (
+                {/* ZOOM PREVIEW - Positioned on the right side with offset */}
+                {zoomVisible && item.images?.[0]?.url && (
+                  <div
+                    className="hidden lg:block fixed top-1/2 right-1/4 transform -translate-y-1/2 z-50 animate-in fade-in slide-in-from-right-8 duration-200"
+                    style={{ marginTop: "20px" }}
+                  >
+                    <div className="relative">
+                      {/* Zoom Lens Effect - Shows what's being magnified */}
+                      <div className="absolute -left-24 top-1/2 -translate-y-1/2 bg-black/70 text-white text-xs px-2 py-1 rounded-full whitespace-nowrap">
+                        🔍 Zoomed view
+                      </div>
+
+                      {/* Zoomed image with pointer indicator */}
+                      <div
+                        className="w-[450px] h-[450px] rounded-xl shadow-2xl bg-white border-2 border-gray-200 overflow-hidden"
+                        style={{
+                          backgroundImage: `url(${item.images[currentIndex]?.url})`,
+                          backgroundRepeat: "no-repeat",
+                          backgroundPosition: backgroundPosition,
+                          backgroundSize: "200%",
+                        }}
+                      />
+
+                      {/* Close button */}
                       <button
-                        key={index}
-                        onClick={() => setCurrentIndex(index)}
-                        className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 transition-all duration-200 ${
-                          currentIndex === index
-                            ? "border-blue-500 shadow-md scale-105"
-                            : "border-gray-200 hover:border-gray-400 hover:scale-105"
-                        }`}
-                        aria-label={`View thumbnail ${index + 1}`}
+                        onClick={() => setZoomVisible(false)}
+                        className="absolute -top-3 -right-3 bg-white rounded-full p-1.5 shadow-lg hover:bg-gray-100 transition-colors z-10 border border-gray-200"
+                        aria-label="Close zoom"
                       >
-                        <img
-                          src={src?.url}
-                          alt={`Thumbnail ${index + 1}`}
-                          className="w-full h-full object-cover"
-                        />
+                        <svg
+                          className="w-4 h-4 text-gray-600"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M6 18L18 6M6 6l12 12"
+                          />
+                        </svg>
                       </button>
-                    ))}
+                    </div>
                   </div>
                 )}
 
-                {/* Zoom Preview */}
+                {/* Mobile zoom view */}
                 {zoomVisible && item.images?.[0]?.url && (
-                  <div
-                    className="hidden lg:block fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-xl shadow-2xl z-50 bg-white border"
-                    style={{
-                      backgroundImage: `url(${item.images[currentIndex]?.url})`,
-                      backgroundRepeat: "no-repeat",
-                      backgroundPosition: backgroundPosition,
-                      backgroundSize: "200%",
-                    }}
-                  />
+                  <div className="lg:hidden fixed inset-0 flex items-center justify-center z-50 bg-black/90 p-4">
+                    <div className="relative w-full max-w-[90vw] max-h-[90vh]">
+                      <img
+                        src={item.images[currentIndex]?.url}
+                        alt="Zoomed product"
+                        className="w-full h-full object-contain"
+                      />
+                      <button
+                        onClick={() => setZoomVisible(false)}
+                        className="absolute top-2 right-2 bg-white rounded-full p-2 shadow-lg hover:bg-gray-100"
+                      >
+                        <svg
+                          className="w-5 h-5 text-gray-600"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M6 18L18 6M6 6l12 12"
+                          />
+                        </svg>
+                      </button>
+                      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/70 text-white text-xs px-3 py-1 rounded-full">
+                        Tap to close
+                      </div>
+                    </div>
+                  </div>
                 )}
               </div>
 

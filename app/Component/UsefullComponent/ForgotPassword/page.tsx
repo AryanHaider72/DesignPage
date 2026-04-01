@@ -4,8 +4,10 @@ import ChangePasswordApi from "@/api/lib/Customer/Authntication/ForgotPassword/F
 import OtpSendApi from "@/api/lib/Customer/Authntication/OtpSend/OtpSend";
 import OtpVerificationApi from "@/api/lib/Customer/Authntication/Otpverification/OtpVerification";
 import { useState } from "react";
-
-export default function ForgotPasswordComponent() {
+interface returnpoprs {
+  onclose: (data: boolean) => void;
+}
+export default function ForgotPasswordComponent({ onclose }: returnpoprs) {
   const [step, setStep] = useState(1); // 1: email, 2: otp, 3: new password
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
@@ -15,26 +17,50 @@ export default function ForgotPasswordComponent() {
   const [isLoading, setIsLoading] = useState(false);
 
   const sendOtpAgain = async () => {
-    const response = await OtpSendApi(email);
-    if (response.status === 200) {
-      setStep(2);
-      alert("Otp-Send Successfully");
+    try {
+      setIsLoading(true);
+      const response = await OtpSendApi(email);
+      if (response.status === 200) {
+        setStep(2);
+        alert("Otp-Send Successfully");
+      } else if (response.status === 400) {
+        alert("No User Found with this Email");
+      } else {
+        alert("Failed To Send Otp. Please Try Again Later.");
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
   const OtpVerification = async () => {
-    const formData = {
-      code: otp,
-    };
-    const response = await OtpVerificationApi(email, formData);
-    if (response.status === 200) {
-      setStep(3);
-      alert("Otp Verified Successfully");
+    try {
+      setIsLoading(true);
+      const formData = {
+        code: otp,
+      };
+      const response = await OtpVerificationApi(email, formData);
+      if (response.status === 200) {
+        setStep(3);
+        alert("Otp Verified Successfully");
+      } else {
+        alert("InValid Otp. Please Try Again Later");
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
   const ChangePassword = async () => {
-    const response = await ChangePasswordApi(email, newPassword);
-    if (response.status === 200) {
-      alert("Password Changed Successfully");
+    try {
+      setIsLoading(true);
+      const response = await ChangePasswordApi(email, newPassword);
+      if (response.status === 200) {
+        onclose(false);
+        alert("Password Changed Successfully");
+      } else {
+        alert("Something Went Wrong. Please Try Again Later");
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
   return (
@@ -70,7 +96,7 @@ export default function ForgotPasswordComponent() {
               disabled={!email}
               className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
             >
-              Send OTP
+              {isLoading ? "Sending Otp..." : "Send OTP"}
             </button>
           </div>
         )}
@@ -95,7 +121,7 @@ export default function ForgotPasswordComponent() {
               disabled={otp.length !== 6}
               className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
             >
-              Verify OTP
+              {isLoading ? " Verifying OTP..." : " Verify OTP"}
             </button>
             <div className="text-center">
               <button

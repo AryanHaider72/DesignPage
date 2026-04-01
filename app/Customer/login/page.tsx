@@ -41,43 +41,33 @@ export default function CustomerLogin() {
     }
   }, []);
   const SignUpNow = async () => {
-    try {
-      setLoading(true);
-      const formData = {
-        userName: fullName,
-        email: Email,
-        password: Password,
-        phoneNo: PhoneNo,
-      };
-      const response = await CsutomerSignUpApi(formData);
-      if (response.status === 200 || response.status === 201) {
-        setFullName("");
-        setEmail("");
-        setConfirmPassword("");
-        setPassword("");
-        setAddress("");
-        setPhoneNo("");
-        router.push("/");
+    if (!fullName || !Email || !Password || !ConfirmPassword || !PhoneNo)
+      return;
+    else {
+      try {
+        setLoading(true);
+        const formData = {
+          userName: fullName,
+          email: Email,
+          password: Password,
+          phoneNo: PhoneNo,
+        };
+        const response = await CsutomerSignUpApi(formData);
+        if (response.status === 200 || response.status === 201) {
+          setFullName("");
+          setIsLogin(true);
+          setEmail("");
+          setConfirmPassword("");
+          setPassword("");
+          setAddress("");
+          setPhoneNo("");
+        }
+      } finally {
+        setLoading(false);
       }
-    } finally {
-      setLoading(false);
     }
   };
-  const OtpSendViaEmail = async (email: string) => {
-    const response = await OtpSendApi(email);
-    if (response.status === 200) {
-      alert("Otp Send Successfully");
-    }
-  };
-  const OtpVerificationReq = async (email: string) => {
-    const formData = {
-      code: OtpCode,
-    };
-    const response = await OtpVerificationApi(email, formData);
-    if (response.status === 200) {
-      alert("Otp Verified Successfully");
-    }
-  };
+
   const login = async () => {
     try {
       setLoading(true);
@@ -88,13 +78,12 @@ export default function CustomerLogin() {
       const response = await CsutomerLoginApi(formData);
       if (response.status === 200 || response.status === 201) {
         const data = response.data;
-        setOtpVerification(true);
-        await OtpSendViaEmail(Email);
+        // setOtpVerification(true);
+        // await OtpSendViaEmail(Email);
         localStorage.setItem("CustomerToken", data?.token);
         setEmail("");
         setPassword("");
-        alert("Login Successfully");
-        //router.push("/Customer/MainPage/Dashbaord");
+        router.push("/");
       }
     } finally {
       setLoading(false);
@@ -158,7 +147,7 @@ export default function CustomerLogin() {
                 {!isLogin && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Full Name
+                      Full Name <span className="text-red-500">*</span>
                     </label>
                     <input
                       value={fullName}
@@ -173,7 +162,7 @@ export default function CustomerLogin() {
                 {/* Email */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    E-mail
+                    E-mail <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -194,7 +183,7 @@ export default function CustomerLogin() {
                   <>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Phone No
+                        Phone No <span className="text-red-500">*</span>
                       </label>
                       <input
                         value={PhoneNo}
@@ -223,7 +212,7 @@ export default function CustomerLogin() {
                 {/* Password */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Password
+                    Password <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -256,7 +245,7 @@ export default function CustomerLogin() {
                 {!isLogin && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Confirm Password
+                      Confirm Password <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
                       <input
@@ -354,7 +343,7 @@ export default function CustomerLogin() {
             >
               <X className="w-5 h-5" />
             </button>
-            <ForgotPasswordComponent />
+            <ForgotPasswordComponent onclose={setForgotPassword} />
           </div>
         </div>
       )}

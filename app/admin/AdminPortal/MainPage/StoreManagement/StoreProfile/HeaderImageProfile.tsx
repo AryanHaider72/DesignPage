@@ -38,6 +38,11 @@ export default function HeaderImageProfile({
   const [loading, setLoading] = useState(false);
   const [loading2, setLoading2] = useState(false);
   const [loading3, setLoading3] = useState(false);
+  const [TwiterLink, setTwitterLink] = useState("");
+  const [YoutubeLink, setYoutubeLink] = useState("");
+  const [Linkdin, setLinkdin] = useState("");
+  const [Instagram, setInstagram] = useState("");
+  const [Facebook, setFacebook] = useState("");
   const [imageData, setImageData] = useState(initalData?.imagelist || []);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -71,10 +76,16 @@ export default function HeaderImageProfile({
       setHeadertext("");
       setSubHeadertext("");
       setImagesList([]);
+
       setLogoUrl("");
       setImageData([]);
     } else {
       // Update with existing data for edit mode
+      setFacebook(initalData?.facebook);
+      setInstagram(initalData?.instagram);
+      setTwitterLink(initalData?.twitter);
+      setYoutubeLink(initalData?.youtube);
+      setLinkdin(initalData?.linkdin);
       setImageData(initalData?.imagelist || []);
       setLogoPreview(initalData?.logoUrl || null);
       setID(String(initalData?.userID || ""));
@@ -181,6 +192,11 @@ export default function HeaderImageProfile({
         HeaderText: HeaderText,
         SubHeadingText: SubHeadertext,
         OtherText: "",
+        youtube: YoutubeLink,
+        linkdin: Linkdin,
+        instagram: Instagram,
+        twitter: TwiterLink,
+        facebook: Facebook,
         imagelist: uploadedUrls.map((item) => ({
           imageUrl: item.imageUrl,
         })),
@@ -195,6 +211,11 @@ export default function HeaderImageProfile({
         setHeadertext("");
         setSubHeadertext("");
         setLogoPreview("");
+        setFacebook("");
+        setInstagram("");
+        setLinkdin("");
+        setYoutubeLink("");
+        setTwitterLink("");
         onShowMessage(
           response.message || "Store Modified successfully",
           "success",
@@ -285,6 +306,11 @@ export default function HeaderImageProfile({
         OtherText: "",
         HeaderText: HeaderText,
         SubHeadingText: SubHeadertext,
+        youtube: YoutubeLink,
+        linkdin: Linkdin,
+        instagram: Instagram,
+        twitter: TwiterLink,
+        facebook: Facebook,
       };
       const response = await StoreHomePageUpdateSetting(
         payload,
@@ -296,6 +322,11 @@ export default function HeaderImageProfile({
         setHeadertext("");
         setSubHeadertext("");
         setLogoPreview("");
+        setFacebook("");
+        setInstagram("");
+        setLinkdin("");
+        setYoutubeLink("");
+        setTwitterLink("");
         onShowMessage(
           response.message || "Store Modified successfully",
           "success",
@@ -337,6 +368,67 @@ export default function HeaderImageProfile({
               </select>
             </div>
           </div>
+          <div>
+            <label className="block text-sm font-medium text-neutral-700 mb-1">
+              Twiter
+            </label>
+            <input
+              type="text"
+              value={TwiterLink}
+              onChange={(e) => setTwitterLink(e.target.value)}
+              placeholder="Enter Twiter"
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-neutral-700 mb-1">
+              Youtube
+            </label>
+            <input
+              type="text"
+              value={YoutubeLink}
+              onChange={(e) => setYoutubeLink(e.target.value)}
+              placeholder="Enter Youtube"
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-neutral-700 mb-1">
+              linkdIn
+            </label>
+            <input
+              type="text"
+              value={Linkdin}
+              onChange={(e) => setLinkdin(e.target.value)}
+              placeholder="Enter linkdin"
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-neutral-700 mb-1">
+              Instagram
+            </label>
+            <input
+              type="text"
+              value={Instagram}
+              onChange={(e) => setInstagram(e.target.value)}
+              placeholder="Enter Instagram"
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-neutral-700 mb-1">
+              FaceBook
+            </label>
+            <input
+              type="text"
+              value={Facebook}
+              onChange={(e) => setFacebook(e.target.value)}
+              placeholder="Enter FaceBook"
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-neutral-700 mb-1">
               Header Text

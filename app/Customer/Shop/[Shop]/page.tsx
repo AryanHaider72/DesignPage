@@ -24,9 +24,12 @@ export default function ShopItems() {
   const [searchItem, setSearchItems] = useState<FeaturedProductForCustomer[]>(
     [],
   );
+  const [originalFilteredProducts, setOriginalFilteredProducts] = useState<
+    FeaturedProductForCustomer[]
+  >([]);
   const [categoryID, setCategoryID] = useState("");
   const [Filter, setFilters] = useState(false);
-  const [sortType, setSortType] = useState<string | null>(null);
+  const [sortType, setSortType] = useState<string | null>("featured");
   const [Open, setOpen] = useState(false);
   const [navbarHeight, setNavbarHeight] = useState(0);
   const [productPrices, setProductPrices] = useState<Record<string, number>>(
@@ -70,8 +73,6 @@ export default function ShopItems() {
     if (selectedSubCategoryDetails.length > 0) {
       filtered = filtered.filter((item) => {
         // Check if product has any variant that matches selected subcategory details
-        // You need to adjust this logic based on your data structure
-        // Assuming product has a subCategoryDetailID field or you need to check variants
         return (
           item.subCategoryDetailID &&
           selectedSubCategoryDetails.includes(item.subCategoryDetailID)
@@ -79,8 +80,61 @@ export default function ShopItems() {
       });
     }
 
-    setSearchItems(filtered);
+    // Store original filtered products before sorting
+    setOriginalFilteredProducts(filtered);
+
+    // Apply current sort to the filtered products
+    applySorting(filtered, sortType);
   }, [ProductList, subCategoryID, selectedSubCategoryDetails]);
+
+  // Apply sorting function
+  const applySorting = (
+    products: FeaturedProductForCustomer[],
+    sort: string | null,
+  ) => {
+    let sorted = [...products];
+
+    switch (sort) {
+      case "Featured":
+        sorted.sort((a, b) => {
+          return (b.feturedProduct ? 1 : 0) - (a.feturedProduct ? 1 : 0);
+        });
+        break;
+      case "Price: Low to High":
+        sorted.sort((a, b) => {
+          const priceA =
+            productPrices[a.productID] ||
+            a.variants[0]?.variantValues[0]?.salePrice ||
+            0;
+          const priceB =
+            productPrices[b.productID] ||
+            b.variants[0]?.variantValues[0]?.salePrice ||
+            0;
+          return priceA - priceB;
+        });
+        break;
+      case "Price: High to Low":
+        sorted.sort((a, b) => {
+          const priceA =
+            productPrices[a.productID] ||
+            a.variants[0]?.variantValues[0]?.salePrice ||
+            0;
+          const priceB =
+            productPrices[b.productID] ||
+            b.variants[0]?.variantValues[0]?.salePrice ||
+            0;
+          return priceB - priceA;
+        });
+        break;
+      case "all":
+      default:
+        // Keep original order
+        sorted = [...products];
+        break;
+    }
+
+    setSearchItems(sorted);
+  };
 
   const updatePrice = (
     productID: string,
@@ -109,6 +163,15 @@ export default function ShopItems() {
       ...prev,
       [productID]: attributeID,
     }));
+
+    // Re-sort if current sort is price-based
+    if (
+      sortType === "Featured" ||
+      sortType === "Price: Low to High" ||
+      sortType === "Price: High to Low"
+    ) {
+      applySorting(originalFilteredProducts, sortType);
+    }
   };
 
   const addToCart = async (ID: string) => {
@@ -135,37 +198,8 @@ export default function ShopItems() {
     setSortType(type);
     setOpen(false);
 
-    // Apply sorting to filtered products
-    let sorted = [...searchItem];
-    switch (type) {
-      case "all":
-        sorted.find((item) => {
-          return item;
-        });
-        break;
-      case "featured":
-        sorted.find((item) => {
-          return item.feturedProduct === true;
-        });
-        break;
-      case "Price: Low to High":
-        sorted.sort((a, b) => {
-          const priceA = productPrices[a.productID] || 0;
-          const priceB = productPrices[b.productID] || 0;
-          return priceA - priceB;
-        });
-        break;
-      case "Price: High to Low":
-        sorted.sort((a, b) => {
-          const priceA = productPrices[a.productID] || 0;
-          const priceB = productPrices[b.productID] || 0;
-          return priceB - priceA;
-        });
-        break;
-      default:
-        break;
-    }
-    setSearchItems(sorted);
+    // Apply sorting to original filtered products
+    applySorting(originalFilteredProducts, type);
   };
 
   useEffect(() => {
@@ -257,7 +291,15 @@ export default function ShopItems() {
                 className="flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-white text-gray-700 border border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-all duration-200 text-sm font-medium"
               >
                 <span className="text-gray-500">Sort by:</span>
-                <span className="font-semibold">{sortType || "Featured"}</span>
+                <span className="font-semibold">
+                  {sortType === "Featured"
+                    ? "Featured"
+                    : sortType === "Price: Low to High"
+                      ? "Price: Low to High"
+                      : sortType === "Price: High to Low"
+                        ? "Price: High to Low"
+                        : "All"}
+                </span>
                 <ChevronDown
                   className={`w-4 h-4 transition-transform duration-200 ${
                     Open ? "rotate-180" : ""
@@ -283,7 +325,6 @@ export default function ShopItems() {
                           key={item.value}
                           onClick={() => {
                             handleSort(item.label);
-                            setOpen(false);
                           }}
                           className={`w-full text-left px-4 py-2 text-sm transition-colors ${
                             sortType === item.label
@@ -307,138 +348,153 @@ export default function ShopItems() {
           {/* Products Grid */}
           <div className="w-full p-10 mx-auto mt-16 px-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 md:gap-8">
-              {searchItem.map((item, index) => (
-                <div
-                  key={item.productID || index}
-                  className="group bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2 min-w-[280px] sm:min-w-[320px]"
-                >
-                  {/* Image Section - Larger height */}
-                  <div className="relative h-[320px] sm:h-[360px] md:h-[380px] lg:h-[400px] overflow-hidden bg-gray-50">
-                    <Link href={`/Customer/Product/${item.productID}`}>
-                      <img
-                        src={item?.images[0]?.url || "/placeholder.jpg"}
-                        alt={item.productName}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                      />
-                    </Link>
+              {searchItem.map((item, index) => {
+                // Get current price for display
+                const currentPrice =
+                  productPrices[item.productID] ||
+                  item?.variants[0]?.variantValues[0]?.salePrice ||
+                  0;
+                const originalPrice =
+                  item?.variants[0]?.variantValues[0]?.salePrice || 0;
+                const hasDiscount = originalPrice > currentPrice;
 
-                    {/* Overlay with Actions - Shows on hover */}
-                    {item.variants && item.variants.length > 0 && (
-                      <div
-                        className="absolute inset-x-0 bottom-0 bg-white bg-opacity-95 
+                return (
+                  <div
+                    key={item.productID || index}
+                    className="group bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2 min-w-[280px] sm:min-w-[320px]"
+                  >
+                    {/* Image Section - Larger height */}
+                    <div className="relative h-[320px] sm:h-[360px] md:h-[380px] lg:h-[400px] overflow-hidden bg-gray-50">
+                      <Link href={`/Customer/Product/${item.productID}`}>
+                        <img
+                          src={item?.images[0]?.url || "/placeholder.jpg"}
+                          alt={item.productName}
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
+                      </Link>
+
+                      {/* Overlay with Actions - Shows on hover */}
+                      {item.variants && item.variants.length > 0 && (
+                        <div
+                          className="absolute inset-x-0 bottom-0 bg-white bg-opacity-95 
                                    transform translate-y-full group-hover:translate-y-0
                                    transition-transform duration-300 ease-out
                                    p-4 border-t border-gray-100"
-                      >
-                        {/* Sizes */}
-                        <div className="flex flex-wrap gap-2 justify-center mb-3">
-                          {item.variants.map((size) => (
-                            <div key={size.varientID} className="flex gap-1">
-                              {size.variantValues.map((item2) => (
-                                <button
-                                  onClick={() =>
-                                    updatePrice(
-                                      item.productID,
-                                      size.varientID,
-                                      item2.attributeID,
-                                    )
-                                  }
-                                  key={item2.attributeID}
-                                  className={`${
-                                    item2.qty > 0 || item.isStock === "InStock"
-                                      ? `px-2.5 py-1 text-xs font-medium rounded transition-all duration-200 ${
-                                          selectedAttributes[item.productID] ===
-                                          item2.attributeID
-                                            ? "bg-gray-900 text-white"
-                                            : "text-gray-600 hover:bg-gray-100"
-                                        }`
-                                      : "text-gray-300"
-                                  }`}
-                                >
-                                  {item2.varientValue?.toUpperCase() || ""}
-                                </button>
-                              ))}
-                            </div>
-                          ))}
-                        </div>
+                        >
+                          {/* Sizes/Options */}
+                          <div className="flex flex-wrap gap-2 justify-center mb-3">
+                            {item.variants.map((size) => (
+                              <div key={size.varientID} className="flex gap-1">
+                                {size.variantValues.map((item2) => (
+                                  <button
+                                    onClick={() =>
+                                      updatePrice(
+                                        item.productID,
+                                        size.varientID,
+                                        item2.attributeID,
+                                      )
+                                    }
+                                    key={item2.attributeID}
+                                    className={`${
+                                      item2.qty > 0 ||
+                                      item.isStock === "InStock"
+                                        ? `px-2.5 py-1 text-xs font-medium rounded transition-all duration-200 ${
+                                            selectedAttributes[
+                                              item.productID
+                                            ] === item2.attributeID
+                                              ? "bg-gray-900 text-white"
+                                              : "text-gray-600 hover:bg-gray-100"
+                                          }`
+                                        : "text-gray-300"
+                                    }`}
+                                  >
+                                    {item2.varientValue?.toUpperCase() || ""}
+                                  </button>
+                                ))}
+                              </div>
+                            ))}
+                          </div>
 
-                        {/* Action Buttons */}
-                        <div className="flex items-center justify-center gap-4">
-                          {item.isStock === "InStock" && (
+                          {/* Action Buttons */}
+                          <div className="flex items-center justify-center gap-4">
+                            {item.isStock === "InStock" && (
+                              <button
+                                onClick={() => {
+                                  const attrId =
+                                    selectedAttributes[item.productID];
+                                  if (attrId) addToCart(attrId);
+                                }}
+                                className="px-4 py-1.5 text-xs font-medium text-gray-700 
+                                         hover:text-gray-900 transition-colors duration-200
+                                         border border-gray-300 rounded hover:border-gray-400 hover:bg-gray-50"
+                              >
+                                ADD TO BAG
+                              </button>
+                            )}
                             <button
                               onClick={() => {
                                 const attrId =
                                   selectedAttributes[item.productID];
-                                if (attrId) addToCart(attrId);
+                                if (attrId) addToWishList(attrId);
                               }}
-                              className="px-4 py-1.5 text-xs font-medium text-gray-700 
-                                       hover:text-gray-900 transition-colors duration-200
-                                       border border-gray-300 rounded hover:border-gray-400 hover:bg-gray-50"
+                              className="p-1.5 text-gray-500 hover:text-red-500 transition-colors duration-200 hover:scale-110"
                             >
-                              ADD TO BAG
+                              <Heart className="w-4 h-4" />
                             </button>
-                          )}
-                          <button
-                            onClick={() => {
-                              const attrId = selectedAttributes[item.productID];
-                              if (attrId) addToWishList(attrId);
-                            }}
-                            className="p-1.5 text-gray-500 hover:text-red-500 transition-colors duration-200 hover:scale-110"
-                          >
-                            <Heart className="w-4 h-4" />
-                          </button>
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
 
-                    {/* Out of Stock Badge */}
-                    {item.isStock !== "InStock" && (
-                      <div className="absolute top-3 right-3 bg-red-500 text-white text-xs px-2.5 py-1 rounded-full font-medium">
-                        Out of Stock
-                      </div>
-                    )}
+                      {/* Out of Stock Badge */}
+                      {item.isStock !== "InStock" && (
+                        <div className="absolute top-3 right-3 bg-red-500 text-white text-xs px-2.5 py-1 rounded-full font-medium">
+                          Out of Stock
+                        </div>
+                      )}
 
-                    {/* Discount Badge */}
-                    {item.discount > 0 && (
-                      <div className="absolute top-3 left-3 bg-green-500 text-white text-xs px-2.5 py-1 rounded-full font-medium">
-                        {item.discount}% OFF
-                      </div>
-                    )}
-                  </div>
+                      {/* Discount Badge */}
+                      {hasDiscount && (
+                        <div className="absolute top-3 left-3 bg-green-500 text-white text-xs px-2.5 py-1 rounded-full font-medium">
+                          {Math.round(
+                            ((originalPrice - currentPrice) / originalPrice) *
+                              100,
+                          )}
+                          % OFF
+                        </div>
+                      )}
+                    </div>
 
-                  {/* Content - Larger padding and text */}
-                  <div className="p-4">
-                    <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-2 line-clamp-1">
-                      {item.productName}
-                    </h3>
-                    <p className="text-sm text-gray-500 mb-3 line-clamp-2">
-                      {item.description}
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <div className="flex flex-col">
-                        <span className="text-xl font-bold text-gray-900">
-                          Rs.{" "}
-                          {productPrices[item.productID]?.toLocaleString() ||
-                            item?.variants[0]?.variantValues[0]?.salePrice?.toLocaleString()}
-                        </span>
-                        {item.discount > 0 && (
-                          <span className="text-sm text-gray-400 line-through">
-                            Rs.{" "}
-                            {item?.variants[0]?.variantValues[0]?.salePrice?.toLocaleString()}
+                    {/* Content - Larger padding and text */}
+                    <div className="p-4">
+                      <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-2 line-clamp-1">
+                        {item.productName}
+                      </h3>
+                      <p className="text-sm text-gray-500 mb-3 line-clamp-2">
+                        {item.description}
+                      </p>
+                      <div className="flex items-center justify-between">
+                        <div className="flex flex-col">
+                          <span className="text-xl font-bold text-gray-900">
+                            Rs. {currentPrice.toLocaleString()}
                           </span>
-                        )}
-                      </div>
-                      {/* Rating */}
-                      <div className="flex items-center gap-1 bg-gray-100 px-2 py-1 rounded-lg">
-                        <span className="text-yellow-500 text-sm">★</span>
-                        <span className="text-xs text-gray-600 font-medium">
-                          4.5
-                        </span>
+                          {hasDiscount && (
+                            <span className="text-sm text-gray-400 line-through">
+                              Rs. {originalPrice.toLocaleString()}
+                            </span>
+                          )}
+                        </div>
+                        {/* Rating */}
+                        <div className="flex items-center gap-1 bg-gray-100 px-2 py-1 rounded-lg">
+                          <span className="text-yellow-500 text-sm">★</span>
+                          <span className="text-xs text-gray-600 font-medium">
+                            4.5
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {searchItem.length === 0 && (

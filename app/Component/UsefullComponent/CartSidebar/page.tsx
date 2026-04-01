@@ -281,7 +281,7 @@ export default function CartItems({
             <ShoppingCart className="w-16 h-16 mx-auto text-gray-400 mb-4" />
             <p className="text-gray-500">Your cart is empty</p>
             <Link
-              href="/Customer/Shop"
+              href={`/Customer/Shop/${categoryList[1]?.subCategoryID}`}
               className="text-blue-600 hover:underline mt-2 inline-block"
             >
               Continue Shopping
@@ -302,10 +302,7 @@ export default function CartItems({
               />
 
               {/* Item Info */}
-              <Link
-                href={`/Customer/Product/${item.productID}`}
-                className="flex-1 flex gap-3"
-              >
+              <div className="flex-1 flex gap-3">
                 <img
                   src={item.image || "/placeholder.jpg"}
                   alt={item.productName}
@@ -320,13 +317,13 @@ export default function CartItems({
                       <Trash className="w-4 h-4 text-gray-800 hover:text-black" />
                     </button>
                   </div>
-                  <div>
+                  <Link href={`/Customer/Product/${item.productID}`}>
                     <p className="text-sm text-gray-500">{item.variantValue}</p>
                     <h3 className="text-lg font-medium text-gray-800">
                       {item.productName}
                     </h3>
                     <p className="text-gray-600">Rs. {item.price} -/</p>
-                  </div>
+                  </Link>
 
                   {/* Quantity & Delete */}
                   <div className="flex justify-end items-center">
@@ -353,7 +350,7 @@ export default function CartItems({
                     </div>
                   </div>
                 </div>
-              </Link>
+              </div>
             </div>
           ))
         )}

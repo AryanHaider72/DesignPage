@@ -7,7 +7,13 @@ export interface storeGet {
   headerText: string;
   subHeadingText: string;
   logoUrl: string;
+  storeName: string;
   email: string;
+  youtube: string;
+  linkdin: string;
+  instagram: string;
+  twitter: string;
+  facebook: string;
   phoneNo: string;
   listImg: listImg[];
 }

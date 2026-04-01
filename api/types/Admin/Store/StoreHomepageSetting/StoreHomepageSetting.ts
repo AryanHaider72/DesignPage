@@ -11,6 +11,11 @@ export type StoreHomeGet = {
   subHeadingText: string;
   otherText: string;
   logoUrl: string;
+  youtube: string;
+  linkdin: string;
+  instagram: string;
+  twitter: string;
+  facebook: string;
   imagelist: list[];
 };
 
@@ -25,6 +30,11 @@ export interface RequestStoreHomepageData {
   OtherText: string;
   HeaderText: string;
   SubHeadingText: string;
+  youtube: string;
+  linkdin: string;
+  instagram: string;
+  twitter: string;
+  facebook: string;
   imagelist: list[];
 }
 
@@ -38,6 +48,11 @@ export interface RequestStoreHomepageUpdateData {
   OtherText: string;
   HeaderText: string;
   SubHeadingText: string;
+  youtube: string;
+  linkdin: string;
+  instagram: string;
+  twitter: string;
+  facebook: string;
 }
 export interface RequestStoreHomepageUpdateDataImage {
   imagelist: list[];

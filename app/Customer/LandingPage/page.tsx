@@ -85,7 +85,7 @@ export default function HomePage() {
       <CustomerReviews />
       <Footer />
       <a
-        href="https://wa.me/+923709143934"
+        href={`https://wa.me/${storeInfo[0]?.phoneNo}`}
         target="_blank"
         rel="noopener noreferrer"
         className="fixed bottom-6 right-6 z-50 

@@ -25,10 +25,11 @@ import {
   X,
 } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import ShippingSticker from "./ShowSticker/page";
 
 export default function OrderManagement() {
+  const router = useRouter();
   const thermalRef = useRef<HTMLDivElement>(null);
   const [showRecipt, setShowRecipt] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -112,17 +113,6 @@ export default function OrderManagement() {
     }
   };
 
-  // const getPreviewComponent = (ID: string) => {
-  //   const data = orderList.find((item) => item.orderID === ID);
-  //   if (data)
-  //     return (
-  //       <div className="print-area">
-  //         <div className="scale-wrapper">
-  //           <ShippingSticker data={data} printRef={thermalRef} />
-  //         </div>
-  //       </div>
-  //     );
-  // };
   const fetchData = (orderID: string) => {
     const data = orderList.find((item) => item.orderID === orderID);
     if (data) {
@@ -135,11 +125,6 @@ export default function OrderManagement() {
   }, []);
   return (
     <>
-      {/* {stickerPass && (
-  <div style={{ position: "absolute", left: "-9999px", top: 0 }}>
-    <ShippingSticker data={stickerPass} printRef={thermalRef} />
-  </div>
-)} */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-semibold text-neutral-900">
           Order Management
@@ -466,18 +451,9 @@ export default function OrderManagement() {
                           <td className="p-3 text-center text-gray-600 font-medium">
                             <button
                               onClick={() => {
-                                const data = orderList.find(
-                                  (item) =>
-                                    item.orderID === selectedOrder?.orderID,
+                                router.push(
+                                  "/OnlineSeller/MainPage/OrderManagement/OrderSetting/ShowSticker",
                                 );
-                                if (data) {
-                                  setStickerPass(data);
-
-                                  // remove after render (important)
-                                  setTimeout(() => {
-                                    setStickerPass(undefined);
-                                  }, 1500);
-                                }
                               }}
                               className="flex items-center gap-2 text-sm font-medium text-white bg-gradient-to-r from-black to-gray-800 hover:opacity-90 rounded-xl px-5 py-2.5 transition-all"
                             >

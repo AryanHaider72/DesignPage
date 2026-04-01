@@ -4,6 +4,7 @@ import { storeGet } from "@/api/types/Customer/LandingPage/StoreInfo/StoreInfo";
 import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Sparkles, ArrowRight } from "lucide-react";
 import { useAppContext } from "@/app/useContext";
+import Link from "next/link";
 
 interface LandingPageProps {
   store: storeGet[];
@@ -208,14 +209,14 @@ export default function MainBannerPage({ store }: LandingPageProps) {
                       : "opacity-0 translate-y-8"
                   }`}
                 >
-                  <a
+                  <Link
                     href={`/Customer/Shop/${subcatgeroyID}`}
                     className="group relative inline-flex items-center justify-center gap-2 px-8 py-3.5 md:px-10 md:py-4 text-sm md:text-base font-medium text-white bg-white/10 backdrop-blur-sm border border-white/30 rounded-full overflow-hidden transition-all duration-300 hover:bg-white hover:text-black hover:border-white hover:shadow-2xl"
                   >
                     <span className="relative z-10">Shop Now</span>
                     <ArrowRight className="relative z-10 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     <div className="absolute inset-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-                  </a>
+                  </Link>
                   {/* <a
                     href="/collections"
                     className="group inline-flex items-center justify-center gap-2 px-8 py-3.5 md:px-10 md:py-4 text-sm md:text-base font-medium text-white border border-white/30 rounded-full transition-all duration-300 hover:bg-white hover:text-black hover:border-white"

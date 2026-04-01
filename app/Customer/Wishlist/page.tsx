@@ -11,6 +11,7 @@ import { CartData } from "@/api/types/CookiesApi/CartItem";
 import { removeItemFromServerWishList } from "@/api/lib/CookiesApi/WishList/RemoveItem/RemoveItem";
 import { getServerCart } from "@/api/lib/CookiesApi/GetCart/GetCart";
 import { addToServerCart } from "@/api/lib/CookiesApi/AddCart/AddCart";
+import Link from "next/link";
 interface cartItems {
   attributeID: string;
   qty: number;
@@ -150,63 +151,76 @@ export default function LoginPage({ commitChange }: wishListprops) {
                     <th className="px-6 py-4 text-center">Action</th>
                   </tr>
                 </thead>
-                <tbody>
-                  {productItem.map((item) => (
-                    <tr
-                      key={item.attributeID}
-                      className="border-b border-gray-200 hover:bg-gray-50 transition-all duration-200"
+                {productItem.length === 0 ? (
+                  <td colSpan={5} className=" mx-auto text-center py-10">
+                    <ShoppingCart className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+                    <p className="text-gray-500">Your Wishlist is empty</p>
+                    <Link
+                      href={`/Customer/Shop/${categoryList[1]?.subCategoryID}`}
+                      className="text-blue-600 hover:underline mt-2 inline-block"
                     >
-                      <td className="px-6 py-4">
-                        <img
-                          src={item.image || "/placeholder.jpg"}
-                          width={80}
-                          height={100}
-                          className="rounded-lg object-cover"
-                        />
-                      </td>
-                      <td className="px-6 py-4 font-semibold text-gray-800">
-                        {item.productName}
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="text-gray-600 font-bold text-lg">
-                          Rs:{item.price.toLocaleString()}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        {item.isStock === "InStock" ? (
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700">
-                            In Stock
+                      Continue Shopping
+                    </Link>
+                  </td>
+                ) : (
+                  <tbody>
+                    {productItem.map((item) => (
+                      <tr
+                        key={item.attributeID}
+                        className="border-b border-gray-200 hover:bg-gray-50 transition-all duration-200"
+                      >
+                        <td className="px-6 py-4">
+                          <img
+                            src={item.image || "/placeholder.jpg"}
+                            width={80}
+                            height={100}
+                            className="rounded-lg object-cover"
+                          />
+                        </td>
+                        <td className="px-6 py-4 font-semibold text-gray-800">
+                          {item.productName}
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className="text-gray-600 font-bold text-lg">
+                            Rs:{item.price.toLocaleString()}
                           </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-700">
-                            {/* <span className="w-2 h-2 bg-red-500 rounded-full"></span> */}
-                            Out of Stock
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center justify-center gap-3">
-                          <button
-                            onClick={() => deleteProduct(item.attributeID)}
-                            className="p-2.5 rounded-full bg-red-50 hover:bg-red-100 text-red-500 hover:text-red-600 shadow-sm transition-all duration-200"
-                            title="Remove"
-                          >
-                            <Trash2 size={18} />
-                          </button>
-                          {item.isStock === "InStock" && (
-                            <button
-                              onClick={() => addToCart(item.attributeID)}
-                              className="p-2.5 rounded-full bg-gray-900 hover:bg-gray-800 text-white shadow-sm transition-all duration-200"
-                              title="Add to Cart"
-                            >
-                              <ShoppingCart size={18} />
-                            </button>
+                        </td>
+                        <td className="px-6 py-4">
+                          {item.isStock === "InStock" ? (
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700">
+                              In Stock
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-700">
+                              {/* <span className="w-2 h-2 bg-red-500 rounded-full"></span> */}
+                              Out of Stock
+                            </span>
                           )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center justify-center gap-3">
+                            <button
+                              onClick={() => deleteProduct(item.attributeID)}
+                              className="p-2.5 rounded-full bg-red-50 hover:bg-red-100 text-red-500 hover:text-red-600 shadow-sm transition-all duration-200"
+                              title="Remove"
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                            {item.isStock === "InStock" && (
+                              <button
+                                onClick={() => addToCart(item.attributeID)}
+                                className="p-2.5 rounded-full bg-gray-900 hover:bg-gray-800 text-white shadow-sm transition-all duration-200"
+                                title="Add to Cart"
+                              >
+                                <ShoppingCart size={18} />
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                )}
               </table>
             </div>
 

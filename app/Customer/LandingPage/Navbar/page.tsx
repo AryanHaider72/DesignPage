@@ -130,9 +130,9 @@ export default function Navbar({
 
           {/* CENTER */}
           <div>
-            <a href="/" className="flex items-center gap-2">
+            <Link href="/" className="flex items-center gap-2">
               <img src={logoUrl} className="h-10" alt="Logo" />
-            </a>
+            </Link>
           </div>
 
           {/* RIGHT */}
