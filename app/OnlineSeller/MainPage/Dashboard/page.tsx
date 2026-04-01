@@ -333,7 +333,7 @@ shadow-[0_20px_40px_rgba(0,0,0,0.07)]"
       </div>
 
       {/* ORDERS + STOCK */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Orders */}
         <div
           className="lg:col-span-2 rounded-3xl bg-white/70 backdrop-blur-xl p-7
@@ -411,29 +411,6 @@ shadow-[0_20px_40px_rgba(0,0,0,0.07)]"
               </tbody>
             </table>
           </div>
-        </div>
-
-        {/* Stock */}
-        <div
-          className="rounded-3xl bg-white/70 backdrop-blur-xl p-7
-          shadow-[0_20px_40px_rgba(0,0,0,0.07)]"
-        >
-          <h3 className="text-lg font-semibold mb-6">Low Stock</h3>
-
-          <ul className="space-y-4 text-sm">
-            <li className="flex justify-between">
-              <span>iPhone 14</span>
-              <span className="text-red-500 font-medium">3 left</span>
-            </li>
-            <li className="flex justify-between">
-              <span>AirPods Pro</span>
-              <span className="text-red-500 font-medium">5 left</span>
-            </li>
-            <li className="flex justify-between">
-              <span>MacBook Air</span>
-              <span className="text-yellow-500 font-medium">8 left</span>
-            </li>
-          </ul>
         </div>
       </div>
     </div>

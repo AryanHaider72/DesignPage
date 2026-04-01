@@ -1,6 +1,7 @@
 "use client";
 import { addToServerCart } from "@/api/lib/CookiesApi/AddCart/AddCart";
 import { getServerCart } from "@/api/lib/CookiesApi/GetCart/GetCart";
+import { modifyCartServer } from "@/api/lib/CookiesApi/ModifyCart/ModifCart";
 import { addToServerWishList } from "@/api/lib/CookiesApi/WishList/AddWishlist/AddWishlist";
 import { getServerWishlist } from "@/api/lib/CookiesApi/WishList/GetWishList/GetWishList";
 import { CartData } from "@/api/types/CookiesApi/CartItem";
@@ -135,9 +136,16 @@ export default function MostFeaturedorPopular({
       qty: 1,
     };
     const currentCart = await getServerCart();
-    const updatedCart = [...currentCart, newItem];
-    await addToServerCart(updatedCart);
-    onCommitChnage();
+    const data = currentCart.find((item: CartData) => item.attributeID === ID);
+    if (data) {
+      const newQuantity = data.qty + 1;
+      await modifyCartServer(ID, newQuantity);
+      onCommitChnage();
+    } else {
+      const updatedCart = [...currentCart, newItem];
+      await addToServerCart(updatedCart);
+      onCommitChnage();
+    }
   };
   const addToWishList = async (ID: string) => {
     const newItem: CartData = {
@@ -145,6 +153,15 @@ export default function MostFeaturedorPopular({
       qty: 1,
     };
     const currentCart = await getServerWishlist();
+
+    const data = currentCart.find((item: CartData) => item.attributeID === ID);
+    if (data) {
+      return;
+    } else {
+      const updatedCart = [...currentCart, newItem];
+      await addToServerCart(updatedCart);
+      onCommitChnage();
+    }
     const updatedCart = [...currentCart, newItem];
     await addToServerWishList(updatedCart);
     onCommitChnage();

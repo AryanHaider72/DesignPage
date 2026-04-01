@@ -180,18 +180,25 @@ export default function ShopItems() {
       qty: 1,
     };
     const currentCart = await getServerCart();
-    const updatedCart = [...currentCart, newItem];
-    await addToServerCart(updatedCart);
+    const data = currentCart.find((item: CartData) => item.attributeID === ID);
+    if (data) return;
+    else {
+      const updatedCart = [...currentCart, newItem];
+      await addToServerCart(updatedCart);
+    }
   };
-
   const addToWishList = async (ID: string) => {
     const newItem: CartData = {
       attributeID: ID,
       qty: 1,
     };
     const currentCart = await getServerWishlist();
-    const updatedCart = [...currentCart, newItem];
-    await addToServerWishList(updatedCart);
+    const data = currentCart.find((item: CartData) => item.attributeID === ID);
+    if (data) return;
+    else {
+      const updatedCart = [...currentCart, newItem];
+      await addToServerWishList(updatedCart);
+    }
   };
 
   const handleSort = (type: string) => {

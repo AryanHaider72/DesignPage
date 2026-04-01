@@ -120,10 +120,10 @@ export default function Footer() {
                   <Phone className="w-4 h-4 text-gray-400" />
                   <span>{storeInfo[0]?.phoneNo}</span>
                 </li>
-                <li className="flex items-center gap-3 text-sm text-gray-500">
+                {/* <li className="flex items-center gap-3 text-sm text-gray-500">
                   <MapPin className="w-4 h-4 text-gray-400" />
                   <span>Lahore, Pakistan</span>
-                </li>
+                </li> */}
               </ul>
             </div>
 

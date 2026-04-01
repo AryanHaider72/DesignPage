@@ -134,7 +134,6 @@ export default function GetProductsFunctionForm({
       if (data.storeList.length > 0) {
         setStoreList(data.storeList);
         setStoreID(data.storeList[0].storeID);
-        getProducts(data.storeList[0].storeID, 1, true);
       } else {
         setStoreList([]);
       }
@@ -143,8 +142,10 @@ export default function GetProductsFunctionForm({
     }
   };
   useEffect(() => {
-    getProducts(StoreID, 1, true);
-  }, [refreshKey]);
+    if (StoreID) {
+      getProducts(StoreID, 1, true);
+    }
+  }, [refreshKey, StoreID]);
 
   const getProducts = async (
     ID: string,
@@ -328,7 +329,7 @@ export default function GetProductsFunctionForm({
             onChange={(e) => handleStoreChange(e.target.value)}
             className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition appearance-none cursor-pointer"
           >
-            <option>Select Store</option>
+            {" "}
             {storeList.map((cat) => (
               <option key={cat.storeID} value={cat.storeID}>
                 {cat.storeName}

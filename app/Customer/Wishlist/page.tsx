@@ -12,6 +12,7 @@ import { removeItemFromServerWishList } from "@/api/lib/CookiesApi/WishList/Remo
 import { getServerCart } from "@/api/lib/CookiesApi/GetCart/GetCart";
 import { addToServerCart } from "@/api/lib/CookiesApi/AddCart/AddCart";
 import Link from "next/link";
+import { modifyCartServer } from "@/api/lib/CookiesApi/ModifyCart/ModifCart";
 interface cartItems {
   attributeID: string;
   qty: number;
@@ -96,9 +97,16 @@ export default function LoginPage({ commitChange }: wishListprops) {
       qty: 1,
     };
     const currentCart = await getServerCart();
-    const updatedCart = [...currentCart, newItem];
-    await addToServerCart(updatedCart);
-    commitChange();
+    const data = currentCart.find((item: CartData) => item.attributeID === ID);
+    if (data) {
+      const newQuantity = data.qty + 1;
+      await modifyCartServer(ID, newQuantity);
+      commitChange();
+    } else {
+      const updatedCart = [...currentCart, newItem];
+      await addToServerCart(updatedCart);
+      commitChange();
+    }
   };
   useEffect(() => {
     cartData();

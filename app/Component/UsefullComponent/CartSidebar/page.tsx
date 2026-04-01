@@ -201,7 +201,6 @@ export default function CartItems({
       String(attributeID),
       Number(newQuantity),
     );
-    console.log(response);
   };
 
   const checkOut = () => {
@@ -251,28 +250,7 @@ export default function CartItems({
       {/* Header */}
       <h1 className="text-2xl mb-2 font-bold text-gray-800">SHOPPING CART</h1>
       <hr className="border-gray-300 mb-2" />
-      <h2 className="text-lg text-center font-semibold text-gray-800 mb-1">
-        FREE SHIPPING OVER Rs.8,000
-      </h2>
-      <p className="text-center text-sm text-gray-700 mb-4">
-        Amount Left for Free Shipping: Rs.4,000
-      </p>
-      <div className="w-full">
-        {/* Labels */}
-        <div className="flex justify-between text-sm text-gray-600 mb-1">
-          <span>0%</span>
-          <span>100%</span>
-        </div>
-
-        {/* Track */}
-        <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-          {/* Progress */}
-          <div
-            className="h-full bg-gradient-to-r from-blue-400 to-red-600 rounded-full transition-all duration-500 ease-out"
-            style={{ width: `${progressPercentage}%` }}
-          />
-        </div>
-      </div>
+      <div className="w-full"></div>
 
       {/* Items List */}
       <div className="flex-1 mt-10 overflow-y-auto space-y-4">
@@ -370,7 +348,12 @@ export default function CartItems({
           </div>
 
           <div className="flex gap-2">
-            <button className="w-full flex justify-center items-center gap-2 bg-black text-white py-3 rounded hover:bg-white hover:text-black border transition-all duration-300">
+            <button
+              onClick={() => {
+                window.location.href = "/Customer/Wishlist";
+              }}
+              className="w-full flex justify-center items-center gap-2 bg-black text-white py-3 rounded hover:bg-white hover:text-black border transition-all duration-300"
+            >
               <Heart />
               View Wishlist
             </button>

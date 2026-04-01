@@ -123,6 +123,10 @@ export default function OrderManagement() {
   useEffect(() => {
     getStores();
   }, []);
+
+  const filteritem = orderList.filter(
+    (item) => item.status.toLowerCase() === statusFilter.toLowerCase(),
+  );
   return (
     <>
       <div className="flex justify-between items-center mb-6">
@@ -213,9 +217,9 @@ export default function OrderManagement() {
           <Spinner />
         ) : (
           <div className="space-y-5 mt-10">
-            {orderList.length !== 0 ? (
+            {filteritem?.length !== 0 ? (
               <>
-                {orderList.map((order) => (
+                {filteritem?.map((order) => (
                   <div
                     key={order.orderID}
                     className="flex flex-col md:flex-row items-center justify-between bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition-all p-5"
